@@ -1,0 +1,17 @@
+# Ad hoc folder for untracked files
+untracked
+
+# Google Drive annoying files
+Icon*
+
+# Output directory
+output/*
+
+# Compressed files
+*.tar
+*.tar.*
+*.zip
+*.tgz
+*.log
+*.log.*
+*.sig
