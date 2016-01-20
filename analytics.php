@@ -40,7 +40,6 @@
 
     /* Scroll tracking script to track reading behaviour. It applies
     only to blog entries */
-    // if (is_single() && !$is_product)
     if (is_single())
       get_template_part('analytics/scroll_tracking');
 
