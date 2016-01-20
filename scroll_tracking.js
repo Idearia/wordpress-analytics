@@ -136,7 +136,6 @@ jQuery(document).ready(function($) {
         
         /* Default values */
         this.resizeFactor = 1;
-        this.isSet = false;
         this.name = "<content name undefined>";
         
         
@@ -156,7 +155,7 @@ jQuery(document).ready(function($) {
           
           return element;
           
-        }
+        };
 
 
         /**
@@ -166,7 +165,7 @@ jQuery(document).ready(function($) {
           
           this.startElement = this.checkElement (startElement);
 
-        }
+        };
         
 
         /**
@@ -176,7 +175,7 @@ jQuery(document).ready(function($) {
 
           this.endElement  = this.checkElement (endElement);
 
-        }
+        };
 
         
         /**
@@ -186,11 +185,11 @@ jQuery(document).ready(function($) {
           
           if (this.startElement !== undefined && this.startElement.length &&
               this.endElement !== undefined && this.endElement.length)
-            this.isSet = true;
-            
-          return this.isSet;
+            return true;
+          else
+            return false;
 
-        }
+        };
         
 
         /**
@@ -314,7 +313,7 @@ jQuery(document).ready(function($) {
       }
 
       /* If both the start and end elements exist, compute the content height in pixels */
-      if (content.isSet) {
+      if (content.isSet()) {
         contentStart = content.computeStartPixel();
         contentLength = content.computeHeight();
       }
@@ -432,7 +431,7 @@ jQuery(document).ready(function($) {
           }
         }
 
-      } // end of trackLocation
+      }; // end of trackLocation
 
 
       /* Track the scrolling and track location only when the user scrolls down */
