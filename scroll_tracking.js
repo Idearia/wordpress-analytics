@@ -93,6 +93,9 @@ jQuery(document).ready(function($) {
       /* Seconds required to read the content */
       var timeThreshold = 60;
 
+      /* We don't want our user to really read all of that stuff, don't we? :-) */
+      var resizeFactor = 0.85;
+
       /* Set some flags for tracking & execution */
       var timer = 0;
       var startedReading = false;
@@ -253,7 +256,7 @@ jQuery(document).ready(function($) {
         content.setStartElement(postSelector);
         content.setEndElement(postSelector);
         content.name = 'Blog entry';
-        content.resizeFactor = 0.85;
+        content.resizeFactor = resizeFactor;
       }
 
       /* Does this post contain a recipe according to the Recipe schema? */
@@ -261,7 +264,7 @@ jQuery(document).ready(function($) {
         content.setStartElement($('#recipe-details-box'));
         content.setEndElement($('.recipe-instructions_container'));
         content.name = 'Recipe';
-        content.resizeFactor = 0.85;
+        content.resizeFactor = resizeFactor;
       }
 
       /* Does this post contain a product according to the Product schema? */
@@ -269,7 +272,7 @@ jQuery(document).ready(function($) {
         content.setStartElement(productSelector);
         content.setEndElement(productSelector);
         content.name = 'Product';
-        content.resizeFactor = 0.85;
+        content.resizeFactor = resizeFactor;
       }
 
       /* If the page does not belong to any of the above cases, try with the
@@ -280,21 +283,21 @@ jQuery(document).ready(function($) {
           content.setStartElement($('.single-content'));
           content.setEndElement(content.startElement);
           content.name = '.single-content';
-          content.resizeFactor = 0.85;
+          content.resizeFactor = resizeFactor;
         }
       
         else if ($('#content').length) {
           content.setStartElement($('#content'));
           content.setEndElement(content.startElement);
           content.name = '#content';
-          content.resizeFactor = 0.85;
+          content.resizeFactor = resizeFactor;
         }
       
         else if ($('#main-content').length) {
           content.setStartElement($('#main-content'));
           content.setEndElement(content.startElement);
           content.name = '#main-content';
-          content.resizeFactor = 0.85;
+          content.resizeFactor = resizeFactor;
         }
       
         /* If we did not recognize the content type, take the whole body of
@@ -414,7 +417,7 @@ jQuery(document).ready(function($) {
         }
 
         /* If user has hit the bottom of page, send an event */
-        if (!didComplete && bottom >= documentLength) {
+        if (!didComplete && bottom >= documentLength*resizeFactor) {
 
           didComplete = true;
           currentTime = new Date();
