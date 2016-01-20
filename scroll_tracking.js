@@ -76,7 +76,7 @@ jQuery(document).ready(function($) {
       // -----------------------------------------------------------------
 
       /* Debug flag, set to true to log useful messages */
-      var debugMode = true;
+      var debugMode = false;
 
       /* First things first: send an event telling GA that the article has loaded */
       if (!debugMode)
@@ -88,7 +88,7 @@ jQuery(document).ready(function($) {
       var callBackTime = 100;
 
       /* Pixels scrolled before tracking a reader */
-      var readingThreshold = 200;
+      var readingThreshold = 300;
 
       /* Seconds required to read the content */
       var timeThreshold = 60;
