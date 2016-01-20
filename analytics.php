@@ -10,10 +10,14 @@
    * Last version: https://gist.github.com/d5d01b3fde68ec56a18a
    */
 
-  /* Define URL where to look for analytics Javascripts; by default,
-  it is the 'analytics' subdirectory of the child theme folder */
-  $child_theme_uri = dirname(get_stylesheet_uri());
-  define (ANALYTICS_SCRIPT_URI, $child_theme_uri . "/analytics/scroll_tracking.js");
+  /* Shortcut to the directory separator */
+  define (DIR_SEP, DIRECTORY_SEPARATOR);
+  
+  /* Working directory on the filesystem */
+  define (ANALYTICS_DIR, dirname(__FILE__));
+
+  /* Working directory on the web, needed to call javascripts */
+  define (ANALYTICS_URI, dirname(get_stylesheet_uri()) . DIR_SEP . "analytics");
 
   /* Execute the script only if the tracking ID exists */
   if (defined('ANALYTICS_TRACKING_UID')) {
@@ -36,7 +40,8 @@
 
     /* Scroll tracking script to track reading behaviour. It applies
     only to blog entries */
-    if (is_single() && !$is_product)
+    // if (is_single() && !$is_product)
+    if (is_single())
       get_template_part('analytics/scroll_tracking');
 
     /* Content grouping script to categorise the website content in GA. It

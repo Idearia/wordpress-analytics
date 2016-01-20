@@ -32,17 +32,29 @@
    * Last version: https://gist.github.com/40fc029baf84a9ff8970
    */
 
-  /* Extract the (first) category of the current post */
-  $category = get_the_category();
-  $category_name = $category[0]->cat_name;
+  /* Extract the categories of this post, and select from them the
+  top-level category that is first in alphabetical order. Note that
+  in Wordpress it is possible for posts not to have top-level
+  categories; in that case, the category name will be empty and
+  the post will be catalogued as (not set) in GA. */
+  $categories = get_the_category();
+  foreach ($categories as $cat) {
+    if ($cat->category_parent == 0) {
+        $category_name = $cat->cat_name;
+        break;
+    }
+  }
 
   /* Product page */
   if (function_exists('is_product') && is_product()) {
 
     echo "<script> ga('set', 'contentGroup1', '" . "Prodotti" . "'); </script>\n";
-  
+
+    /* TODO: get_the_terms contains both the top-level products and the
+    subcategories; should check for category_parent==0 like we do for
+    get_the_category(), above */
     $terms = get_the_terms( get_the_ID(), 'product_cat' );
-                         
+
     if ( $terms && !is_wp_error( $terms ) )
       echo "<script> ga('set', 'contentGroup2', '" . $terms[0]->name . "'); </script>\n";
     else
@@ -51,7 +63,7 @@
   }
 
   /* Default behaviour: use Wordpress default 'category' taxonomy */
-  else if ($category && !empty($category_name)) {
+  else if ($categories && !empty($category_name)) {
 
     echo "<script> ga('set', 'contentGroup1', '" . $category_name . "'); </script>\n";
 
