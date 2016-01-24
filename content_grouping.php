@@ -45,7 +45,11 @@
     }
   }
 
-  /* Product page */
+
+  // ====================================================================================
+  // =                                    Product page                                  =
+  // ====================================================================================
+
   if (function_exists('is_product') && is_product()) {
 
     echo "<script> ga('set', 'contentGroup1', '" . "Prodotti" . "'); </script>\n";
@@ -62,11 +66,23 @@
   
   }
 
-  /* Default behaviour: use Wordpress default 'category' taxonomy */
+
+  // ====================================================================================
+  // =                                    Content page                                  =
+  // ====================================================================================
+
+  /* Default behaviour: send to Analytics the post category from Wordpress, and
+  the information stored in the custom field 'analytics_content_type' */
   else if ($categories && !empty($category_name)) {
 
     echo "<script> ga('set', 'contentGroup1', '" . $category_name . "'); </script>\n";
 
-  }
+    /* Extract content type from custom field */
+    $content_type = get_post_meta($post->ID, 'analytics_content_type', true);
 
+    if ($content_type)
+      echo "<script> ga('set', 'contentGroup3', '" . $content_type . "'); </script>\n";
+
+  }
+  
 ?>

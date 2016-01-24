@@ -15,4 +15,8 @@
   // }
   // echo "category_name = $category_name <br>";
 
+  /* Print content type */
+  // echo "ID = " . $post->ID . "<br>";
+  // echo "analytics_content_type = " . get_post_meta($post->ID, 'analytics_content_type', true) . "<br>";
+
 ?>
