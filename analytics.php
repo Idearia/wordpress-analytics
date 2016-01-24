@@ -6,8 +6,9 @@
    * This PHP script assumes that the tracking ID of the website
    * is defined in the named constant ANALYTICS_TRACKING_UID.
    * 
-   * Created by Guido W. Pettinari.
-   * Last version: https://gist.github.com/d5d01b3fde68ec56a18a
+   * Created by Guido W. Pettinari on 23.12.2015.
+   * Part of Wordpress Analytics:
+   * https://github.com/coccoinomane/wordpress_analytics
    */
 
   /* Shortcut to the directory separator */

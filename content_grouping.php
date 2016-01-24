@@ -29,7 +29,8 @@
    * - http://stackoverflow.com/a/34714363/2972183
    *
    * Created by Guido W. Pettinari on 08.01.2015.
-   * Last version: https://gist.github.com/40fc029baf84a9ff8970
+   * Part of Wordpress Analytics:
+   * https://github.com/coccoinomane/wordpress_analytics
    */
 
   /* Extract the categories of this post, and select from them the

@@ -8,7 +8,8 @@
    * in the URI specified in the named constant ANALYTICS_URI.
    * 
    * Created by Guido W. Pettinari on 23.12.2015.
-   * Last version: https://gist.github.com/409f9b97cb3e2803ad47
+   * Part of Wordpress Analytics:
+   * https://github.com/coccoinomane/wordpress_analytics
    */
 
   $script_name = 'scroll_tracking.js';
