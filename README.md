@@ -1,5 +1,5 @@
 ## DESCRIPTION
-Install *Wordpress Analytics* on your website to track user activity beyond simple page views and to reflect Wordpress taxonomy structure in Google Analytics.
+Install *Wordpress Analytics* on your website to track on Google Analytics user activity beyond simple pageviews, and to allow simple communication of Wordpress taxonomies and custom fields.
 
 So far *Wordpress Analytics* supports the following features:
 
