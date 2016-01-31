@@ -56,13 +56,21 @@
 
       echo "<script> ga('set', 'contentGroup1', '" . "Prodotti" . "'); </script>\n";
 
-      /* TODO: get_the_terms contains both the top-level products and the
-      subcategories; should check for category_parent==0 like we do for
-      get_the_category(), above */
-      $terms = get_the_terms( get_the_ID(), 'product_cat' );
+      /* Extract the terms in the product category attached this post, and select from
+      them the top-level term that is first in alphabetical order. Note that in Wordpress
+      it is possible for posts not to have top-level terms; in that case, the category
+      name will be empty and the post will be catalogued as (not set) in GA. */
+      $terms = get_the_terms (get_the_ID(), 'product_cat');
+      foreach ($terms as $term) {
+        if ($term->parent == 0) {
+            $term_name = $term->name;
+            break;
+        }
+      }
 
-      if ( $terms && !is_wp_error( $terms ) )
-        echo "<script> ga('set', 'contentGroup2', '" . $terms[0]->name . "'); </script>\n";
+
+      if ( $terms && !is_wp_error($terms) && !empty($term_name))
+        echo "<script> ga('set', 'contentGroup2', '" . $term_name . "'); </script>\n";
       else
         echo "<script> ga('set', 'contentGroup2', '" . "Undefined Product" . "'); </script>\n";
   
@@ -75,7 +83,7 @@
 
     /* Default behaviour: send to Analytics the post category from Wordpress, and
     the information stored in the custom field 'analytics_content_type' */
-    else if ($categories && !empty($category_name)) {
+    else if ($categories && !is_wp_error($categories) && !empty($category_name)) {
 
       echo "<script> ga('set', 'contentGroup1', '" . $category_name . "'); </script>\n";
 

@@ -19,7 +19,7 @@
 
 
 
-  /** Add the menu page */
+  /** Add the settings menu page */
   add_action('admin_menu', 'wordpress_analytics_add_menu');
 
   function wordpress_analytics_add_menu() {
@@ -31,12 +31,12 @@
                    'dashicons-admin-generic');
   }
 
-  /** Build the menu page */
+  /** Build the settings menu page */
   function wordpress_analytics_build_settings_page() {
 
     $tracking_uid = esc_attr(get_option('wpan_tracking_uid'));
-    $st_checked = checked('1', get_option('wpan_enable_scroll_tracking'));
-    $cg_checked = checked('1', get_option('wpan_enable_content_grouping'));
+    $st_checked = checked('1', get_option('wpan_enable_scroll_tracking'), false);
+    $cg_checked = checked('1', get_option('wpan_enable_content_grouping'), false);
 
   ?>
 
@@ -62,6 +62,7 @@
         <th scope="row">Enable content grouping?</th>
         <td><input type="checkbox" name="wpan_enable_content_grouping" value="1" <?php echo $cg_checked; ?>/></td>
         </tr>
+
     </table>
 
     <?php submit_button(); ?>
