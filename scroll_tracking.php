@@ -15,8 +15,8 @@
   function wordpress_analytics_scroll_tracking () {
 
     /* Script path & url */
-    $script_path = plugin_dir_path(__FILE__) . 'scroll_tracking.js';
-    $script = plugin_dir_url(__FILE__) . 'scroll_tracking.js';
+    $script_path = plugin_dir_path(__FILE__) . 'js/scroll_tracking.js';
+    $script = plugin_dir_url(__FILE__) . 'js/scroll_tracking.js';
       
     /* Add the timestamp as a query string to the script, in order to reload
     automatically the script when it is changed rather than using the cached

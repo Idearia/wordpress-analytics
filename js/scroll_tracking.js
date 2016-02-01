@@ -12,7 +12,7 @@
  *
  * - ArticleLoaded: the page has been loaded completely in the user browser.
  * - StartReading: the user was shown at least 200 pixels of content;
- *     the exact number of pixels can be changed via the readingThreshold
+ *     the exact number of pixels can be changed via the pixelThreshold
  *     variable.
  * - ContentBottom: the user reached the end of the content section
  *     of the page.
@@ -88,7 +88,7 @@ jQuery(document).ready(function($) {
       var callBackTime = 100;
 
       /* Pixels scrolled before tracking a reader */
-      var readingThreshold = 300;
+      var pixelThreshold = 300;
 
       /* Seconds required to read the content */
       var timeThreshold = 60;
@@ -321,7 +321,7 @@ jQuery(document).ready(function($) {
       /* Print some useful info */
       if (debugMode) {
         console.log("Identified the following content type: '" + content.name + "'");
-        console.log("readingThreshold = " + readingThreshold);
+        console.log("pixelThreshold = " + pixelThreshold);
         console.log("documentLength = " + documentLength);
         console.log("contentStart = " + contentStart);
         console.log("contentLength = " + contentLength);
@@ -360,12 +360,12 @@ jQuery(document).ready(function($) {
           console.log("contentShown = " + contentShown);
         }
 
-        /* If user was shown at least 'readingThreshold' pixels of content, send an
+        /* If user was shown at least 'pixelThreshold' pixels of content, send an
         event. If the content starts right at the top of the page, it might be that
         the shown content exceed the threshold even if the user scrolls one pixel;
-        therefore, we ask the user to actually scroll at least readingThreshold/2
+        therefore, we ask the user to actually scroll at least pixelThreshold/2
         pixels. */
-        if (!startedReading && contentShown > readingThreshold && windowScroll > readingThreshold/2) {
+        if (!startedReading && contentShown > pixelThreshold && windowScroll > pixelThreshold/2) {
 
           startedReading = true;
           currentTime = new Date();

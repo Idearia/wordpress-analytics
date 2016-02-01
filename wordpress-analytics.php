@@ -10,15 +10,18 @@
    * License: GPL3
    */
 
+  /* Extract plugin options from the database */
+  $options = get_option ("wpan:option_array");
+
   /* Build settings page */
   include_once (plugin_dir_path(__FILE__) . "settings.php");
 
   /* Load content grouping function */
-  if (get_option ('wpan_enable_content_grouping'))
+  if ($options ['content_grouping'])
     include_once (plugin_dir_path(__FILE__) . "content_grouping.php");
 
   /* Load scroll tracking function */
-  if (get_option ('wpan_enable_scroll_tracking'))
+  if ($options ['scroll_tracking'])
     include_once (plugin_dir_path(__FILE__) . "scroll_tracking.php");
 
   /* Load Google Analytics tracking function */
