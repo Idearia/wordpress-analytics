@@ -14,6 +14,11 @@
 
   function wordpress_analytics_scroll_tracking () {
 
+    /* Extract the scroll tracking options from the database */
+    $options = get_option ("wpan:option_array");
+    $pixel_threshold = $options['pixel_threshold'];
+    $time_threshold = $options['time_threshold'];
+
     /* Script path & url */
     $script_path = plugin_dir_path(__FILE__) . 'js/scroll_tracking.js';
     $script = plugin_dir_url(__FILE__) . 'js/scroll_tracking.js';
@@ -30,7 +35,10 @@
 
     /* Load the script; in the future we could use wp_enqueue instead
     TODO: we should use wp_enqueue() here. */
-    echo "<script type='text/javascript' src='$script_versioned'></script>\n";
+    echo "<script src='$script_versioned' "
+          . "timeThreshold='$time_threshold' "
+          . "pixelThreshold='$pixel_threshold'> "
+          . "</script>\n";
 
   }
 

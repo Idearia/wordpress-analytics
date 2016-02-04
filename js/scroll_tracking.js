@@ -10,15 +10,16 @@
  *
  * This script defines the following GA events:
  *
- * - ArticleLoaded: the page has been loaded completely in the user browser.
+ * - ArticleLoaded: the page has loaded completely in the user browser,
+ *     images included.
  * - StartReading: the user was shown at least 200 pixels of content;
  *     the exact number of pixels can be changed via the pixelThreshold
  *     variable.
  * - ContentBottom: the user reached the end of the content section
  *     of the page.
  * - PageBottom: the user reached the end of the page.
- * - ContentRead: the user spent more than 60 seconds scrolling the content
- *     part of the page.
+ * - ContentRead: the user spent more than 60 seconds scrolling the
+ *     content part of the page.
  *
  * .. and the following GA dimensions and metrics:
  *
@@ -33,6 +34,10 @@
  *     and reaching the end of the content section.
  * - totalTime (metric3): time between the first scroll and reaching
  *     the bottom of the page.
+ *
+ * The pixel and time thresholds can be customized by specifying the
+ * pixelThreshold and timeThreshold attributes in the script tag,
+ * respectively.
  *
  * The script attempts to autodetect the content type based on the 
  * HTML tags and attributes. The supported data formats are:
@@ -84,14 +89,21 @@ jQuery(document).ready(function($) {
       else
         console.log(' -> ArticleLoaded event sent');
 
+      /* Get the current script selector */
+      var this_js_script = $('script[src*=scroll_tracking.js]');
+
       /* How often to track user location in ms */
       var callBackTime = 100;
 
       /* Pixels scrolled before tracking a reader */
-      var pixelThreshold = 300;
+      var pixelThreshold = this_js_script.attr('pixelThreshold');
+      if (pixelThreshold === undefined)
+        pixelThreshold = 200;
 
       /* Seconds required to read the content */
-      var timeThreshold = 60;
+      var timeThreshold = this_js_script.attr('timeThreshold');
+      if (timeThreshold === undefined)
+        timeThreshold = 60;
 
       /* We don't want our user to really read all of that stuff, don't we? :-) */
       var resizeFactor = 0.85;
