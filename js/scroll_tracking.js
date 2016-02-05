@@ -84,9 +84,8 @@ jQuery(document).ready(function($) {
       var debugMode = false;
 
       /* First things first: send an event telling GA that the article has loaded */
-      if (!debugMode)
-        ga('send', 'event', 'Reading', 'ArticleLoaded', pageTitle, {'nonInteraction': 1});
-      else
+      ga('send', 'event', 'Reading', 'ArticleLoaded', pageTitle, {'nonInteraction': 1});
+      if (debugMode)
         console.log(' -> ArticleLoaded event sent');
 
       /* Get the current script, using a selector that matches any src attributes
@@ -385,12 +384,9 @@ jQuery(document).ready(function($) {
           scrollStart = currentTime.getTime();
           timeToScroll = Math.round((scrollStart - beginning) / 1000);
 
-          if (!debugMode) {
-            ga('send', 'event', 'Reading', 'StartReading', pageTitle, timeToScroll, {'metric1' : timeToScroll});
-          }
-          else {
+          ga('send', 'event', 'Reading', 'StartReading', pageTitle, timeToScroll, {'metric1' : timeToScroll});
+          if (debugMode)
             console.log(' -> Started reading (' + timeToScroll + 's)');
-          }
         }
 
         // If user reached the end of the content, send an event.    
@@ -401,30 +397,23 @@ jQuery(document).ready(function($) {
           contentScrollEnd = currentTime.getTime();
           timeToContentEnd = Math.round((contentScrollEnd - scrollStart) / 1000);
 
-          if (!debugMode) {
-            /* If the user reached the bottom of the content in less than a minute,
-            flag him/her as a scanner. Otherwise, flag him/her as a Reader, and
-            fire a ContentRead event. */
-            if (timeToContentEnd < timeThreshold) {
-              ga('set', 'dimension1', 'Scanner');
-            }
-            else {
-              ga('set', 'dimension1', 'Reader');
-              ga('send', 'event', 'Reading', 'ContentRead', pageTitle, timeToContentEnd);
-            }
-
-            /* In both cases, tell GA that the user reached the bottom of the content */
-            ga('send', 'event', 'Reading', 'ContentBottom', pageTitle, timeToContentEnd, {'metric2' : timeToContentEnd});
-
+          /* If the user reached the bottom of the content in less than a minute,
+          flag him/her as a scanner. Otherwise, flag him/her as a Reader, and
+          fire a ContentRead event. */
+          if (timeToContentEnd < timeThreshold) {
+            ga('set', 'dimension1', 'Scanner');
+            if (debugMode)
+              console.log(' -> End of content section ('+timeToContentEnd+'s), you are a scanner :-(');
           }
           else {
-            if (timeToContentEnd < timeThreshold) {
-              console.log(' -> End of content section ('+timeToContentEnd+'s), you are a scanner :-(');
-            }
-            else {
+            ga('set', 'dimension1', 'Reader');
+            ga('send', 'event', 'Reading', 'ContentRead', pageTitle, timeToContentEnd);
+            if (debugMode)
               console.log(' -> End of content section ('+timeToContentEnd+'s), you are a reader :-)');
-            }
           }
+
+          /* In both cases, tell GA that the user reached the bottom of the content */
+          ga('send', 'event', 'Reading', 'ContentBottom', pageTitle, timeToContentEnd, {'metric2' : timeToContentEnd});
 
         }
 
@@ -436,12 +425,9 @@ jQuery(document).ready(function($) {
           end = currentTime.getTime();
           totalTime = Math.round((end - scrollStart) / 1000);
 
-          if (!debugMode) {
-            ga('send', 'event', 'Reading', 'PageBottom', pageTitle, totalTime, {'metric3' : totalTime});
-          }
-          else {
+          ga('send', 'event', 'Reading', 'PageBottom', pageTitle, totalTime, {'metric3' : totalTime});
+          if (debugMode)
             console.log(' -> Bottom of page (' + totalTime + 's)');
-          }
         }
 
       }; // end of trackLocation
