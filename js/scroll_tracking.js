@@ -89,13 +89,14 @@ jQuery(document).ready(function($) {
       else
         console.log(' -> ArticleLoaded event sent');
 
-      /* Get the current script selector */
-      var this_js_script = $('script[src*=scroll_tracking.js]');
+      /* Get the current script, using a selector that matches any src attributes
+      that end with the filename of this file */
+      var this_js_script = $('script[src*=scroll_tracking\\.js]');
 
       /* How often to track user location in ms */
       var callBackTime = 100;
 
-      /* Pixels scrolled before tracking a reader */
+      /* Pixels scrolled before considering the user engaged */
       var pixelThreshold = this_js_script.attr('pixelThreshold');
       if (pixelThreshold === undefined)
         pixelThreshold = 200;
