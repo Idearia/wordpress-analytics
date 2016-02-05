@@ -408,8 +408,9 @@
 
   function wpan_render_text_input ( $args ) {
 
-    /* Print description */
-    echo '<p>' . $args['description'] . '</p>';
+    /* Print description
+    TODO: should use a question mark popup */
+    // echo '<p>' . $args['description'] . '</p>';
 
     /* Create a text input */
     printf(

@@ -34,7 +34,8 @@
 
   function wordpress_analytics_content_grouping() {
 
-    /* Extract the content grouping options from the database */
+    /* Extract the content grouping options from the database. If these are
+    not properly formatted, nothing will be sent to GA. */
     $options = get_option ("wpan:option_array");
     $wordpress_group = 'contentGroup' . $options['group_index_wordpress'];
     $woocommerce_group = 'contentGroup' . $options['group_index_woocommerce'];
