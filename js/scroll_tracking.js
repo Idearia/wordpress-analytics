@@ -83,11 +83,6 @@ jQuery(document).ready(function($) {
       /* Debug flag, set to true to log useful messages */
       var debugMode = false;
 
-      /* First things first: send an event telling GA that the article has loaded */
-      ga('send', 'event', 'Reading', 'ArticleLoaded', pageTitle, {'nonInteraction': 1});
-      if (debugMode)
-        console.log(' -> ArticleLoaded event sent');
-
       /* Get the current script, using a selector that matches any src attributes
       that end with the filename of this file */
       var this_js_script = $('script[src*=scroll_tracking\\.js]');
@@ -122,6 +117,11 @@ jQuery(document).ready(function($) {
       /* Get some information about the current page */
       var pageTitle = document.title;
       var documentLength = $(document).height();
+
+      /* First analytics action: send an event telling GA that the article has loaded */
+      ga('send', 'event', 'Reading', 'ArticleLoaded', pageTitle, {'nonInteraction': 1});
+      if (debugMode)
+        console.log(' -> ArticleLoaded event sent');
 
 
       // -----------------------------------------------------------------
