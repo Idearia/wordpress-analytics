@@ -128,27 +128,23 @@ jQuery(document).ready(function($) {
       // -                       Content prototype                       -
       // -----------------------------------------------------------------
 
-      /* Prototype representing the content the user is supposed to read.
-      By default, we assume the content is contained a single HTML element.
-      The prototype also supports for contents that span multiple consecutive
-      elements, from a start (startElement) to an end (endElement). For
-      example, a Schema.org recipe that contains the following consecutive
-      elements: details ,description, ingredients, instructions, will need to
-      have:
+      /* Structure representing the content the user is supposed to read.
+      We represent a content as a group of consecutive HTML elements. For
+      example, a Schema.org contains the following elements: details,
+      description, ingredients, instructions. */
 
-        'startElement = #recipe-details-box'
-        'endElement = .recipe-instructions_container'.
-      
-      TODO: Allow to input an arbitrary number of HTML elements; pick the top
-      and bottom of these elements and compute the content length as the
-      difference between the two. This approach is more flexible as some of
-      the elements might be non-existing (eg. the optional 'recipe-note'
-      element in the Schema recipe) and the methods will still work. */
       var Content = function () {
-        
-        /* Default values */
-        this.resizeFactor = 1;
+
+        /* Attributes that need to be set externally by the user */
         this.name = "<content name undefined>";
+        this.resizeFactor = 1;
+        
+        /* Attributes computed internally */
+        this.elements = [];
+        this.n_elements = 0;
+        this.startPixel = $(document).height();
+        this.endPixel = 0;
+        this.height = 0;
         
         
         /**
@@ -171,81 +167,59 @@ jQuery(document).ready(function($) {
 
 
         /**
-         * Set the HTML element where the content begins.
+         * Add one or more HTML elements to the content
          */
-        this.setStartElement = function (startElement) {
+        this.addElements = function (elements) {
           
-          this.startElement = this.checkElement (startElement);
+          /* Add the element only if it exists in the document */
+          for (var i = 0; i < elements.length; i++) {
+
+            var element = elements[i]
+
+            /* Add the element to the array of elements making up the content */
+            this.elements.push(this.checkElement (element));
+            this.n_elements++;
+          
+            /* Self consistency check */
+            if (this.n_elements != this.elements.length)
+              console.warn ('Error counting: ' + this.n_elements + '!=' + this.elements.length);
+          
+            /* Compute where the current element starts */
+            var elementStartPixel = element.offset().top;
+
+            /* Update the start pixel of the whole content */
+            this.startPixel = Math.min (this.startPixel, elementStartPixel);
+            this.startPixel = parseInt (this.startPixel);
+
+            /* Update the end pixel of the whole content */
+            this.endPixel = Math.max (this.endPixel, elementStartPixel + element.outerHeight());
+            this.endPixel = parseInt (this.endPixel);
+          
+            /* Update the total length of the content */
+            this.height = this.endPixel - this.startPixel;
+          
+            /* Apply the rescaling factor */
+            this.height = parseInt (this.height * this.resizeFactor);
+            
+          }
+
+          /* Self consistency check */
+          if (this.height < 0)
+            console.warn ('Found negative length for content: start=' + this.startPixel + ', end=' + this.endPixel);
 
         };
-        
 
-        /**
-         * Set the HTML element where the content ends.
-         */
-        this.setEndElement = function (endElement) {
 
-          this.endElement  = this.checkElement (endElement);
-
-        };
-
-        
         /**
          * Determines whether the content is ready to be used
          */
         this.isSet = function () {
           
-          if (this.startElement !== undefined && this.startElement.length &&
-              this.endElement !== undefined && this.endElement.length)
+          if (this.length > 0 && this.height > 0)
             return true;
           else
             return false;
-
-        };
-        
-
-        /**
-         * Compute distance of the content's beginning from the top of
-         * the document.
-         */
-        this.computeStartPixel = function () {
-
-          this.startPixel = this.startElement.offset().top;
-          return this.startPixel;
-
-        };
-
-
-        /**
-         * Compute distance of the content's ending from the top of
-         * the document.
-         */
-        this.computeEndPixel = function () {
-
-          this.endPixel = this.endElement.offset().top + this.endElement.outerHeight();
-          return this.endPixel;
-
-        };
-
-
-        /**
-         * Compute length/height of the content
-         */
-        this.computeHeight = function () {
-
-          if (!this.startPixel)
-            this.computeStartPixel();
-
-          if (!this.endPixel)
-            this.computeEndPixel();
-
-          this.height = this.endPixel - this.startPixel;
-          this.height = parseInt (this.height * this.resizeFactor);
-
-          if (this.height <= 0)
-            console.warn ("found negative length = " + this.height + "for content " + this.name);
-
-          return this.height;
+          
         };
         
       }; // Content constructor
@@ -264,24 +238,24 @@ jQuery(document).ready(function($) {
       
       /* Does this post contain a blog entry according to the hentry/hatom microformat? */
       if (postSelector.length && !recipeSelector.length && !productSelector.length) {
-        content.setStartElement(postSelector);
-        content.setEndElement(postSelector);
+        content.addElements(postSelector);
         content.name = 'Blog entry';
         content.resizeFactor = resizeFactor;
       }
 
       /* Does this post contain a recipe according to the Recipe schema? */
       else if (recipeSelector.length && !productSelector.length) {
-        content.setStartElement($('#recipe-details-box'));
-        content.setEndElement($('.recipe-instructions_container'));
+        content.addElements(
+          $('#recipe-details-box'),
+          $('.recipe-instructions_container')
+        );
         content.name = 'Recipe';
         content.resizeFactor = resizeFactor;
       }
 
       /* Does this post contain a product according to the Product schema? */
       else if (productSelector.length) {
-        content.setStartElement(productSelector);
-        content.setEndElement(productSelector);
+        content.addElements(productSelector);
         content.name = 'Product';
         content.resizeFactor = resizeFactor;
       }
@@ -291,22 +265,19 @@ jQuery(document).ready(function($) {
       else {
         
         if ($('.single-content').length) {
-          content.setStartElement($('.single-content'));
-          content.setEndElement(content.startElement);
+          content.addElements($('.single-content'));
           content.name = '.single-content';
           content.resizeFactor = resizeFactor;
         }
       
         else if ($('#content').length) {
-          content.setStartElement($('#content'));
-          content.setEndElement(content.startElement);
+          content.addElements($('#content'));
           content.name = '#content';
           content.resizeFactor = resizeFactor;
         }
       
         else if ($('#main-content').length) {
-          content.setStartElement($('#main-content'));
-          content.setEndElement(content.startElement);
+          content.addElements($('#main-content'));
           content.name = '#main-content';
           content.resizeFactor = resizeFactor;
         }
@@ -314,9 +285,9 @@ jQuery(document).ready(function($) {
         /* If we did not recognize the content type, take the whole body of
         the HTML page, issue a warning, and send an event to GA */
         else {
-          content.setStartElement($(document.body));
-          content.setEndElement(content.startElement);
+          content.addElements($(document.body));
           content.name = "<body>";
+          content.resizeFactor = resizeFactor;
         }
 
         console.warn(" -> Content type could not be identified properly, using " + content.name);
@@ -324,11 +295,10 @@ jQuery(document).ready(function($) {
         
       }
 
-      /* If both the start and end elements exist, compute the content height in pixels */
-      if (content.isSet()) {
-        contentStart = content.computeStartPixel();
-        contentLength = content.computeHeight();
-      }
+      /* Extract start, end and length of the content */
+      var contentStart = content.startPixel;
+      var contentEnd = content.endPixel;
+      var contentLength = content.height;
 
       /* Print some useful info */
       if (debugMode) {
@@ -360,15 +330,15 @@ jQuery(document).ready(function($) {
         /* If the content is in a scrollable box, let's take
         note of how much the user scrolled down in that box.
         If not, this line won't do anything. */
-        contentShown += content.startElement.scrollTop();
-        if (content.startElement !== content.endElement)
-          contentShown += content.endElement.scrollTop();
+        // contentShown += content.startElement.scrollTop();
+        // if (content.startElement !== content.endElement)
+        //   contentShown += content.endElement.scrollTop();
 
         /* Print some useful info */
         if (debugMode) {
           console.log("windowScroll = " + windowScroll);
           console.log("bottom = " + bottom);
-          console.log("scrollTop = " + content.endElement.scrollTop());
+          // console.log("scrollTop = " + content.endElement.scrollTop());
           console.log("contentShown = " + contentShown);
         }
 
