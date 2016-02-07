@@ -81,7 +81,7 @@ jQuery(document).ready(function($) {
       // -----------------------------------------------------------------
 
       /* Debug flag, set to true to log useful messages */
-      var debugMode = false;
+      var debugMode = true;
 
       /* Get the current script, using a selector that matches any src attributes
       that end with the filename of this file */
@@ -128,100 +128,83 @@ jQuery(document).ready(function($) {
       // -                       Content prototype                       -
       // -----------------------------------------------------------------
 
-      /* Structure representing the content the user is supposed to read.
+      /* Object representing the content the user is supposed to read.
       We represent a content as a group of consecutive HTML elements. For
       example, a Schema.org contains the following elements: details,
       description, ingredients, instructions. */
 
-      var Content = function () {
+      var Content = function (name, resizeFactor) {
 
         /* Attributes that need to be set externally by the user */
-        this.name = "<content name undefined>";
-        this.resizeFactor = 1;
+        this.name = (typeof name !== 'undefined') ? name : '<undefined>';
+        this.resizeFactor = (typeof resizeFactor !== 'undefined') ? resizeFactor : 1;
         
         /* Attributes computed internally */
-        this.elements = [];
+        this.elements = $([]);
         this.n_elements = 0;
         this.startPixel = $(document).height();
         this.endPixel = 0;
         this.height = 0;
-        
-        
-        /**
-         * Issues a warning if an element is not found in the DOM; returns
-         * the element.
-         */
-        this.checkElement = function (element) {
-          
-          if (debugMode)
-            console.log("Setting element: " + element.prop("tagName") +
-                        " with ID=" + element.attr("id") +
-                        " and class=" + element.attr("class"));
-          
-          if (element.length == 0)
-            console.warn("Couldn't find element = '" + element.prop("tagName") + "'");
-          
-          return element;
-          
-        };
+
+        /* Use 'self' instead of 'this' in functions that are supposed to
+        be called via the .each() method */
+        var self = this;
 
 
         /**
-         * Add one or more HTML elements to the content
+         * Add an HTML element to the content.
+         *
+         * This function has to be called via the .each() method.
          */
-        this.addElements = function (elements) {
-          
-          /* Add the element only if it exists in the document */
-          for (var i = 0; i < elements.length; i++) {
+        this.addElement = function (index) {
 
-            var element = elements[i]
+          var element = $(this);
 
-            /* Add the element to the array of elements making up the content */
-            this.elements.push(this.checkElement (element));
-            this.n_elements++;
-          
-            /* Self consistency check */
-            if (this.n_elements != this.elements.length)
-              console.warn ('Error counting: ' + this.n_elements + '!=' + this.elements.length);
-          
-            /* Compute where the current element starts */
-            var elementStartPixel = element.offset().top;
-
-            /* Update the start pixel of the whole content */
-            this.startPixel = Math.min (this.startPixel, elementStartPixel);
-            this.startPixel = parseInt (this.startPixel);
-
-            /* Update the end pixel of the whole content */
-            this.endPixel = Math.max (this.endPixel, elementStartPixel + element.outerHeight());
-            this.endPixel = parseInt (this.endPixel);
-          
-            /* Update the total length of the content */
-            this.height = this.endPixel - this.startPixel;
-          
-            /* Apply the rescaling factor */
-            this.height = parseInt (this.height * this.resizeFactor);
-            
+          /* Skip the current element if it is invalid */
+          if (!(element instanceof jQuery)) {
+            console.warn ('You are trying to add an invalid element: ' + element);
+            return false;
           }
 
-          /* Self consistency check */
-          if (this.height < 0)
-            console.warn ('Found negative length for content: start=' + this.startPixel + ', end=' + this.endPixel);
-
-        };
-
-
-        /**
-         * Determines whether the content is ready to be used
-         */
-        this.isSet = function () {
-          
-          if (this.length > 0 && this.height > 0)
-            return true;
-          else
+          /* Skip the current element if it was not found in the page */
+          if (element.length == 0) {
             return false;
+          }
+
+          if (debugMode)
+            console.log ("Added " + element[0].outerHTML.split(element.html())[0]);
           
-        };
+          /* Add the element to the array of elements making up the content */
+          self.elements = self.elements.add (element);
+          self.n_elements++;
+          
+          /* Self consistency check */
+          if (self.n_elements !== self.elements.length)
+            console.warn ('Error in elements count: ' + self.n_elements + '!=' + self.elements.length);
         
+          /* Where the current element starts */
+          var elementStartPixel = element.offset().top;
+
+          /* Update the start pixel of the whole content */
+          self.startPixel = Math.min (self.startPixel, elementStartPixel);
+          self.startPixel = parseInt (self.startPixel);
+
+          /* Update the end pixel of the whole content */
+          self.endPixel = Math.max (self.endPixel, elementStartPixel + element.outerHeight());
+          self.endPixel = parseInt (self.endPixel);
+        
+          /* Update the total length of the content */
+          self.height = self.endPixel - self.startPixel;
+        
+          /* Apply the rescaling factor */
+          self.height = parseInt (self.height * self.resizeFactor);
+          
+          /* Self consistency check */
+          if (self.height < 0)
+            console.warn ('Found negative length for content: start=' + self.startPixel + ', end=' + self.endPixel);
+
+        };
+
       }; // Content constructor
 
 
@@ -230,34 +213,46 @@ jQuery(document).ready(function($) {
       // -                      Identify content                         -
       // -----------------------------------------------------------------
 
-      var content = new Content();
+      /* Variable that will be contain the content */
+      var content;
 
+      /* Selector for a Wordpress post */
       var postSelector = $('article[id^="post-"]').find('div.entry-content');
+
+      /* Selector for a Schema.org recipe */
       var recipeSelector = $('div[itemtype="http://schema.org/Recipe"]');
+
+      /* Selector for a Schema.org product */
       var productSelector = $('div[itemtype="http://schema.org/Product"]');
       
       /* Does this post contain a blog entry according to the hentry/hatom microformat? */
       if (postSelector.length && !recipeSelector.length && !productSelector.length) {
-        content.addElements(postSelector);
-        content.name = 'Blog entry';
-        content.resizeFactor = resizeFactor;
+        content = new Content ('Blog entry', resizeFactor);
+        postSelector.each(content.addElement);
       }
 
       /* Does this post contain a recipe according to the Recipe schema? */
       else if (recipeSelector.length && !productSelector.length) {
-        content.addElements(
-          $('#recipe-details-box'),
-          $('.recipe-instructions_container')
-        );
-        content.name = 'Recipe';
-        content.resizeFactor = resizeFactor;
+        content = new Content ('Recipe', resizeFactor);
+        var selectorStrings = [
+          /* Introduction */
+          '.recipe-content',
+          /* Ingredients */
+          '[itemprop^="recipeIngredients"]',
+          '[class^=recipe-ingredients]',
+          '.recipe-ingredients',
+          /* Instructions */
+          '[itemprop^="recipeInstructions"]',
+          '[class^=recipe-instructions]',
+          '.recipe-making',
+        ];
+        recipeSelector.find(selectorStrings.join(',')).each(content.addElement);
       }
 
       /* Does this post contain a product according to the Product schema? */
       else if (productSelector.length) {
-        content.addElements(productSelector);
-        content.name = 'Product';
-        content.resizeFactor = resizeFactor;
+        content = new Content ('Product', resizeFactor);
+        productSelector.each(content.addElement);
       }
 
       /* If the page does not belong to any of the above cases, try with the
@@ -265,29 +260,25 @@ jQuery(document).ready(function($) {
       else {
         
         if ($('.single-content').length) {
-          content.addElements($('.single-content'));
-          content.name = '.single-content';
-          content.resizeFactor = resizeFactor;
+          content = new Content ('.single-content', resizeFactor);
+          $('.single-content').each(content.addElement);
         }
       
         else if ($('#content').length) {
-          content.addElements($('#content'));
-          content.name = '#content';
-          content.resizeFactor = resizeFactor;
+          content = new Content ('#content', resizeFactor);
+          $('#content').each(content.addElement);
         }
       
         else if ($('#main-content').length) {
-          content.addElements($('#main-content'));
-          content.name = '#main-content';
-          content.resizeFactor = resizeFactor;
+          content = new Content ('#main-content', resizeFactor);
+          $('#main-content').each(content.addElement);
         }
       
         /* If we did not recognize the content type, take the whole body of
         the HTML page, issue a warning, and send an event to GA */
         else {
-          content.addElements($(document.body));
-          content.name = "<body>";
-          content.resizeFactor = resizeFactor;
+          content = new Content ('<body>', resizeFactor);
+          content.addElement($(document.body));
         }
 
         console.warn(" -> Content type could not be identified properly, using " + content.name);
@@ -307,6 +298,7 @@ jQuery(document).ready(function($) {
         console.log("documentLength = " + documentLength);
         console.log("contentStart = " + contentStart);
         console.log("contentLength = " + contentLength);
+        console.log("contentShown = " + $(window).height() - contentStart);
       }
 
 
@@ -359,7 +351,7 @@ jQuery(document).ready(function($) {
             console.log(' -> Started reading (' + timeToScroll + 's)');
         }
 
-        // If user reached the end of the content, send an event.    
+        /* If user reached the end of the content, send an event */
         if (!endContent && contentShown > contentLength) {
 
           endContent = true;
@@ -415,3 +407,4 @@ jQuery(document).ready(function($) {
     }); // $(window).load
   }); // $(document).imagesLoaded
 }); // jQuery(document).ready
+
