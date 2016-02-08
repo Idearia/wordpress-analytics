@@ -81,7 +81,7 @@ jQuery(document).ready(function($) {
       // -----------------------------------------------------------------
 
       /* Debug flag, set to true to log useful messages */
-      var debugMode = true;
+      var debugMode = false;
 
       /* Get the current script, using a selector that matches any src attributes
       that end with the filename of this file */
@@ -298,7 +298,7 @@ jQuery(document).ready(function($) {
         console.log("documentLength = " + documentLength);
         console.log("contentStart = " + contentStart);
         console.log("contentLength = " + contentLength);
-        console.log("contentShown = " + $(window).height() - contentStart);
+        console.log("contentShown = " + ($(window).height() - contentStart));
       }
 
 
