@@ -80,15 +80,14 @@ jQuery(document).ready(function($) {
       // -                       Initialisation                          -
       // -----------------------------------------------------------------
 
-      /* Debug flag, set to true to log useful messages */
-      var debugMode = false;
-
       /* Get the current script, using a selector that matches any src attributes
       that end with the filename of this file */
       var this_js_script = $('script[src*=scroll_tracking\\.js]');
 
-      /* How often to track user location in ms */
-      var callBackTime = 100;
+      /* Debug flag, set to true to log useful messages */
+      var debugMode = parseInt (this_js_script.attr('debug'));
+      if (debugMode === undefined)
+        debugMode = false;
 
       /* Pixels scrolled before considering the user engaged */
       var pixelThreshold = this_js_script.attr('pixelThreshold');
@@ -99,6 +98,9 @@ jQuery(document).ready(function($) {
       var timeThreshold = this_js_script.attr('timeThreshold');
       if (timeThreshold === undefined)
         timeThreshold = 60;
+
+      /* How often to track user location in ms */
+      var callBackTime = 100;
 
       /* We don't want our user to really read all of that stuff, don't we? :-) */
       var resizeFactor = 0.85;

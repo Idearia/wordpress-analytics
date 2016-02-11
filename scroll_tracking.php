@@ -18,6 +18,7 @@
     $options = get_option ("wpan:option_array");
     $pixel_threshold = $options['pixel_threshold'];
     $time_threshold = $options['time_threshold'];
+    $debug = $options['debug'];
 
     /* Script path & url */
     $script_path = plugin_dir_path(__FILE__) . 'js/scroll_tracking.js';
@@ -37,7 +38,8 @@
     TODO: we should use wp_enqueue() here. */
     echo "<script src='$script_versioned' "
           . "timeThreshold='$time_threshold' "
-          . "pixelThreshold='$pixel_threshold'> "
+          . "pixelThreshold='$pixel_threshold' "
+          . "debug='$debug'> "
           . "</script>\n";
 
   }

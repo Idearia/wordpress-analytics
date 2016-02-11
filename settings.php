@@ -30,7 +30,8 @@
     'group_index_woocommerce' => '2',
     'group_index_blog' => '3',
     'pixel_threshold' => '300',
-    'time_threshold' => '60'
+    'time_threshold' => '60',
+    'debug' => '0',
   ];
 
   /** Add the settings menu page */
@@ -297,6 +298,35 @@
       ]
     );
 
+
+    /* "Advanced settings" section */
+    $section = 'advanced_settings';
+    add_settings_section(
+      $section . '_section',
+      'Advanced settings',
+      'wpan_render_' . $section . '_section',
+      $menu_slug
+    );
+
+    $name = 'debug';
+    $title = 'Debug mode?';
+    $desc = 'Print useful information to console';
+    add_settings_field(
+      $name,
+      $title,
+      'wpan_render_' . $name,
+      $menu_slug,
+      $section . '_section',
+      [
+        'options_name' => $option_name,
+        'options_vals' => $data,
+        'name'         => $name,
+        'description'  => $desc,
+        'section'      => esc_attr( $section ),
+        'value'        => esc_attr( $data[ $name ] )
+      ]
+    );
+
   } // end of wpan_register_settings()
 
 
@@ -525,3 +555,15 @@
     wpan_render_number_input ( $args );
 
   }
+  
+  /** Render the "Advanced settings" section */
+  function wpan_render_advanced_settings_section () {
+
+  }
+
+  function wpan_render_debug ( $args ) {
+
+    wpan_render_checkbox_input ($args);
+
+  }
+
