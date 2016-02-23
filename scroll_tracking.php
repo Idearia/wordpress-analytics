@@ -4,17 +4,44 @@
    * PHP wrapper of a slightly modified version of the scroll tracking
    * javascript by Justin Cutroni, suitable for use in Wordpress.
    *
-   * The javascript will be loaded from the URI specified in the 
-   * named constant ANALYTICS_SCRIPT_URI.
-   * 
-   * The javascript is named scroll_tracking.js; its latest version
-   * can be found at https://gist.github.com/a1c715e2a448da2dfd69.
+   * The javascript needs to be called scroll_tracking.js and to reside
+   * in the URI specified in the named constant ANALYTICS_URI.
    * 
    * Created by Guido W. Pettinari on 23.12.2015.
-   * Last version: https://gist.github.com/409f9b97cb3e2803ad47
+   * Part of Wordpress Analytics:
+   * https://github.com/coccoinomane/wordpress_analytics
    */
 
-  /* Load the script; in the future we could use wp_enqueue instead */
-  echo "<script type='text/javascript' src='" . ANALYTICS_SCRIPT_URI . "'></script>";
+  function wordpress_analytics_scroll_tracking () {
+
+    /* Extract the scroll tracking options from the database */
+    $options = get_option ("wpan:option_array");
+    $pixel_threshold = $options['pixel_threshold'];
+    $time_threshold = $options['time_threshold'];
+    $debug = $options['debug'];
+
+    /* Script path & url */
+    $script_path = plugin_dir_path(__FILE__) . 'js/scroll_tracking.js';
+    $script = plugin_dir_url(__FILE__) . 'js/scroll_tracking.js';
+      
+    /* Add the timestamp as a query string to the script, in order to reload
+    automatically the script when it is changed rather than using the cached
+    version (see http://stackoverflow.com/a/14536240/2972183) */
+    $script_versioned = $script . '?ver=' . filemtime($script_path);
+
+    /* Load the imagesLoaded javascript library to ensure that scroll
+    tracking works properly with image-rich pages.
+    TODO: we should use wp_enqueue() here. */
+    echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js'></script>\n";
+
+    /* Load the script; in the future we could use wp_enqueue instead
+    TODO: we should use wp_enqueue() here. */
+    echo "<script src='$script_versioned' "
+          . "timeThreshold='$time_threshold' "
+          . "pixelThreshold='$pixel_threshold' "
+          . "debug='$debug'> "
+          . "</script>\n";
+
+  }
 
 ?>
