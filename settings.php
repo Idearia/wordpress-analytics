@@ -258,7 +258,7 @@
 
     $name = 'pixel_threshold';
     $title = 'Pixels threshold for engagement';
-    $desc = 'Pixels the user needs to scroll before we consider him/her engaged';
+    $desc = 'Pixels the user needs to scroll before we consider him/her engaged.';
     add_settings_field(
       $name,
       $title,
@@ -540,7 +540,9 @@
   /** Render the "Scroll tracking" section */
   function wpan_render_scroll_tracking_section () {
 
-    echo "<p>Settings for the scroll tracking functionality</p>";
+    echo "<p>Settings for the scroll tracking functionality.</p>";
+    $desc = "Parameters set here will be ignored if you have Javascript caching enabled.";
+    echo "<p>$desc</p>";
 
   }
 
