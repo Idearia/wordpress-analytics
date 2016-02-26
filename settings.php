@@ -11,11 +11,44 @@
    * https://github.com/coccoinomane/wordpress_analytics
    */  
 
+
+  // ==================================================================================
+  // =                              Settings' settings                                =
+  // ==================================================================================
+
   /* Slug of the settings menu */
   $menu_slug = 'wordpress-analytics-settings';
   
   /* Name of the array where we shall store all the options */
   $option_name   = 'wpan:option_array';
+
+  /* Sections in our settings page */
+  $sections = [
+    'general_settings' => [
+        'id' => 'general_settings',
+        'name' => 'general_settings_section',
+        'display' => "General settings",
+        'page' => 'wpan_general_settings_page',
+        'func' => 'wpan_render_general_settings_section'],
+    'content_grouping' => [
+        'id' => 'content_grouping',
+        'name' => 'content_grouping_section',
+        'display' => 'Content grouping',
+        'page' => 'wpan_content_grouping_page',
+        'func' => 'wpan_render_content_grouping_section'],
+    'scroll_tracking' => [
+        'id' => 'scroll_tracking',
+        'name' => 'scroll_tracking_section',
+        'display' => 'Scroll tracking',
+        'page' => 'wpan_scroll_tracking_page',
+        'func' => 'wpan_render_scroll_tracking_section'],
+    'advanced_settings' => [
+        'id' => 'advanced_settings',
+        'name' => 'advanced_settings_section',
+        'display' => 'Advanced settings',
+        'page' => 'wpan_advanced_settings_page',
+        'func' => 'wpan_render_advanced_settings_section'],
+  ];  
 
   /* Group to which the setting begins; we shall use only one
   group, since all settings are stored in a single array */
@@ -34,6 +67,11 @@
     'enhanced_link_attribution' => '0',
     'debug' => '0',
   ];
+
+
+  // ==================================================================================
+  // =                              Build settings page                               =
+  // ==================================================================================
 
   /** Add the settings menu page */
   add_action('admin_menu', 'wpan_add_options_page');
@@ -59,34 +97,71 @@
   }
 
 
-
-  /** Render the settings menu page */
+  /** Build the settings menu page */
   function wpan_render_options_page() {
 
     global $menu_slug;
+    global $sections;
     global $option_group;
 
-    /* Include the jQuery to enable contextual popup help */
+    /* Each section shall have its own tab */
+    $tabs = $sections;
+
+    /* TODO: Include the jQuery to enable contextual popup help */
 
     /* Intercept the calls to add_settings_error() in wpan_validate_options(),
     and complain if the options are wrong. */
     settings_errors ();
 
+    /* By default, we take the general settings tab to be active */
+    $active_tab = $tabs['general_settings']['id'];
+
+    /* Check which tab is active; we define the 'tab' query parameter ourselves below */
+    if( isset( $_GET[ 'tab' ] ) )
+      $active_tab = $_GET[ 'tab' ];
+    
     ?>
+
     <div class="wrap">
+
         <h2><?php print $GLOBALS['title']; ?></h2>
+
+        <h2 class='nav-tab-wrapper'>
+          <?php
+            foreach ($tabs as $tab) {
+              $is_active = $tab['id'] == $active_tab ? 'nav-tab-active' : '';
+              echo "<a href='?page=$menu_slug&tab=" . $tab['id'] . "' class='nav-tab $is_active'>" . $tab['display'] . "</a>\n";
+            }
+          ?>
+        </h2>
+
         <form action="options.php" method="POST">
-            <?php
+
+          <?php
+          
             settings_fields( $option_group );
-            do_settings_sections( $menu_slug ); 
-            submit_button(); 
-            ?>
+          
+            foreach ($tabs as $tab) {
+              if ($active_tab == $tab['id']) {
+                do_settings_sections( $tab['page'] );
+              }
+            }
+
+            submit_button();
+            
+          ?>
+
         </form>
     </div>
+
     <?php
 
   }
 
+
+  // ==================================================================================
+  // =                               Register settings                                =
+  // ==================================================================================
 
   /** Register the settings in the database */
   add_action('admin_init', 'wpan_register_settings');
@@ -94,33 +169,38 @@
   function wpan_register_settings() {
 
     global $menu_slug;
+    global $sections;
     global $option_name;
     global $option_group;
     global $default_values;
 
-    /* Fetch existing options */
-    $option_values = get_option( $option_name );
-
-    /* Parse option values into predefined keys, throw the rest away */
-    $data = shortcode_atts( $default_values, $option_values );
-
+    /* Register our settings, ie. add their name (not values!) to a whitelist of
+    options that we are allowed to modify within our settings page, using the form
+    <form action="options.php" method="POST"> */
     register_setting(
       $option_group,                // group, used for settings_fields()
       $option_name,                 // option name, used as key in database
       'wpan_validate_options'       // validation callback
     );
 
+    /* Fetch existing options */
+    $options = get_option( $option_name );
 
-    // ==================================================================================
-    // =                                 General settings                               =
-    // ==================================================================================
+    /* If an option is not present in the databse, use the default value.
+    This ensures that the $options array contains a value for each options */
+    $options = shortcode_atts( $default_values, $options );
 
-    $section = 'general_settings';
+
+    // ----------------------------------------------------------------------------------
+    // -                                 General settings                               -
+    // ----------------------------------------------------------------------------------
+
+    $section = $sections['general_settings'];
     add_settings_section(
-      $section . '_section',
-      'General settings',
-      'wpan_render_' . $section . '_section',
-      $menu_slug
+      $section['name'],
+      $section['display'],
+      $section['func'],
+      $section['page']
     );
 
     $name = 'tracking_uid';
@@ -130,15 +210,15 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
       ]
     );
 
@@ -149,15 +229,15 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
       ]
     );
 
@@ -168,30 +248,29 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
       ]
     );
 
 
+    // ----------------------------------------------------------------------------------
+    // -                                 Content grouping                               -
+    // ----------------------------------------------------------------------------------
 
-    // ==================================================================================
-    // =                                 Content grouping                               =
-    // ==================================================================================
-
-    $section = 'content_grouping';
+    $section = $sections['content_grouping'];
     add_settings_section(
-      $section . '_section',
-      'Content grouping',
-      'wpan_render_' . $section . '_section',
-      $menu_slug
+      $section['name'],
+      $section['display'],
+      $section['func'],
+      $section['page']
     );
 
     $name = 'group_index_wordpress';
@@ -201,15 +280,15 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
         'min'          => 1,
         'max'          => 100,
       ]
@@ -222,15 +301,15 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
         'min'          => 1,
         'max'          => 100,
       ]
@@ -243,32 +322,31 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
         'min'          => 1,
         'max'          => 100,
       ]
     );
 
 
+    // ----------------------------------------------------------------------------------
+    // -                                 Scroll tracking                                -
+    // ----------------------------------------------------------------------------------
 
-    // ==================================================================================
-    // =                                 Scroll tracking                                =
-    // ==================================================================================
-
-    $section = 'scroll_tracking';
+    $section = $sections['scroll_tracking'];
     add_settings_section(
-      $section . '_section',
-      'Scroll tracking',
-      'wpan_render_' . $section . '_section',
-      $menu_slug
+      $section['name'],
+      $section['display'],
+      $section['func'],
+      $section['page']
     );
 
     $name = 'pixel_threshold';
@@ -278,15 +356,15 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
         'min'          => 1,
         'max'          => 10000,
       ]
@@ -299,32 +377,31 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,  
+        'options_vals' => $options,  
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] ),
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] ),
         'min'          => 1,
         'max'          => 10000,
       ]
     );
 
 
+    // ----------------------------------------------------------------------------------
+    // -                                Advanced settings                               -
+    // ----------------------------------------------------------------------------------
 
-    // ==================================================================================
-    // =                                Advanced settings                               =
-    // ==================================================================================
-
-    $section = 'advanced_settings';
+    $section = $sections['advanced_settings'];
     add_settings_section(
-      $section . '_section',
-      'Advanced settings',
-      'wpan_render_' . $section . '_section',
-      $menu_slug
+      $section['name'],
+      $section['display'],
+      $section['func'],
+      $section['page']
     );
 
     $name = 'enhanced_link_attribution';
@@ -335,15 +412,15 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] )
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] )
       ]
     );
 
@@ -354,20 +431,25 @@
       $name,
       $title,
       'wpan_render_' . $name,
-      $menu_slug,
-      $section . '_section',
+      $section['page'],
+      $section['name'],
       [
         'options_name' => $option_name,
-        'options_vals' => $data,
+        'options_vals' => $options,
         'name'         => $name,
-        'description'  => $desc,
-        'section'      => esc_attr( $section ),
-        'value'        => esc_attr( $data[ $name ] )
+        'desc'         => $desc,
+        'section'      => esc_attr( $section['id'] ),
+        'value'        => esc_attr( $options[ $name ] )
       ]
     );
 
   } // end of wpan_register_settings()
 
+
+
+  // ==================================================================================
+  // =                               Validate options                                 =
+  // ==================================================================================
 
   /** Validate the array containing the options; taken from
   http://wordpress.stackexchange.com/a/100137/86662 */
@@ -396,7 +478,7 @@
     /* Validate settings one by one */
     foreach ( $default_values as $key => $default_value ) {
 
-      $option_value = $options[ $key ];
+      $option_value = isset ( $options[ $key ] ) ? $options[ $key ] : '';
 
       /* If the user left the field empty, adopt the default value */
       if ( empty ( $option_value ) ) {
@@ -473,12 +555,17 @@
 
   }
 
+
+  // ==================================================================================
+  // =                              Rendering functions                               =
+  // ==================================================================================
+
   /** Generic rendering functions */
 
   function wpan_render_text_input ( $args ) {
 
     // /* Print description */
-    // echo '<p>' . $args['description'] . '</p>';
+    // echo '<p>' . $args['desc'] . '</p>';
 
     /* Create a text input */
     printf(
@@ -493,7 +580,7 @@
 
     /* Print description
     TODO: should use a question mark popup */
-    // echo '<p>' . $args['description'] . '</p>';
+    // echo '<p>' . $args['desc'] . '</p>';
 
     /* Create a text input */
     printf(
@@ -511,7 +598,7 @@
 
     /* Print description
     TODO: should use a question mark popup */
-    // echo '<p>' . $args['description'] . '</p>';
+    // echo '<p>' . $args['desc'] . '</p>';
 
     /* Create a checkbox input */
     $checked = checked('1', $args['options_vals'][$args['name']], false);

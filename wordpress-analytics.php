@@ -17,11 +17,11 @@
   include_once (plugin_dir_path(__FILE__) . "settings.php");
 
   /* Load content grouping function */
-  if ($options ['content_grouping'])
+  if (isset ( $options ['content_grouping'] ) && $options ['content_grouping'])
     include_once (plugin_dir_path(__FILE__) . "content_grouping.php");
 
   /* Load scroll tracking function */
-  if ($options ['scroll_tracking'])
+  if (isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'])
     include_once (plugin_dir_path(__FILE__) . "scroll_tracking.php");
 
   /* Load Google Analytics tracking function */

@@ -16,9 +16,9 @@
 
     /* Extract the scroll tracking options from the database */
     $options = get_option ("wpan:option_array");
-    $pixel_threshold = $options['pixel_threshold'];
-    $time_threshold = $options['time_threshold'];
-    $debug = $options['debug'];
+    $pixel_threshold = isset ( $options['pixel_threshold'] ) ? $options['pixel_threshold'] : '';
+    $time_threshold = isset ( $options['time_threshold'] ) ? $options['time_threshold'] : '';
+    $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
 
     /* Script path & url */
     $script_path = plugin_dir_path(__FILE__) . 'js/scroll_tracking.js';

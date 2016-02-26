@@ -13,7 +13,7 @@
     
     /* Extract the tracking UID from the database */
     $options = get_option ("wpan:option_array");
-    $tracking_uid = $options ['tracking_uid'];
+    $tracking_uid = isset ( $options ['tracking_uid'] ) ? $options ['tracking_uid'] : '';
 
     /* Execute the script only if the tracking ID exists */
     if ($tracking_uid) {
@@ -37,16 +37,16 @@
 
     /* Scroll tracking script to track reading behaviour. It applies
     only to blog entries */
-    if (is_single() && $options ['scroll_tracking'])
+    if (is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'])
       wordpress_analytics_scroll_tracking();
 
     /* Content grouping script to categorise the website content in GA. It
     applies to all post content, ie. both blog entries and product pages. */
-    if (is_single() && $options ['content_grouping'])
+    if (is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'])
       wordpress_analytics_content_grouping();
 
     /* Enable Enhanced Link attribution */
-    if ($options['enhanced_link_attribution'])
+    if (isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'])
       echo "<script>ga('require', 'linkid');</script>\n";
 
 ?>
