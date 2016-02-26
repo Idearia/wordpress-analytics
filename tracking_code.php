@@ -26,23 +26,28 @@
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  <?php echo "ga('create', '" . $tracking_uid . "', 'auto');\n" ?>
+  /* Pass the tracking UID of the GA property associated to this website */
+  <?php echo "ga('create', '" . $tracking_uid . "', 'auto');\n";?>
 </script>
-
+  
 <?php
+ 
+    /* Is this page an ecommerce product? */
+    $is_product = function_exists('is_product') && is_product();
 
-      /* Is this page an ecommerce product? */
-      $is_product = function_exists('is_product') && is_product();
+    /* Scroll tracking script to track reading behaviour. It applies
+    only to blog entries */
+    if (is_single() && $options ['scroll_tracking'])
+      wordpress_analytics_scroll_tracking();
 
-      /* Scroll tracking script to track reading behaviour. It applies
-      only to blog entries */
-      if (is_single() && $options ['scroll_tracking'])
-        wordpress_analytics_scroll_tracking();
+    /* Content grouping script to categorise the website content in GA. It
+    applies to all post content, ie. both blog entries and product pages. */
+    if (is_single() && $options ['content_grouping'])
+      wordpress_analytics_content_grouping();
 
-      /* Content grouping script to categorise the website content in GA. It
-      applies to all post content, ie. both blog entries and product pages. */
-      if (is_single() && $options ['content_grouping'])
-        wordpress_analytics_content_grouping();
+    /* Enable Enhanced Link attribution */
+    if ($options['enhanced_link_attribution'])
+      echo "<script>ga('require', 'linkid');</script>\n";
 
 ?>
 

@@ -31,6 +31,7 @@
     'group_index_blog' => '3',
     'pixel_threshold' => '300',
     'time_threshold' => '60',
+    'enhanced_link_attribution' => '0',
     'debug' => '0',
   ];
 
@@ -109,7 +110,11 @@
       'wpan_validate_options'       // validation callback
     );
 
-    /* "General settings" section */
+
+    // ==================================================================================
+    // =                                 General settings                               =
+    // ==================================================================================
+
     $section = 'general_settings';
     add_settings_section(
       $section . '_section',
@@ -175,7 +180,12 @@
       ]
     );
 
-    /* "Content grouping" section */
+
+
+    // ==================================================================================
+    // =                                 Content grouping                               =
+    // ==================================================================================
+
     $section = 'content_grouping';
     add_settings_section(
       $section . '_section',
@@ -247,7 +257,12 @@
       ]
     );
 
-    /* "Scroll tracking" section */
+
+
+    // ==================================================================================
+    // =                                 Scroll tracking                                =
+    // ==================================================================================
+
     $section = 'scroll_tracking';
     add_settings_section(
       $section . '_section',
@@ -299,7 +314,11 @@
     );
 
 
-    /* "Advanced settings" section */
+
+    // ==================================================================================
+    // =                                Advanced settings                               =
+    // ==================================================================================
+
     $section = 'advanced_settings';
     add_settings_section(
       $section . '_section',
@@ -308,8 +327,28 @@
       $menu_slug
     );
 
+    $name = 'enhanced_link_attribution';
+    $title = 'Enhanced Link Attribution';
+    $desc = 'Enable <a href="https://support.google.com/analytics/answer/2558867">Enhanced Link Attribution</a>.';
+    $desc .= 'Remember to enable the option in the property settings inside Google Analytics';
+    add_settings_field(
+      $name,
+      $title,
+      'wpan_render_' . $name,
+      $menu_slug,
+      $section . '_section',
+      [
+        'options_name' => $option_name,
+        'options_vals' => $data,
+        'name'         => $name,
+        'description'  => $desc,
+        'section'      => esc_attr( $section ),
+        'value'        => esc_attr( $data[ $name ] )
+      ]
+    );
+
     $name = 'debug';
-    $title = 'Debug mode?';
+    $title = 'Debug mode';
     $desc = 'Print useful information to console';
     add_settings_field(
       $name,
@@ -563,9 +602,15 @@
 
   }
 
+  function wpan_render_enhanced_link_attribution ( $args ) {
+
+    wpan_render_checkbox_input ( $args );
+
+  }
+
   function wpan_render_debug ( $args ) {
 
-    wpan_render_checkbox_input ($args);
+    wpan_render_checkbox_input ( $args );
 
   }
 
