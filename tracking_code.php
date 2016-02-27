@@ -35,13 +35,11 @@
     /* Is this page an ecommerce product? */
     $is_product = function_exists('is_product') && is_product();
 
-    /* Scroll tracking script to track reading behaviour. It applies
-    only to blog entries */
+    /* Scroll tracking script to track reading behaviour */
     if ( is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
       wordpress_analytics_scroll_tracking();
 
-    /* Content grouping script to categorise the website content in GA. It
-    applies to all post content, ie. both blog entries and product pages. */
+    /* Content grouping script to categorise the website content in GA */
     if ( is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'] )
       wordpress_analytics_content_grouping();
 

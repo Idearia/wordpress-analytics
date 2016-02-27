@@ -19,7 +19,21 @@
   /* Slug of the settings page */
   $wpan_menu_slug = 'wordpress-analytics-settings';
   
-  /* Sections in our settings page */
+  /* Structure of the settings page. Each entry in this array is a section.
+  The actual settings are listed in the 'fields' sub-array, along with their
+  default values. You can add sections and fields here.
+  
+    For each field that you add to the $wpan_menu_structure array,
+  you also need to write two functions:
+    1) wpan_register_<section_name>() to populate the section with settings,
+    2) wpan_display_<section_name>() to render the section in HTML.
+
+    Similarly, for each field that you add to $wpan_menu_structure,
+  remember to:
+  1) add the field to the function wpan_register_<section_name>(),
+  2) write the function wpan_display_<field_name>() to render the field in HTML,
+  3) sanitize the user input for the field in wpan_sanitize_options(). */
+
   $wpan_menu_structure = [
       'general_settings' => [
           'id' => 'general_settings',
@@ -81,9 +95,34 @@
       ],
   ];
 
-  /* What should we display as the title of a settings section? Leave blank
+  /* What should we display as the title of a settings section? Set to %name% 
   to use the section's name */
-  define (wpan_section_title, '<br>');
+  define ("wpan_section_title", '');
+
+
+
+  // ==================================================================================
+  // =                              Access the options                                =
+  // ==================================================================================
+
+  /**
+   * Return all options for the Wordpress Analytics plugin
+   */
+
+  function wpan_get_options () {
+    
+    global $wpan_menu_structure;
+    
+    $options = [];
+    
+    foreach ($wpan_menu_structure as $section) {
+      $options = array_merge ( $options, get_option ( $section['db_key'] ) );
+    }
+    
+    return $options;
+    
+  }
+
 
 
   // ==================================================================================
@@ -231,7 +270,7 @@
       /* Add the section */
       add_settings_section(
         $section['name'],
-        wpan_section_title === '' ? $section['display'] : wpan_section_title,
+        wpan_section_title === '%name%' ? $section['display'] : wpan_section_title,
         $section['func_display'],
         $section['page']
       );
