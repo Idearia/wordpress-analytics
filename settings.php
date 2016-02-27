@@ -106,7 +106,10 @@
   // ==================================================================================
 
   /**
-   * Return all options for the Wordpress Analytics plugin
+   * Return all options for the Wordpress Analytics plugin.
+   *
+   * The options are retrieved from the database. If the database does not contain
+   * them yet, the returned array will be empty.
    */
 
   function wpan_get_options () {
@@ -115,8 +118,13 @@
     
     $options = [];
     
-    foreach ($wpan_menu_structure as $section) {
-      $options = array_merge ( $options, get_option ( $section['db_key'] ) );
+    foreach ( $wpan_menu_structure as $section ) {
+
+      $section_options = get_option ( $section['db_key'] );
+
+      if ($section_options)
+        $options = array_merge ( $options, $section_options );
+
     }
     
     return $options;

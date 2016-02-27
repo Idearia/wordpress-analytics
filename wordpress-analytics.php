@@ -19,22 +19,27 @@
   /* Extract plugin options from the database */
   $options = wpan_get_options ();
 
-  /* Load content grouping function */
-  if ( isset ( $options ['content_grouping'] ) && $options ['content_grouping'] )
-    require_once (plugin_dir_path(__FILE__) . "content_grouping.php");
+  /* Stop unless we have a valid tracking ID */
+  if ( isset ( $options ['tracking_uid'] ) && $options ['tracking_uid'] ) {
 
-  /* Load scroll tracking function */
-  if ( isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
-    require_once (plugin_dir_path(__FILE__) . "scroll_tracking.php");
+    /* Load content grouping function */
+    if ( isset ( $options ['content_grouping'] ) && $options ['content_grouping'] )
+      require_once (plugin_dir_path(__FILE__) . "content_grouping.php");
 
-  /* Write the actual Google Analytics tracking code */
-  require_once (plugin_dir_path(__FILE__) . "tracking_code.php");
+    /* Load scroll tracking function */
+    if ( isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
+      require_once (plugin_dir_path(__FILE__) . "scroll_tracking.php");
 
-  /* Insert the tracking code in the header */
-  add_action ('wp_head', 'wordpress_analytics_tracking_code');
+    /* Write the actual Google Analytics tracking code */
+    require_once (plugin_dir_path(__FILE__) . "tracking_code.php");
 
-  /* Insert debug tools */
-  if ( isset ( $options ['debug'] ) && $options ['debug'] )
-    require_once (plugin_dir_path(__FILE__) . "debug.php");
+    /* Insert the tracking code in the header */
+    add_action ('wp_head', 'wordpress_analytics_tracking_code');
+
+    /* Insert debug tools */
+    if ( isset ( $options ['debug'] ) && $options ['debug'] )
+      require_once (plugin_dir_path(__FILE__) . "debug.php");
+    
+  }
 
 ?>
