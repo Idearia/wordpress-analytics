@@ -15,7 +15,7 @@
   function wordpress_analytics_scroll_tracking () {
 
     /* Extract the scroll tracking options from the database */
-    $options = get_option ("wpan:option_array");
+    $options = wpan_get_options ();
     $pixel_threshold = isset ( $options['pixel_threshold'] ) ? $options['pixel_threshold'] : '';
     $time_threshold = isset ( $options['time_threshold'] ) ? $options['time_threshold'] : '';
     $debug = isset ( $options['debug'] ) ? $options['debug'] : '';

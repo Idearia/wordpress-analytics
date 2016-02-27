@@ -36,10 +36,10 @@
 
     /* Extract the content grouping options from the database. If these are
     not properly formatted, nothing will be sent to GA. */
-    $options = get_option ("wpan:option_array");
-    $wordpress_group = 'contentGroup' . isset ( $options['group_index_wordpress'] ) ? $options['group_index_wordpress'] : '';
-    $woocommerce_group = 'contentGroup' . isset ( $options['group_index_woocommerce'] ) ? $options['group_index_woocommerce'] : '';
-    $blog_group = 'contentGroup' . isset ( $options['group_index_blog'] ) ? $options['group_index_blog'] : '';
+    $options = wpan_get_options ();
+    $wordpress_group = 'contentGroup' . (isset ( $options['group_index_wordpress'] ) ? $options['group_index_wordpress'] : '');
+    $woocommerce_group = 'contentGroup' . (isset ( $options['group_index_woocommerce'] ) ? $options['group_index_woocommerce'] : '');
+    $blog_group = 'contentGroup' . (isset ( $options['group_index_blog'] ) ? $options['group_index_blog'] : '');
 
     /* Extract the categories of this post, and select from them the
     top-level category that is first in alphabetical order. Note that

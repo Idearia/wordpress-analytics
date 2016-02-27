@@ -11,17 +11,17 @@
    */
 
   /* Extract plugin options from the database */
-  $options = get_option ("wpan:option_array");
+  $options = wpan_get_options ();
 
   /* Build settings page */
   include_once (plugin_dir_path(__FILE__) . "settings.php");
 
   /* Load content grouping function */
-  if (isset ( $options ['content_grouping'] ) && $options ['content_grouping'])
+  if ( isset ( $options ['content_grouping'] ) && $options ['content_grouping'] )
     include_once (plugin_dir_path(__FILE__) . "content_grouping.php");
 
   /* Load scroll tracking function */
-  if (isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'])
+  if ( isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
     include_once (plugin_dir_path(__FILE__) . "scroll_tracking.php");
 
   /* Load Google Analytics tracking function */
@@ -32,5 +32,23 @@
 
   /* Insert debug tools */
   include_once (plugin_dir_path(__FILE__) . "debug.php");
+
+
+  /**
+   * Return all options for the Wordpress Analytics plugin
+   */
+  function wpan_get_options () {
+    
+    global $wpan_menu_structure;
+    
+    $options = [];
+    
+    foreach ($wpan_menu_structure as $section) {
+      $options = array_merge ( $options, get_option ( $section['db_key'] ) );
+    }
+    
+    return $options;
+    
+  }
 
 ?>
