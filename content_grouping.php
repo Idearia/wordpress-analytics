@@ -90,7 +90,7 @@
 
     /* Default behaviour: send to Analytics the post category from Wordpress, and
     the information stored in the custom field 'analytics_content_type' */
-    else if ($categories && !is_wp_error($categories) && !empty($category_name)) {
+    else if ( $categories && ! is_wp_error($categories) && ! empty($category_name) ) {
 
       echo "<script> ga('set', 'contentGroup" . $wordpress_group . "', '" . $category_name . "'); </script>\n";
 
@@ -101,6 +101,24 @@
         echo "<script> ga('set', 'contentGroup" . $blog_group . "', '" . $content_type . "'); </script>\n";
 
     }
-  }
+    
+  } // wordpress_analytics_content_grouping
   
+
+  /* If Advanced Custom Fields is installed, load all JSON files
+  in the acf subdirectory */
+  if ( class_exists( 'acf' ) ) {
+
+    add_filter( 'acf/settings/load_json', 'my_acf_json_load_point' );
+
+    function my_acf_json_load_point( $paths ) {
+
+      $paths[] = plugin_dir_path(__FILE__) . "acf";
+
+      return $paths;
+      
+    }
+
+  } // if acf
+
 ?>

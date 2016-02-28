@@ -92,7 +92,7 @@ jQuery(document).ready(function($) {
       /* Pixels scrolled before considering the user engaged */
       var pixelThreshold = this_js_script.attr('pixelThreshold');
       if (pixelThreshold === undefined)
-        pixelThreshold = 200;
+        pixelThreshold = 300;
 
       /* Seconds required to read the content */
       var timeThreshold = this_js_script.attr('timeThreshold');
