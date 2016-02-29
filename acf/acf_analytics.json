@@ -1,0 +1,53 @@
+{
+    "key": "group_56a3b1c7eecad",
+    "title": "Analytics",
+    "fields": [
+        {
+            "key": "field_56a3b20486e26",
+            "label": "Tipo di contenuto",
+            "name": "analytics_content_type",
+            "type": "select",
+            "instructions": "Di che tipo di contenuto si tratta? Gli esempi che seguono si riferiscono ad un ipotetico bar nel quartiere Prati di Roma.<br>\r\n\r\n<b>Approfondimento<\/b>: consigli, guide o informazioni tangenziali all'attivit\u00e0 del cliente. Es: un contenuto sulle propriet\u00e0 benefiche del caff\u00e8 d'orzo.<br>\r\n\r\n<b>Core business<\/b>: promozioni dirette dell'attivit\u00e0 del cliente. Es: un contenuto che descrive l'aperitivo del bar, con parola chiave <i>aperitivo prati roma<\/i>.<br>\r\n\r\n<b>Local<\/b>: informazioni sul territorio dove si svolge l'attivit\u00e0 del cliente. Es: un contenuto sui negozi del quartiere Prati.<br>\r\n",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "Approfondimento": "Approfondimento",
+                "Core business": "Core business",
+                "Local": "Local",
+                "Ricetta": "Ricetta",
+                "Prodotto eCommerce": "Prodotto eCommerce",
+                "Non applicabile": "Non applicabile"
+            },
+            "default_value": [],
+            "allow_null": 1,
+            "multiple": 0,
+            "ui": 0,
+            "ajax": 0,
+            "placeholder": "",
+            "disabled": 0,
+            "readonly": 0
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": 1,
+    "description": ""
+}

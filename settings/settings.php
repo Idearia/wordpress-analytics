@@ -65,6 +65,23 @@
               'group_index_blog' => '3',
           ],
       ],
+      // 'custom_dimensions' => [
+      //     'id' => 'custom_dimensions',
+      //     'name' => 'custom_dimensions_section',
+      //     'display' => 'Custom dimensions',
+      //     'page' => 'wpan_custom_dimensions_page',
+      //     'group' => 'wpan_custom_dimensions_option_group',
+      //     'db_key' => 'wpan:custom_dimensions',
+      //     'func_register' => 'wpan_register_custom_dimensions_fields',
+      //     'func_display' => 'wpan_display_custom_dimensions_section',
+      //     'fields' => [
+      //         'custom_dimensions_repeater' => [
+      //             'index' => '1',
+      //             'type' => 'taxonomy',
+      //             'name' => 'category'
+      //         ],
+      //     ],
+      // ],
       'scroll_tracking' => [
           'id' => 'scroll_tracking',
           'name' => 'scroll_tracking_section',
@@ -301,242 +318,6 @@
   } // wpan_initialise_settings
 
 
-  // ----------------------------------------------------------------------------------
-  // -                                 General settings                               -
-  // ----------------------------------------------------------------------------------
-
-  function wpan_register_general_settings_fields( $section, $displayed_values ) {
-
-    $name = 'tracking_uid';
-    $title = 'Google Analytics tracking ID';
-    $desc = 'Google Analytics tracking ID';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-      ]
-    );
-
-    $name = 'content_grouping';
-    $title = 'Enable content grouping?';
-    $desc = 'Enable content grouping?';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-      ]
-    );
-
-    $name = 'scroll_tracking';
-    $title = 'Enable scroll tracking?';
-    $desc = 'Enable scroll tracking?';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-      ]
-    );
-
-  }
-
-
-  // ----------------------------------------------------------------------------------
-  // -                                 Content grouping                               -
-  // ----------------------------------------------------------------------------------
-
-  function wpan_register_content_grouping_fields( $section, $displayed_values ) {
-
-    $name = 'group_index_wordpress';
-    $title = 'Group index for Wordpress category';
-    $desc = 'Send the Wordpress category to this group index in Google Analytics';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-        'min'          => 1,
-        'max'          => 100,
-      ]
-    );
-
-    $name = 'group_index_woocommerce';
-    $title = 'Group index for Woocommerce product category';
-    $desc = 'Send the Woocommerce product category to this group index in Google Analytics';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-        'min'          => 1,
-        'max'          => 100,
-      ]
-    );
-
-    $name = 'group_index_blog';
-    $title = 'Group index for blog post category';
-    $desc = 'Send the blog post category to this group index in Google Analytics';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-        'min'          => 1,
-        'max'          => 100,
-      ]
-    );
-    
-  }
-
-
-  // ----------------------------------------------------------------------------------
-  // -                                 Scroll tracking                                -
-  // ----------------------------------------------------------------------------------
-
-  function wpan_register_scroll_tracking_fields( $section, $displayed_values ) {
-
-    $name = 'pixel_threshold';
-    $title = 'Pixels threshold for engagement';
-    $desc = 'Pixels the user needs to scroll before we consider him/her engaged.';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-        'min'          => 1,
-        'max'          => 10000,
-      ]
-    );
-
-    $name = 'time_threshold';
-    $title = 'Time required to read content';
-    $desc = 'Time in seconds the user needs to spend on the content before we consider it read';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,  
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] ),
-        'min'          => 1,
-        'max'          => 10000,
-      ]
-    );
-    
-  }
-
-
-  // ----------------------------------------------------------------------------------
-  // -                                Advanced settings                               -
-  // ----------------------------------------------------------------------------------
-
-  function wpan_register_advanced_settings_fields( $section, $displayed_values ) {
-
-    $name = 'enhanced_link_attribution';
-    $title = 'Enhanced Link Attribution';
-    $desc = 'Enable <a href="https://support.google.com/analytics/answer/2558867">Enhanced Link Attribution</a>.';
-    $desc .= 'Remember to enable the option in the property settings inside Google Analytics';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] )
-      ]
-    );
-
-    $name = 'debug';
-    $title = 'Debug mode';
-    $desc = 'Print useful information to console';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => esc_attr( $displayed_values[ $name ] )
-      ]
-    );
-
-  }
-
 
 
   // ==================================================================================
@@ -651,9 +432,8 @@
     return $output;
     
   }
-
-
-
+  
+  
   // ==================================================================================
   // =                                Display functions                               =
   // ==================================================================================
@@ -668,9 +448,9 @@
     /* Create a text input */
     printf(
         '<input type="text" name="%1$s[%2$s]" id="%2$s" value="%3$s">',
-        $args['db_key'],
-        $args['name'],
-        $args['value']
+        esc_attr ($args['db_key']),
+        esc_attr ($args['name']),
+        esc_attr ($args['value'])
     );
   }
 
@@ -683,12 +463,12 @@
     /* Create a text input */
     printf(
         '<input type="number" min="%1$s" max="%2$s" name="%3$s[%4$s]" id="%4$s" value="%5$s" class="%6$s">',
-        $args['min'],
-        $args['max'],
-        $args['db_key'],
-        $args['name'],
-        $args['value'],
-        $args['desc']
+        esc_attr ($args['min']),
+        esc_attr ($args['max']),
+        esc_attr ($args['db_key']),
+        esc_attr ($args['name']),
+        esc_attr ($args['value']),
+        esc_attr ($args['desc'])
     );
   }
 
@@ -702,100 +482,45 @@
     $checked = checked('1', $args['options_vals'][$args['name']], false);
     printf(
         '<input type="checkbox" name="%1$s[%2$s]" id="%2$s" value="1" %3$s>',
-        $args['db_key'],
-        $args['name'],
-        $checked
+        esc_attr ($args['db_key']),
+        esc_attr ($args['name']),
+        esc_attr ($checked)
     );
   }
 
 
-
-  /** display the "General settings" section */
-  function wpan_display_general_settings_section () {
-
-    echo "<p>General settings</p>";
-
-  }
-
-  function wpan_display_tracking_uid ( $args ) {
-
-    wpan_display_text_input ($args);
-
-  }
-
-  function wpan_display_content_grouping ( $args ) {
-
-    wpan_display_checkbox_input ($args);
-
-  }
-
-  function wpan_display_scroll_tracking ( $args ) {
-
-    wpan_display_checkbox_input ($args);
-
-  }
-
-
-  /** display the "Content grouping" section */
-  function wpan_display_content_grouping_section () {
-
-    echo "<p>Settings for the content grouping functionality</p>";
-
-  }
-
-  function wpan_display_group_index_wordpress ( $args ) {
-
-    wpan_display_number_input ( $args );
-
-  }
-
-  function wpan_display_group_index_woocommerce ( $args ) {
-
-    wpan_display_number_input ( $args );
-
-  }
-
-  function wpan_display_group_index_blog ( $args ) {
-
-    wpan_display_number_input ( $args );
-
-  }
-
-  /** display the "Scroll tracking" section */
-  function wpan_display_scroll_tracking_section () {
-
-    echo "<p>Settings for the scroll tracking functionality.</p>";
-    $desc = "Parameters set here will be ignored if you have Javascript caching enabled.";
-    echo "<p>$desc</p>";
-
-  }
-
-  function wpan_display_pixel_threshold ( $args ) {
-
-    wpan_display_number_input ( $args );
-
-  }
-
-  function wpan_display_time_threshold ( $args ) {
-
-    wpan_display_number_input ( $args );
-
-  }
   
-  /** display the "Advanced settings" section */
-  function wpan_display_advanced_settings_section () {
+  // ==================================================================================
+  // =                          General settings section                              =
+  // ==================================================================================
 
-  }
+  require_once (plugin_dir_path(__FILE__) . 'general_settings.php');
 
-  function wpan_display_enhanced_link_attribution ( $args ) {
 
-    wpan_display_checkbox_input ( $args );
+  // ==================================================================================
+  // =                          Content grouping section                              =
+  // ==================================================================================
 
-  }
+  require_once (plugin_dir_path(__FILE__) . 'content_grouping.php');
 
-  function wpan_display_debug ( $args ) {
 
-    wpan_display_checkbox_input ( $args );
+  // ==================================================================================
+  // =                         Custom dimensions section                              =
+  // ==================================================================================
 
-  }
+  require_once (plugin_dir_path(__FILE__) . 'custom_dimensions.php');
+
+
+  // ==================================================================================
+  // =                          Scroll tracking section                               =
+  // ==================================================================================
+
+  require_once (plugin_dir_path(__FILE__) . 'scroll_tracking.php');
+
+
+  // ==================================================================================
+  // =                         Advanced settings section                              =
+  // ==================================================================================
+
+  require_once (plugin_dir_path(__FILE__) . 'advanced_settings.php');
 
