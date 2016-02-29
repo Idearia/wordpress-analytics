@@ -88,7 +88,7 @@ jQuery(document).ready(function($) {
       var debugMode = parseInt (this_js_script.attr('debug'));
       if (debugMode === undefined)
         debugMode = false;
-
+      
       /* Pixels scrolled before considering the user engaged */
       var pixelThreshold = this_js_script.attr('pixelThreshold');
       if (pixelThreshold === undefined)

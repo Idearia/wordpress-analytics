@@ -14,7 +14,7 @@
   require_once (plugin_dir_path(__FILE__) . 'functions.php');
 
   /* Build settings page */
-  require_once (plugin_dir_path(__FILE__) . 'settings.php');
+  require_once (plugin_dir_path(__FILE__) . 'settings/settings.php');
 
   /* Extract plugin options from the database */
   $options = wpan_get_options ();
