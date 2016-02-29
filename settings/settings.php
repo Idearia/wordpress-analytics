@@ -65,23 +65,23 @@
               'group_index_blog' => '3',
           ],
       ],
-      'custom_dimensions' => [
-          'id' => 'custom_dimensions',
-          'name' => 'custom_dimensions_section',
-          'display' => 'Custom dimensions',
-          'page' => 'wpan_custom_dimensions_page',
-          'group' => 'wpan_custom_dimensions_option_group',
-          'db_key' => 'wpan:custom_dimensions',
-          'func_register' => 'wpan_register_custom_dimensions_fields',
-          'func_display' => 'wpan_display_custom_dimensions_section',
-          'fields' => [
-              'custom_dimensions_repeater' => [
-                  'index' => '1',
-                  'type' => 'taxonomy',
-                  'name' => 'category'
-              ],
-          ],
-      ],
+      // 'custom_dimensions' => [
+      //     'id' => 'custom_dimensions',
+      //     'name' => 'custom_dimensions_section',
+      //     'display' => 'Custom dimensions',
+      //     'page' => 'wpan_custom_dimensions_page',
+      //     'group' => 'wpan_custom_dimensions_option_group',
+      //     'db_key' => 'wpan:custom_dimensions',
+      //     'func_register' => 'wpan_register_custom_dimensions_fields',
+      //     'func_display' => 'wpan_display_custom_dimensions_section',
+      //     'fields' => [
+      //         'custom_dimensions_repeater' => [
+      //             'index' => '1',
+      //             'type' => 'taxonomy',
+      //             'name' => 'category'
+      //         ],
+      //     ],
+      // ],
       'scroll_tracking' => [
           'id' => 'scroll_tracking',
           'name' => 'scroll_tracking_section',
