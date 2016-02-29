@@ -106,6 +106,7 @@
           'func_register' => 'wpan_register_advanced_settings_fields',
           'func_display' => 'wpan_display_advanced_settings_section',
           'fields' => [
+              'vertical_booking_support' => '0',
               'enhanced_link_attribution' => '0',
               'debug' => '0',
           ],
@@ -345,7 +346,7 @@
     /* Sanitize settings one by one */
     foreach ( $input as $key => $value ) {
 
-      $error_type = '';
+      $error_code = '';
 
       if ( isset ( $input[ $key ] ) ) {
         
@@ -354,46 +355,60 @@
 
           switch ($key) {
 
-            case 'tracking_uid':
+            case 'tracking_uid':            
               if ( strlen ( trim ( $value ) ) < 13 ) {
-                $error_type = 'tracking-uid-too-short';
+                $error_code = 'tracking-uid-too-short';
                 $error_message = 'The tracking ID should be of the form UA-XXXXXXX-Y';
+                $error_type = 'error';
               }
               break;
 
             case 'group_index_wordpress':
               if ( $value < 0 ) {
-                $error_type = 'negative-group-index-wordpress';
+                $error_code = 'negative-group-index-wordpress';
                 $error_message = 'Wordpress group index must be positive';
+                $error_type = 'error';
               }
               break;
 
             case 'group_index_woocommerce':
               if ( $value < 0 ) {
-                $error_type = 'negative-group-index-woocommerce';
+                $error_code = 'negative-group-index-woocommerce';
                 $error_message = 'Woocommerce group index must be positive';
+                $error_type = 'error';
               }
               break;
 
             case 'group_index_blog':
               if ( $value < 0 ) {
-                $error_type = 'negative-group-index-blog';
+                $error_code = 'negative-group-index-blog';
                 $error_message = 'Blog group index must be positive';
+                $error_type = 'error';
               }
               break;
 
             case 'pixel_threshold':
               if ( $value < 0 ) {
-                $error_type = 'negative-pixel-threshold';
+                $error_code = 'negative-pixel-threshold';
                 $error_message = 'The pixel threshold must be positive';
+                $error_type = 'error';
               }
               break;
 
             case 'time_threshold':
               if ( $value < 0 ) {
-                $error_type = 'negative-time-threshold';
+                $error_code = 'negative-time-threshold';
                 $error_message = 'The time threshold must be positive';
+                $error_type = 'error';
               }
+              break;
+
+            case 'vertical_booking_support':
+              /* Vertical booking support requires enhanced link attribution */
+              $output['enhanced_link_attribution'] = true;
+              $error_code = 'set-enhanced-link-attribution';
+              $error_message = 'Enhanced link attribution was turned on to allow Vertical Booking support';
+              $error_type = 'updated';
               break;
 
           } // switch
@@ -401,25 +416,27 @@
         } // if not empty
 
 
-        /* Return an error message if the input given for this key didn't
-        respect our standards */
+        /* Return an error message if the input didn't respect our standards. Note
+        that if $error_type == 'updated', the message will be a (green) notice rather
+        than a (red) error message.  */
+        if ( ! empty ( $error_code ) ) {
 
-        if ( empty ( $error_type ) ) {
+          add_settings_error(
+            $key,
+            esc_attr ( $error_code ),
+            $error_message . '.',
+            $error_type);
+
+        }
+        
+        /* If the error was not severe, store the input value in the output
+        array */
+        if ( empty ( $error_code ) || $error_type !== 'error' ) {
 
           $output[ $key ] = $value;
 
         }
 
-        /* Return an error message if the input didn't respect our standards */
-        else {
-
-          add_settings_error(
-            $key,
-            esc_attr ( $error_type ),
-            $error_message . '.');
-
-        }
-        
         /* Strip all HTML and PHP tags and properly handle quoted strings.
         Thanks to Tom McFarlin: http://goo.gl/i0jL7t */
         if ( isset ( $output[$key] ) )
@@ -479,7 +496,7 @@
     // echo '<p>' . $args['desc'] . '</p>';
 
     /* Create a checkbox input */
-    $checked = checked('1', $args['options_vals'][$args['name']], false);
+    $checked = checked('1', $args['value'], false);
     printf(
         '<input type="checkbox" name="%1$s[%2$s]" id="%2$s" value="1" %3$s>',
         esc_attr ($args['db_key']),
