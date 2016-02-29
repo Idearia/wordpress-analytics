@@ -10,27 +10,36 @@
    * License: GPL3
    */
 
-  /* Extract plugin options from the database */
-  $options = get_option ("wpan:option_array");
+  /* Include utility functions */
+  require_once (plugin_dir_path(__FILE__) . "functions.php");
 
   /* Build settings page */
-  include_once (plugin_dir_path(__FILE__) . "settings.php");
+  require_once (plugin_dir_path(__FILE__) . "settings.php");
 
-  /* Load content grouping function */
-  if ($options ['content_grouping'])
-    include_once (plugin_dir_path(__FILE__) . "content_grouping.php");
+  /* Extract plugin options from the database */
+  $options = wpan_get_options ();
 
-  /* Load scroll tracking function */
-  if ($options ['scroll_tracking'])
-    include_once (plugin_dir_path(__FILE__) . "scroll_tracking.php");
+  /* Stop unless we have a valid tracking ID */
+  if ( isset ( $options ['tracking_uid'] ) && $options ['tracking_uid'] ) {
 
-  /* Load Google Analytics tracking function */
-  include_once (plugin_dir_path(__FILE__) . "tracking_code.php");
+    /* Load content grouping function */
+    if ( isset ( $options ['content_grouping'] ) && $options ['content_grouping'] )
+      require_once (plugin_dir_path(__FILE__) . "content_grouping.php");
 
-  /* Insert Google Analytics tracking code */
-  add_action ('wp_head', 'wordpress_analytics_tracking_code');
+    /* Load scroll tracking function */
+    if ( isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
+      require_once (plugin_dir_path(__FILE__) . "scroll_tracking.php");
 
-  /* Insert debug tools */
-  include_once (plugin_dir_path(__FILE__) . "debug.php");
+    /* Write the actual Google Analytics tracking code */
+    require_once (plugin_dir_path(__FILE__) . "tracking_code.php");
+
+    /* Insert the tracking code in the header */
+    add_action ('wp_head', 'wordpress_analytics_tracking_code');
+
+    /* Insert debug tools */
+    if ( isset ( $options ['debug'] ) && $options ['debug'] )
+      require_once (plugin_dir_path(__FILE__) . "debug.php");
+    
+  }
 
 ?>

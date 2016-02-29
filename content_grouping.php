@@ -36,10 +36,10 @@
 
     /* Extract the content grouping options from the database. If these are
     not properly formatted, nothing will be sent to GA. */
-    $options = get_option ("wpan:option_array");
-    $wordpress_group = 'contentGroup' . $options['group_index_wordpress'];
-    $woocommerce_group = 'contentGroup' . $options['group_index_woocommerce'];
-    $blog_group = 'contentGroup' . $options['group_index_blog'];
+    $options = wpan_get_options ();
+    $wordpress_group = isset ( $options['group_index_wordpress'] ) ? $options['group_index_wordpress'] : '';
+    $woocommerce_group = isset ( $options['group_index_woocommerce'] ) ? $options['group_index_woocommerce'] : '';
+    $blog_group = isset ( $options['group_index_blog'] ) ? $options['group_index_blog'] : '';
 
     /* Extract the categories of this post, and select from them the
     top-level category that is first in alphabetical order. Note that
@@ -61,7 +61,7 @@
 
     if (function_exists('is_product') && is_product()) {
 
-      echo "<script> ga('set', '" . $wordpress_group . "', '" . "Prodotti" . "'); </script>\n";
+      echo "<script> ga('set', 'contentGroup" . $wordpress_group . "', '" . "Prodotti" . "'); </script>\n";
 
       /* Extract the terms in the product category attached this post, and select from
       them the top-level term that is first in alphabetical order. Note that in Wordpress
@@ -77,9 +77,9 @@
 
 
       if ( $terms && !is_wp_error($terms) && !empty($term_name))
-        echo "<script> ga('set', '" . $woocommerce_group . "', '" . $term_name . "'); </script>\n";
+        echo "<script> ga('set', 'contentGroup" . $woocommerce_group . "', '" . $term_name . "'); </script>\n";
       else
-        echo "<script> ga('set', '" . $woocommerce_group . "', '" . "Undefined Product" . "'); </script>\n";
+        echo "<script> ga('set', 'contentGroup" . $woocommerce_group . "', '" . "Undefined Product" . "'); </script>\n";
   
     }
 
@@ -92,13 +92,13 @@
     the information stored in the custom field 'analytics_content_type' */
     else if ($categories && !is_wp_error($categories) && !empty($category_name)) {
 
-      echo "<script> ga('set', '" . $wordpress_group . "', '" . $category_name . "'); </script>\n";
+      echo "<script> ga('set', 'contentGroup" . $wordpress_group . "', '" . $category_name . "'); </script>\n";
 
       /* Extract content type from custom field */
-      $content_type = get_post_meta($post->ID, 'analytics_content_type', true);
+      $content_type = get_post_meta(get_the_ID(), 'analytics_content_type', true);
 
       if ($content_type)
-        echo "<script> ga('set', '" . $blog_group . "', '" . $content_type . "'); </script>\n";
+        echo "<script> ga('set', 'contentGroup" . $blog_group . "', '" . $content_type . "'); </script>\n";
 
     }
   }
