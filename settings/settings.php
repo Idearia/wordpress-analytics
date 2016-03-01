@@ -406,9 +406,11 @@
             case 'vertical_booking_support':
               /* Vertical booking support requires enhanced link attribution */
               $output['enhanced_link_attribution'] = true;
-              $error_code = 'set-enhanced-link-attribution';
-              $error_message = 'Enhanced link attribution was turned on to allow Vertical Booking support';
-              $error_type = 'updated';
+              if ( ! isset ( $input['enhanced_link_attribution'] ) || $input['enhanced_link_attribution'] == false ) {
+                $error_code = 'set-enhanced-link-attribution';
+                $error_message = 'Enhanced link attribution was turned on to allow Vertical Booking support';
+                $error_type = 'updated';
+              }
               break;
 
           } // switch
