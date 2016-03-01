@@ -48,6 +48,9 @@
  *
  * My additions to Justin's script are:
  *
+ * - Feb. 2016: The script now automatically excludes comments from the
+ *   the definition of content.
+ *
  * - Jan. 2016: Added support for more content types:
  *     > h-entry microformat (http://microformats.org/wiki/h-entry)
  *     > Schema Products (http://schema.org/Product)
@@ -135,11 +138,12 @@ jQuery(document).ready(function($) {
       example, a Schema.org contains the following elements: details,
       description, ingredients, instructions. */
 
-      var Content = function (name, resizeFactor) {
+      var Content = function (name, resizeFactor, debugMode) {
 
         /* Attributes that need to be set externally by the user */
         this.name = (typeof name !== 'undefined') ? name : '<undefined>';
         this.resizeFactor = (typeof resizeFactor !== 'undefined') ? resizeFactor : 1;
+        this.debugMode = (typeof debugMode !== 'undefined') ? debugMode : false;
         
         /* Attributes computed internally */
         this.elements = $([]);
@@ -174,7 +178,7 @@ jQuery(document).ready(function($) {
           }
 
           if (debugMode)
-            console.log ("Added " + element[0].outerHTML.split(element.html())[0]);
+            console.log ("Added " + element[0].outerHTML.split(element.html())[0] + " to " + self.name);
           
           /* Add the element to the array of elements making up the content */
           self.elements = self.elements.add (element);
@@ -195,6 +199,17 @@ jQuery(document).ready(function($) {
           self.endPixel = Math.max (self.endPixel, elementStartPixel + element.outerHeight());
           self.endPixel = parseInt (self.endPixel);
         
+          /* Update the total length of the content */
+          self.updateHeight ();
+        
+        };
+        
+
+        /**
+         * Update the pixel height of the content
+         */
+        this.updateHeight = function (index) {
+          
           /* Update the total length of the content */
           self.height = self.endPixel - self.startPixel;
         
@@ -229,14 +244,16 @@ jQuery(document).ready(function($) {
       
       /* Does this post contain a blog entry according to the hentry/hatom microformat? */
       if (postSelector.length && !recipeSelector.length && !productSelector.length) {
-        content = new Content ('Blog entry', resizeFactor);
+        content = new Content ('Blog entry', resizeFactor, debugMode);
         postSelector.each(content.addElement);
       }
 
-      /* Does this post contain a recipe according to the Recipe schema? */
-      else if (recipeSelector.length && !productSelector.length) {
-        content = new Content ('Recipe', resizeFactor);
-        var selectorStrings = [
+      /* Does this post contain a recipe according to the Recipe schema? Note that we 
+      do not consider recipes generated with the EasyRecipe plugin as recipes, because
+      their markup is not complete. */
+      else if (recipeSelector.length && !productSelector.length && !recipeSelector.hasClass('easyrecipe')) {
+        content = new Content ('Recipe', resizeFactor, debugMode);
+        var recipeSelectorStrings = [
           /* Introduction */
           '.recipe-content',
           /* Ingredients */
@@ -247,13 +264,15 @@ jQuery(document).ready(function($) {
           '[itemprop^="recipeInstructions"]',
           '[class^=recipe-instructions]',
           '.recipe-making',
+          /* Easyrecipe plugin */
+          '.easyrecipe',
         ];
-        recipeSelector.find(selectorStrings.join(',')).each(content.addElement);
+        recipeSelector.find(recipeSelectorStrings.join(',')).each(content.addElement);
       }
 
       /* Does this post contain a product according to the Product schema? */
       else if (productSelector.length) {
-        content = new Content ('Product', resizeFactor);
+        content = new Content ('Product', resizeFactor, debugMode);
         productSelector.each(content.addElement);
       }
 
@@ -262,36 +281,57 @@ jQuery(document).ready(function($) {
       else {
         
         if ($('.single-content').length) {
-          content = new Content ('.single-content', resizeFactor);
+          content = new Content ('.single-content', resizeFactor, debugMode);
           $('.single-content').each(content.addElement);
         }
       
         else if ($('#content').length) {
-          content = new Content ('#content', resizeFactor);
+          content = new Content ('#content', resizeFactor, debugMode);
           $('#content').each(content.addElement);
         }
       
         else if ($('#main-content').length) {
-          content = new Content ('#main-content', resizeFactor);
+          content = new Content ('#main-content', resizeFactor, debugMode);
           $('#main-content').each(content.addElement);
         }
       
         /* If we did not recognize the content type, take the whole body of
         the HTML page, issue a warning, and send an event to GA */
         else {
-          content = new Content ('<body>', resizeFactor);
+          content = new Content ('<body>', resizeFactor, debugMode);
           content.addElement($(document.body));
         }
 
-        console.warn(" -> Content type could not be identified properly, using " + content.name);
+        console.warn(" -> Content type could not be identified properly, will use " + content.name);
         ga('send', 'event', 'Reading', 'ContentGuessed', pageTitle, {'nonInteraction': 1});
         
+      } // content identification
+
+      /* Create an object containing the page comments */
+      var comments = new Content ('Comments section', 1, debugMode);
+      var commentsSelectorStrings = [
+        '#comment-wrap',
+        '#comments',
+        '.comments_area',
+      ];
+      $(commentsSelectorStrings.join(',')).each(comments.addElement);
+
+      /* Remove the comments from the content area */
+      if (comments.height > 0 && comments.startPixel > content.startPixel) {
+        content.endPixel = Math.min (content.endPixel, comments.startPixel);
+        content.updateHeight ();
       }
 
       /* Extract start, end and length of the content */
       var contentStart = content.startPixel;
       var contentEnd = content.endPixel;
       var contentLength = content.height;
+
+      /* Check that the content is longer than the pixel threshold */
+      if (contentLength < pixelThreshold) {
+        console.warn(" -> Content too short or threshold too large for '" + content.name + "'");
+        ga('send', 'event', 'Reading', 'ContentTooShort', pageTitle, {'nonInteraction': 1});
+      }
 
       /* Print some useful info */
       if (debugMode) {
@@ -321,18 +361,10 @@ jQuery(document).ready(function($) {
         /* Amount of *content* the user has scrolled so far */
         var contentShown = bottom - contentStart;
 
-        /* If the content is in a scrollable box, let's take
-        note of how much the user scrolled down in that box.
-        If not, this line won't do anything. */
-        // contentShown += content.startElement.scrollTop();
-        // if (content.startElement !== content.endElement)
-        //   contentShown += content.endElement.scrollTop();
-
         /* Print some useful info */
         if (debugMode) {
           console.log("windowScroll = " + windowScroll);
           console.log("bottom = " + bottom);
-          // console.log("scrollTop = " + content.endElement.scrollTop());
           console.log("contentShown = " + contentShown);
         }
 
