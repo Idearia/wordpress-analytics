@@ -29,23 +29,33 @@
   /* Pass the tracking UID of the GA property associated to this website */
   <?php echo "ga('create', '" . $tracking_uid . "', 'auto');\n";?>
 </script>
-  
+
 <?php
  
     /* Is this page an ecommerce product? */
     $is_product = function_exists('is_product') && is_product();
 
     /* Scroll tracking script to track reading behaviour */
-    if ( is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
+    if ( is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] ) {
       wordpress_analytics_scroll_tracking();
+    }
 
     /* Content grouping script to categorise the website content in GA */
-    if ( is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'] )
+    if ( is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'] ) {
       wordpress_analytics_content_grouping();
+    }
+
+    /* Enable Vertical Booking support */
+    if ( isset ( $options['vertical_booking_support'] ) && $options['vertical_booking_support'] ) {
+      echo "<script> ga('require', 'linker'); </script>\n";
+      echo "<script> ga('linker:autoLink', [/\\.(com|net)$/], true, true); </script>\n";
+      echo "<script> ga('require', 'displayfeatures'); </script>\n"; 
+    }
 
     /* Enable Enhanced Link attribution */
-    if ( isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'] )
-      echo "<script>ga('require', 'linkid');</script>\n";
+    if ( isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'] ) {
+      echo "<script> ga('require', 'linkid'); </script>\n";
+    }
 
 ?>
 
