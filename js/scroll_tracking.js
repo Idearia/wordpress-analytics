@@ -237,7 +237,9 @@ jQuery(document).ready(function($) {
       var postSelector = $('article[id^="post-"]').find('div.entry-content');
 
       /* Selector for a Schema.org recipe */
-      var recipeSelector = $('div[itemtype="http://schema.org/Recipe"]');
+      var recipeSelector = $('article[itemtype="http://schema.org/Recipe"]');
+      if (!recipeSelector.length)
+        recipeSelector = $('div[itemtype="http://schema.org/Recipe"]');
 
       /* Selector for a Schema.org product */
       var productSelector = $('div[itemtype="http://schema.org/Product"]');
