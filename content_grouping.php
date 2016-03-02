@@ -107,13 +107,13 @@
 
   /* If Advanced Custom Fields is installed, load all JSON files
   in the acf subdirectory */
-  if ( class_exists( 'acf' ) ) {
+  if ( class_exists( 'acf' ) && isset ( $options['enable_json_folder'] ) && $options['enable_json_folder'] ) {
 
     add_filter( 'acf/settings/load_json', 'my_acf_json_load_point' );
 
     function my_acf_json_load_point( $paths ) {
 
-      $paths[] = plugin_dir_path(__FILE__) . "acf";
+      $paths[] = WPAN_PLUGIN_DIR . "acf";
 
       return $paths;
       

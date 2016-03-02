@@ -10,11 +10,15 @@
    * License: GPL3
    */
 
+  /* Define plugin directory & URL */
+  define ("WPAN_PLUGIN_DIR", plugin_dir_path(__FILE__));
+  define ("WPAN_PLUGIN_URL", plugin_dir_url(__FILE__));
+
   /* Include utility functions */
-  require_once (plugin_dir_path(__FILE__) . 'functions.php');
+  require_once ( WPAN_PLUGIN_DIR . 'functions.php' );
 
   /* Build settings page */
-  require_once (plugin_dir_path(__FILE__) . 'settings/settings.php');
+  require_once ( WPAN_PLUGIN_DIR . 'settings/settings.php' );
 
   /* Extract plugin options from the database */
   $options = wpan_get_options ();
@@ -24,21 +28,21 @@
 
     /* Load content grouping function */
     if ( isset ( $options ['content_grouping'] ) && $options ['content_grouping'] )
-      require_once (plugin_dir_path(__FILE__) . 'content_grouping.php');
+      require_once ( WPAN_PLUGIN_DIR . 'content_grouping.php' );
 
     /* Load scroll tracking function */
     if ( isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
-      require_once (plugin_dir_path(__FILE__) . 'scroll_tracking.php');
+      require_once ( WPAN_PLUGIN_DIR . 'scroll_tracking.php' );
 
     /* Write the actual Google Analytics tracking code */
-    require_once (plugin_dir_path(__FILE__) . 'tracking_code.php');
+    require_once ( WPAN_PLUGIN_DIR . 'tracking_code.php' );
 
     /* Insert the tracking code in the header */
     add_action ('wp_head', 'wordpress_analytics_tracking_code');
 
     /* Insert debug tools */
     if ( isset ( $options ['debug'] ) && $options ['debug'] )
-      require_once (plugin_dir_path(__FILE__) . 'debug.php');
+      require_once ( WPAN_PLUGIN_DIR . 'debug.php' );
     
   }
 

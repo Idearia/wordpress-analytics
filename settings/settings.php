@@ -24,15 +24,15 @@
   default values. You can add sections and fields here.
   
     For each field that you add to the $wpan_menu_structure array,
-  you also need to write two functions:
+  you also need to write two functions in a new file:
     1) wpan_register_<section_name>() to populate the section with settings,
     2) wpan_display_<section_name>() to render the section in HTML.
 
     Similarly, for each field that you add to $wpan_menu_structure,
   remember to:
-  1) add the field to the function wpan_register_<section_name>(),
-  2) write the function wpan_display_<field_name>() to render the field in HTML,
-  3) sanitize the user input for the field in wpan_sanitize_options(). */
+    1) add the field to the function wpan_register_<section_name>(),
+    2) implement the function wpan_display_<field_name>() to render the field,
+    3) sanitize the user input for the field in wpan_sanitize_options(). */
 
   $wpan_menu_structure = [
       'general_settings' => [
@@ -42,6 +42,7 @@
           'page' => 'wpan_general_settings_page',
           'group' => 'wpan_general_settings_option_group',
           'db_key' => 'wpan:general_settings',
+          'visible' => true,
           'func_register' => 'wpan_register_general_settings_fields',
           'func_display' => 'wpan_display_general_settings_section',
           'fields' => [
@@ -57,6 +58,7 @@
           'page' => 'wpan_content_grouping_page',
           'group' => 'wpan_content_grouping_option_group',
           'db_key' => 'wpan:content_grouping',
+          'visible' => true,
           'func_register' => 'wpan_register_content_grouping_fields',
           'func_display' => 'wpan_display_content_grouping_section',
           'fields' => [
@@ -72,6 +74,7 @@
       //     'page' => 'wpan_custom_dimensions_page',
       //     'group' => 'wpan_custom_dimensions_option_group',
       //     'db_key' => 'wpan:custom_dimensions',
+      //     'visible' => true,
       //     'func_register' => 'wpan_register_custom_dimensions_fields',
       //     'func_display' => 'wpan_display_custom_dimensions_section',
       //     'fields' => [
@@ -88,6 +91,7 @@
           'display' => 'Scroll tracking',
           'page' => 'wpan_scroll_tracking_page',
           'group' => 'wpan_scroll_tracking_option_group',
+          'visible' => true,
           'db_key' => 'wpan:scroll_tracking',
           'func_register' => 'wpan_register_scroll_tracking_fields',
           'func_display' => 'wpan_display_scroll_tracking_section',
@@ -102,6 +106,7 @@
           'display' => 'Advanced settings',
           'page' => 'wpan_advanced_settings_page',
           'group' => 'wpan_advanced_settings_option_group',
+          'visible' => true,
           'db_key' => 'wpan:advanced_settings',
           'func_register' => 'wpan_register_advanced_settings_fields',
           'func_display' => 'wpan_display_advanced_settings_section',
@@ -109,6 +114,20 @@
               'vertical_booking_support' => '0',
               'enhanced_link_attribution' => '0',
               'debug' => '0',
+          ],
+      ],
+      'hidden_settings' => [
+          'id' => 'hidden_settings',
+          'name' => 'hidden_settings_section',
+          'display' => 'Hidden settings',
+          'page' => 'wpan_hidden_settings_page',
+          'group' => 'wpan_hidden_settings_option_group',
+          'visible' => false,
+          'db_key' => 'wpan:hidden_settings',
+          'func_register' => 'wpan_register_hidden_settings_fields',
+          'func_display' => 'wpan_display_hidden_settings_section',
+          'fields' => [
+              'enable_json_folder' => '0',
           ],
       ],
   ];
@@ -211,7 +230,8 @@
           <?php
             foreach ($tabs as $tab) {
               $is_active = $tab['id'] == $active_tab ? 'nav-tab-active' : '';
-              echo "<a href='?page=$wpan_menu_slug&tab=" . $tab['id'] . "' class='nav-tab $is_active'>" . $tab['display'] . "</a>\n";
+              $is_hidden = $tab['visible'] == true ? '' : 'hidden';
+              echo "<a href='?page=$wpan_menu_slug&tab=" . $tab['id'] . "' class='nav-tab $is_active' $is_hidden>" . $tab['display'] . "</a>\n";
             }
           ?>
         </h2>
@@ -508,36 +528,11 @@
 
   
   // ==================================================================================
-  // =                          General settings section                              =
+  // =                            Include section pages                               =
   // ==================================================================================
 
-  require_once (plugin_dir_path(__FILE__) . 'general_settings.php');
+  foreach ($wpan_menu_structure as $section) {
 
-
-  // ==================================================================================
-  // =                          Content grouping section                              =
-  // ==================================================================================
-
-  require_once (plugin_dir_path(__FILE__) . 'content_grouping.php');
-
-
-  // ==================================================================================
-  // =                         Custom dimensions section                              =
-  // ==================================================================================
-
-  require_once (plugin_dir_path(__FILE__) . 'custom_dimensions.php');
-
-
-  // ==================================================================================
-  // =                          Scroll tracking section                               =
-  // ==================================================================================
-
-  require_once (plugin_dir_path(__FILE__) . 'scroll_tracking.php');
-
-
-  // ==================================================================================
-  // =                         Advanced settings section                              =
-  // ==================================================================================
-
-  require_once (plugin_dir_path(__FILE__) . 'advanced_settings.php');
-
+    require_once ( WPAN_PLUGIN_DIR . 'settings/' . $section['id'] . '.php' );
+    
+  }
