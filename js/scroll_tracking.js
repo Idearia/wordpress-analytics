@@ -248,6 +248,13 @@ jQuery(document).ready(function($) {
       if (postSelector.length && !recipeSelector.length && !productSelector.length) {
         content = new Content ('Blog entry', resizeFactor, debugMode);
         postSelector.each(content.addElement);
+        /* Do not consider the top image as content */
+        var imageSelector = postSelector.find('p:first').find('img:first');
+        if (imageSelector.length) {
+          console.log ('Will not consider the first image as content');
+          content.startPixel = parseInt (imageSelector.offset().top + imageSelector.outerHeight());
+          content.updateHeight();
+        }
       }
 
       /* Does this post contain a recipe according to the Recipe schema? Note that we 
@@ -258,6 +265,7 @@ jQuery(document).ready(function($) {
         var recipeSelectorStrings = [
           /* Introduction */
           '.recipe-content',
+          '.recipe-information-description',
           /* Ingredients */
           '[itemprop^="recipeIngredients"]',
           '[class^=recipe-ingredients]',
@@ -321,7 +329,7 @@ jQuery(document).ready(function($) {
       /* Remove the comments from the content area */
       if (comments.height > 0 && comments.startPixel > content.startPixel) {
         content.endPixel = Math.min (content.endPixel, comments.startPixel);
-        content.updateHeight ();
+        content.updateHeight();
       }
 
       /* Extract start, end and length of the content */
