@@ -268,11 +268,11 @@ jQuery(document).ready(function($) {
           '.recipe-information-description',
           /* Ingredients */
           '[itemprop^="recipeIngredients"]',
-          '[class^=recipe-ingredients]',
+          '[class^="recipe-ingredients"]',
           '.recipe-ingredients',
           /* Instructions */
           '[itemprop^="recipeInstructions"]',
-          '[class^=recipe-instructions]',
+          '[class^="recipe-instructions"]',
           '.recipe-making',
           /* Easyrecipe plugin */
           '.easyrecipe',

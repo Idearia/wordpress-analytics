@@ -32,14 +32,16 @@
     /* Load the imagesLoaded javascript library to ensure that scroll
     tracking works properly with image-rich pages.
     TODO: we should use wp_enqueue() here. */
-    echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js'></script>\n";
+    echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js' defer='defer'></script>\n";
 
     /* Load the script; in the future we could use wp_enqueue instead
     TODO: we should use wp_enqueue() here. */
     echo "<script src='$script_versioned' "
           . "timeThreshold='$time_threshold' "
           . "pixelThreshold='$pixel_threshold' "
-          . "debug='$debug'> "
+          . "debug='$debug' "
+          . "defer='defer'"
+          . "> "
           . "</script>\n";
 
   }
