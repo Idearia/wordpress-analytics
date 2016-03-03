@@ -34,7 +34,7 @@
     TODO: we should use wp_enqueue() here. */
     echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js' defer='defer'></script>\n";
 
-    /* Load the script; in the future we could use wp_enqueue instead
+    /* Load the script.
     TODO: we should use wp_enqueue() here. */
     echo "<script src='$script_versioned' "
           . "timeThreshold='$time_threshold' "
