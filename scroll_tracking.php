@@ -21,25 +21,27 @@
     $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
 
     /* Script path & url */
-    $script_path = plugin_dir_path(__FILE__) . 'js/scroll_tracking.js';
-    $script = plugin_dir_url(__FILE__) . 'js/scroll_tracking.js';
+    $script_path = WPAN_PLUGIN_DIR . 'js/scroll_tracking.js';
+    $script_url = WPAN_PLUGIN_URL . 'js/scroll_tracking.js';
       
     /* Add the timestamp as a query string to the script, in order to reload
     automatically the script when it is changed rather than using the cached
     version (see http://stackoverflow.com/a/14536240/2972183) */
-    $script_versioned = $script . '?ver=' . filemtime($script_path);
+    $script_versioned = $script_url . '?ver=' . filemtime($script_path);
 
     /* Load the imagesLoaded javascript library to ensure that scroll
     tracking works properly with image-rich pages.
     TODO: we should use wp_enqueue() here. */
-    echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js'></script>\n";
+    echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js' defer='defer'></script>\n";
 
-    /* Load the script; in the future we could use wp_enqueue instead
+    /* Load the script.
     TODO: we should use wp_enqueue() here. */
     echo "<script src='$script_versioned' "
           . "timeThreshold='$time_threshold' "
           . "pixelThreshold='$pixel_threshold' "
-          . "debug='$debug'> "
+          . "debug='$debug' "
+          . "defer='defer'"
+          . "> "
           . "</script>\n";
 
   }
