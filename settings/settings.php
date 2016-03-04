@@ -108,12 +108,13 @@
           'display' => 'Call tracking',
           'page' => 'wpan_call_tracking_page',
           'group' => 'wpan_call_tracking_option_group',
-          'visible' => true,
+          'visible' => false,
           'db_key' => 'wpan:call_tracking',
           'func_register' => 'wpan_register_call_tracking_fields',
           'func_display' => 'wpan_display_call_tracking_section',
           'fields' => [
-              'phone_regex_pattern' => '',
+              'phone_regex_include_pattern' => '',
+              'phone_regex_exclude_pattern' => '',
               'detect_phone_numbers' => '0',
           ],
       ],
@@ -441,7 +442,9 @@
               }
               break;
 
-            case 'phone_regex_pattern':
+            case 'phone_exclude_regex_pattern':
+
+            case 'phone_include_regex_pattern':
               if ( $value && preg_match("/$value/", null) === false ) {
                 /* If the regex is not legit, find out what the error message is */
                 $regex_error_msg = '';
@@ -451,7 +454,7 @@
                   }
                 }
                 $error_code = 'phone-regex-not-valid';
-                $error_message = 'Error in the regex';
+                $error_message = "Error in '$key'";
                 /* It might happen that preg_last_error() returns an OK status code even if
                 preg_match() has failed; see https://akrabat.com/preg_last_error-returns-no-
                 error-on-preg_match-failure/ for why this happens */
@@ -461,7 +464,7 @@
               }
               elseif ( strlen ( $value ) > WPAN_MAX_REGEX_LENGTH ) {
                 $error_code = 'phone-regex-too-long';
-                $error_message = 'Regex must be shorter than' . WPAN_MAX_REGEX_LENGTH . ' characters for security reasons';
+                $error_message = "Regex ($key) must be shorter than" . WPAN_MAX_REGEX_LENGTH . " characters for security reasons";
                 $error_type = 'error';
               }
               break;
@@ -502,7 +505,11 @@
 
         /* Strip all HTML and PHP tags and properly handle quoted strings.
         Thanks to Tom McFarlin: http://goo.gl/i0jL7t */
-        if ( isset ( $output[$key] ) )
+        $dont_strip = [
+          'phone_regex_include_pattern',
+          'phone_regex_exclude_pattern',
+        ];
+        if ( isset ( $output[$key] ) && ! in_array ( $key, $dont_strip ) )
           $output[$key] = strip_tags( stripslashes( $output[$key] ) );        
         
       } // if isset (input[$key])

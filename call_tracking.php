@@ -13,7 +13,8 @@
 
     /* Extract the call tracking options from the database */
     $options = wpan_get_options ();
-    $phone_regex_pattern = isset ( $options['phone_regex_pattern'] ) ? $options['phone_regex_pattern'] : '';
+    $phone_regex_include_pattern = isset ( $options['phone_regex_include_pattern'] ) ? $options['phone_regex_include_pattern'] : '';
+    $phone_regex_exclude_pattern = isset ( $options['phone_regex_exclude_pattern'] ) ? $options['phone_regex_exclude_pattern'] : '';
     $detect_phone_numbers = isset ( $options['detect_phone_numbers'] ) ? $options['detect_phone_numbers'] : '';
     $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
 
@@ -29,7 +30,8 @@
 
     /* Load the script */
     echo "<script src='$script_versioned' "
-          . "regexPattern='$phone_regex_pattern' "
+          . "regexIncludePattern='$phone_regex_include_pattern' "
+          . "regexExcludePattern='$phone_regex_exclude_pattern' "
           . "detectPhoneNumbers='$detect_phone_numbers' "
           . "debug='$debug' "
           . "defer='defer'"

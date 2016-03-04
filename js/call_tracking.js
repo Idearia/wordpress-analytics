@@ -39,17 +39,21 @@ jQuery(document).ready(function($) {
   if (detectPhoneNumbers === undefined)
     detectPhoneNumbers = false;
 
-  /* Regex pattern used to validate & find phone numbers in the webpage */
-  var regexPattern = this_js_script.attr('regexPattern');
-  if (regexPattern === undefined)
-    regexPattern = '';
+  /* Regex pattern (include) used to validate & find phone numbers in the webpage */
+  var regexIncludePattern = this_js_script.attr('regexIncludePattern');
+  if (regexIncludePattern === undefined)
+    regexIncludePattern = '';
+
+  /* Regex pattern (exclude) used to validate & find phone numbers in the webpage */
+  var regexExcludePattern = this_js_script.attr('regexExcludePattern');
+  if (regexExcludePattern === undefined)
+    regexExcludePattern = '';
 
   /* Get some information about the current page */
   var pageTitle = document.title;
 
   /* Delimiters that can appear in phone numbers */
   var delimiters = [' ', '.', '-', ','];
-
 
 
   // ===========================================================================
@@ -67,16 +71,27 @@ jQuery(document).ready(function($) {
 
     if (debugMode)
       console.log(' -> Click on ' + phoneNumber);
-    
-    /* If the user specified a pattern, then consider only phone numbers that
-    match that pattern */
-    /* TODO: fix this */
-    // if (regexPattern && phoneNumber.search('/' + regexPattern + '/g') < 0) {
-    //   if (debugMode)
-    //     console.log(' -> User provided pattern (' + regexPattern + ') not matched, ignoring click');
-    //   return false;
-    // }
-      
+
+    /* Consider only phone numbers that match the given include pattern */
+    if (regexIncludePattern) {
+      var includeRegex = new RegExp(regexIncludePattern, 'g');
+      if (phoneNumber.search(includeRegex) < 0) {
+        if (debugMode)
+          console.log(' -> User provided inclusion pattern (' + regexIncludePattern + ') not matched, ignoring click');
+        return false;
+      }
+    }
+
+    /* Do not consider phone numbers that match the given exclude pattern */
+    if (regexExcludePattern) {
+      var excludeRegex = new RegExp(regexExcludePattern, 'g');
+      if (phoneNumber.search(excludeRegex) >= 0) {
+        if (debugMode)
+          console.log(' -> User provided exclusion pattern (' + regexExcludePattern + ') matched, ignoring click');
+        return false;
+      }
+    }
+
     /* Send to GA an event, using the phone number as the event action.
     In order to avoid spurious events due to inconsistent naming conventions,
     we strip all delimiters from the phone number before sending the event */
@@ -84,7 +99,7 @@ jQuery(document).ready(function($) {
     var stripRegex = new RegExp(stripPattern, 'g');
     var strippedPhoneNumber = phoneNumber.replace(stripRegex,'');
 
-    // ga('send', 'event', 'Calling', strippedPhoneNumber, pageTitle);
+    ga('send', 'event', 'Calling', strippedPhoneNumber, pageTitle);
 
     if (debugMode)
       console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
