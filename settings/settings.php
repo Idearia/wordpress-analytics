@@ -32,7 +32,8 @@
   remember to:
     1) add the field to the function wpan_register_<section_name>(),
     2) implement the function wpan_display_<field_name>() to render the field,
-    3) sanitize the user input for the field in wpan_sanitize_options(). */
+    3) sanitize the user input for the field in wpan_sanitize_options(), unless
+       it is a checkbox. */
 
   $wpan_menu_structure = [
       'general_settings' => [
@@ -47,8 +48,9 @@
           'func_display' => 'wpan_display_general_settings_section',
           'fields' => [
               'tracking_uid' => '',
-              'scroll_tracking'  => '0',
-              'content_grouping'   => '0',
+              'scroll_tracking' => '0',
+              'content_grouping' => '0',
+              'call_tracking' => '0',
           ],
       ],
       'content_grouping' => [
@@ -98,6 +100,22 @@
           'fields' => [
               'pixel_threshold' => '300',
               'time_threshold' => '60',
+          ],
+      ],
+      'call_tracking' => [
+          'id' => 'call_tracking',
+          'name' => 'call_tracking_section',
+          'display' => 'Call tracking',
+          'page' => 'wpan_call_tracking_page',
+          'group' => 'wpan_call_tracking_option_group',
+          'visible' => false,
+          'db_key' => 'wpan:call_tracking',
+          'func_register' => 'wpan_register_call_tracking_fields',
+          'func_display' => 'wpan_display_call_tracking_section',
+          'fields' => [
+              'phone_regex_include_pattern' => '',
+              'phone_regex_exclude_pattern' => '',
+              'detect_phone_numbers' => '0',
           ],
       ],
       'advanced_settings' => [
@@ -230,10 +248,11 @@
           <?php
             foreach ($tabs as $tab) {
               $is_active = $tab['id'] == $active_tab ? 'nav-tab-active' : '';
-              $is_hidden = $tab['visible'] == true ? '' : 'hidden';
+              $is_hidden = $tab['visible'] == true ? '' : "hidden='hidden'";
               echo "<a href='?page=$wpan_menu_slug&tab=" . $tab['id'] . "' class='nav-tab $is_active' $is_hidden>" . $tab['display'] . "</a>\n";
             }
           ?>
+          <script> jQuery("a.nav-tab[hidden='hidden']").hide() </script>
         </h2>
 
         <form action="options.php" method="POST">
@@ -423,6 +442,33 @@
               }
               break;
 
+            case 'phone_exclude_regex_pattern':
+
+            case 'phone_include_regex_pattern':
+              if ( $value && preg_match("/$value/", null) === false ) {
+                /* If the regex is not legit, find out what the error message is */
+                $regex_error_msg = '';
+                foreach ( get_defined_constants(true)['pcre'] as $k => $v ) {
+                  if ( strstr ($k, "ERROR") && $v == preg_last_error() ) {
+                    $regex_error_msg = $k;
+                  }
+                }
+                $error_code = 'phone-regex-not-valid';
+                $error_message = "Error in '$key'";
+                /* It might happen that preg_last_error() returns an OK status code even if
+                preg_match() has failed; see https://akrabat.com/preg_last_error-returns-no-
+                error-on-preg_match-failure/ for why this happens */
+                if ($regex_error_msg)
+                  $error_message . ': ' . $regex_error_msg;
+                $error_type = 'error';
+              }
+              elseif ( strlen ( $value ) > WPAN_MAX_REGEX_LENGTH ) {
+                $error_code = 'phone-regex-too-long';
+                $error_message = "Regex ($key) must be shorter than" . WPAN_MAX_REGEX_LENGTH . " characters for security reasons";
+                $error_type = 'error';
+              }
+              break;
+
             case 'vertical_booking_support':
               /* Vertical booking support requires enhanced link attribution */
               $output['enhanced_link_attribution'] = true;
@@ -459,7 +505,11 @@
 
         /* Strip all HTML and PHP tags and properly handle quoted strings.
         Thanks to Tom McFarlin: http://goo.gl/i0jL7t */
-        if ( isset ( $output[$key] ) )
+        $dont_strip = [
+          'phone_regex_include_pattern',
+          'phone_regex_exclude_pattern',
+        ];
+        if ( isset ( $output[$key] ) && ! in_array ( $key, $dont_strip ) )
           $output[$key] = strip_tags( stripslashes( $output[$key] ) );        
         
       } // if isset (input[$key])
@@ -484,10 +534,12 @@
 
     /* Create a text input */
     printf(
-        '<input type="text" name="%1$s[%2$s]" id="%2$s" value="%3$s">',
+        '<input type="text" name="%1$s[%2$s]" id="%2$s" value="%3$s" maxlength="%4$s" size="%5$s">',
         esc_attr ($args['db_key']),
         esc_attr ($args['name']),
-        esc_attr ($args['value'])
+        esc_attr ($args['value']),
+        esc_attr ($args['maxlength']),
+        esc_attr ($args['size'])
     );
   }
 
@@ -499,13 +551,12 @@
 
     /* Create a text input */
     printf(
-        '<input type="number" min="%1$s" max="%2$s" name="%3$s[%4$s]" id="%4$s" value="%5$s" class="%6$s">',
-        esc_attr ($args['min']),
-        esc_attr ($args['max']),
+        '<input type="number" name="%1$s[%2$s]" id="%2$s" value="%3$s" min="%4$s" max="%5$s">',
         esc_attr ($args['db_key']),
         esc_attr ($args['name']),
         esc_attr ($args['value']),
-        esc_attr ($args['desc'])
+        esc_attr ($args['min']),
+        esc_attr ($args['max'])
     );
   }
 

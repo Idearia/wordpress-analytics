@@ -4,6 +4,9 @@
    * Insert Google Analytics (GA) code for Wordpress websites,
    * including scroll tracking and content grouping.
    *
+   * Anything echoed by this function will be written in the 
+   * head of all pages.
+   *
    * Created by Guido W. Pettinari on 23.12.2015.
    * Part of Wordpress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
@@ -38,6 +41,11 @@
     /* Scroll tracking script to track reading behaviour */
     if ( is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] ) {
       wordpress_analytics_scroll_tracking();
+    }
+
+    /* Call tracking script to track clicks on phone number links */
+    if ( isset ( $options ['call_tracking'] ) && $options ['call_tracking'] ) {
+      wordpress_analytics_call_tracking();
     }
 
     /* Content grouping script to categorise the website content in GA */

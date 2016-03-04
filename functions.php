@@ -9,4 +9,10 @@
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
+  /**
+   * Maximum number of characters allowed for a regex input via a
+   * text input field
+   */
+  define ( "WPAN_MAX_REGEX_LENGTH", 200 );
+
 ?>
