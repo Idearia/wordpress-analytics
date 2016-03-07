@@ -95,11 +95,17 @@ jQuery(document).ready(function($) {
     /* Send to GA an event, using the phone number as the event action.
     In order to avoid spurious events due to inconsistent naming conventions,
     we strip all delimiters from the phone number before sending the event */
-    var stripPattern = '[' + RegExp.escape (delimiters.join('')) + ']';
-    var stripRegex = new RegExp(stripPattern, 'g');
-    var strippedPhoneNumber = phoneNumber.replace(stripRegex,'');
+    var delimitersPattern = '[' + RegExp.escape (delimiters.join('')) + ']';
+    var delimitersRegex = new RegExp(delimitersPattern, 'g');
+    
+    /* For the same reason, we also strip any 00 or + symbol from the beginning
+    of the phone number */
+    var prefixPattern = '(00|\\+)';
+    var prefixRegex = new RegExp(prefixPattern, 'g');
+    var strippedPhoneNumber = phoneNumber.replace(delimitersRegex,'').replace(prefixRegex,'');
 
-    ga('send', 'event', 'Calling', strippedPhoneNumber, pageTitle);
+    /* Send the event, attaching phone number & page information */
+    ga('send', 'event', 'Contact', strippedPhoneNumber, pageTitle);
 
     if (debugMode)
       console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
