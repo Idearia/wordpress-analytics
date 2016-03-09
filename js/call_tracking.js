@@ -54,7 +54,7 @@ jQuery(document).ready(function($) {
 
   /* Delimiters that can appear in phone numbers */
   var delimiters = [' ', '.', '-', ','];
-
+  
 
   // ===========================================================================
   // =                             Track phone clicks                          =
@@ -65,12 +65,17 @@ jQuery(document).ready(function($) {
   usually asks for confirmation before calling */
   var telSelector = $("a[href^='tel:']");
 
+  /* Number of clicks so far */
+  var numberOfClicks = 0; 
+
   telSelector.click(function () {
 
-    var phoneNumber = $(this).attr('href');
+    numberOfClicks++;
 
     if (debugMode)
-      console.log(' -> Click on ' + phoneNumber);
+      console.log(' -> Clicked on ' + phoneNumber);
+
+    var phoneNumber = $(this).attr('href');
 
     /* Consider only phone numbers that match the given include pattern */
     if (regexIncludePattern) {
@@ -104,11 +109,17 @@ jQuery(document).ready(function($) {
     var prefixRegex = new RegExp(prefixPattern, 'g');
     var strippedPhoneNumber = phoneNumber.replace(delimitersRegex,'').replace(prefixRegex,'');
 
-    /* Send the event, attaching phone number & page information */
-    ga('send', 'event', 'Contact', strippedPhoneNumber, pageTitle);
-
-    if (debugMode)
-      console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
+    /* Send the event, attaching phone number & page information. Do so only
+    if the user hasn't already clicked on the phone number before. */
+    if (numberOfClicks == 1) {
+      ga('send', 'event', 'Contact', strippedPhoneNumber, pageTitle);
+      if (debugMode)
+        console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
+    }
+    else {
+      if (debugMode)
+        console.log(' -> Ignored click event #' + numberOfClicks + ' for ' + phoneNumber);
+    }
 
   });
 

@@ -274,6 +274,7 @@ jQuery(document).ready(function($) {
           '[itemprop^="recipeInstructions"]',
           '[class^="recipe-instructions"]',
           '.recipe-making',
+          '.recipe-notes',
           /* Easyrecipe plugin */
           '.easyrecipe',
         ];
