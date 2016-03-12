@@ -18,7 +18,7 @@
   require_once ( WPAN_PLUGIN_DIR . 'functions.php' );
 
   /* Build settings page */
-  require_once ( WPAN_PLUGIN_DIR . 'settings/wordpress_analytics_settings.php' );
+  require_once ( WPAN_PLUGIN_DIR . 'settings/settings.php' );
 
   /* Extract plugin options from the database */
   $options = wpan_get_options ();
