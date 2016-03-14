@@ -9,10 +9,11 @@
  * See https://developers.google.com/web/fundamentals/native-hardware
  * /click-to-call/?hl=en for further details.
  *
- * This script optionally applies the correct 'tel:' markup to phone
- * numbers if they haven't it already. To to so, pass the attribute
- * detectPhoneNumbers='1' in the HTML tag calling this script.
- * 
+ * Optionally, the script will also spot text in the page in the form
+ * TEL: +39 06 123456 or TEL: +39-06-123456 and convert it into
+ *
+ *   <a href="tel:+3906123456">06123456</a>.
+ *
  * Created by Guido W. Pettinari on 02.03.2016.
  * Part of Wordpress Analytics:
  * https://github.com/coccoinomane/wordpress_analytics
@@ -56,6 +57,41 @@ jQuery(document).ready(function($) {
   var delimiters = [' ', '.', '-', ','];
   
 
+
+  // ==========================================================================
+  // =                            Find phone numbers                          =
+  // ==========================================================================
+
+  /* Look for phone numbers in the page and enclose them in a 'tel:' link */
+
+  if (detectPhoneNumbers) {
+
+    /* Regex to match phone numbers */
+    var telPattern = 'TEL: (?:(\\+\\d*)[ -]?)?(?:(\\d*)[ -]?)?(?:(\\d*)[ -]?)?';
+    var telRegex = new RegExp(telPattern, 'g');
+
+    /* List of places where to look for telephone numbers. Keep in mind that
+    all matched elements containing a phone number will be rewritten, thus
+    potentially interfering with other scripts. Therefore, I suggest you
+    try to be specific in your choice, ex. look for the specific div.class
+    rather than for $(document.body). */
+    var telContainersStrings = [
+      '[class^="contact"]',
+    ];
+    var telContainers = jQuery(telContainersStrings.join(',')).filter(function() {
+      return telRegex.test(jQuery(this).text());
+    });
+
+    /* Replace the HTML in the selected elements using the telephone regex */
+    if (telContainers.length > 0) {
+      var newHTML = telContainers.html().replace(telRegex, "<a href='tel:$1$2$3'>$2 $3</a>");
+      telContainers.html(newHTML);
+    }
+
+  }
+  
+  
+  
   // ===========================================================================
   // =                             Track phone clicks                          =
   // ===========================================================================
@@ -124,17 +160,6 @@ jQuery(document).ready(function($) {
   });
 
 
-  // ==========================================================================
-  // =                            Find phone numbers                          =
-  // ==========================================================================
-
-  if (detectPhoneNumbers) {
-
-    /* TODO: Implement automatic detection of phone numbers */
-    
-  }
-
-
   /**
    * Function to automatically escape special characters in regex patterns;
    * thanks to bobince on http://stackoverflow.com/a/3561711/2972183
@@ -145,5 +170,5 @@ jQuery(document).ready(function($) {
   };
 
 
-}); // $(document).imagesLoaded
+}); // $(document).ready
 

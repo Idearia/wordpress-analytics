@@ -47,8 +47,8 @@
     );
 
     $name = 'detect_phone_numbers';
-    $title = 'Detect phone numbers automatically (NOT IMPLEMENTED YET)';
-    $desc = "If set, we shall treat all numbers matching the inclusion regex pattern above as clickable phone numbers, regardless of whether they are 'tel:' links";
+    $title = 'Detect phone numbers automatically';
+    $desc = "If set, automatically convert text like `TEL: 123456` into a phone number link. Useful if you can't input HTML in pages, ex. if you use Visual Composer contact-info element.";
     add_settings_field(
       $name,
       $title,

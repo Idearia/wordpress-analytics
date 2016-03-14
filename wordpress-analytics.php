@@ -46,7 +46,7 @@
     require_once ( WPAN_PLUGIN_DIR . 'tracking_code.php' );
 
     /* Insert the tracking code in the header */
-    add_action ('wp_head', 'wordpress_analytics_tracking_code');
+    add_action ('wp_head', 'wordpress_analytics_tracking_code', PHP_INT_MAX);
 
     /* Insert debug tools */
     if ( isset ( $options ['debug'] ) && $options ['debug'] )

@@ -105,7 +105,7 @@
                       'display' => 'Call tracking',
                       'page' => 'wpan_call_tracking_page',
                       'group' => 'wpan_call_tracking_option_group',
-                      'visible' => false,
+                      'visible' => true,
                       'db_key' => 'wpan:call_tracking',
                       'func_register' => 'wpan_register_call_tracking_fields',
                       'func_display' => 'wpan_display_call_tracking_section',
