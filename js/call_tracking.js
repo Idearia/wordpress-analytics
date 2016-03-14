@@ -72,10 +72,10 @@ jQuery(document).ready(function($) {
 
     numberOfClicks++;
 
+    var phoneNumber = $(this).attr('href');
+
     if (debugMode)
       console.log(' -> Clicked on ' + phoneNumber);
-
-    var phoneNumber = $(this).attr('href');
 
     /* Consider only phone numbers that match the given include pattern */
     if (regexIncludePattern) {

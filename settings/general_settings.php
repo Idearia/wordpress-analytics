@@ -89,8 +89,6 @@
   /** display the "General settings" section */
   function wpan_display_general_settings_section () {
 
-    echo "<p>General settings</p>";
-
   }
 
   function wpan_display_tracking_uid ( $args ) {
