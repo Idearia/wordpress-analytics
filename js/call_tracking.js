@@ -38,7 +38,7 @@ jQuery(document).ready(function($) {
   /* Should we automatically add the 'tel:' markup to phone numbers in the page? */
   var detectPhoneNumbers = this_js_script.attr('detectPhoneNumbers');
   if (detectPhoneNumbers === undefined)
-    detectPhoneNumbers = false;
+    detectPhoneNumbers = true;
 
   /* Regex pattern (include) used to validate & find phone numbers in the webpage */
   var regexIncludePattern = this_js_script.attr('regexIncludePattern');

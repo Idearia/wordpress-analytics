@@ -112,7 +112,7 @@
                       'fields' => [
                           'phone_regex_include_pattern' => '',
                           'phone_regex_exclude_pattern' => '',
-                          'detect_phone_numbers' => '0',
+                          'detect_phone_numbers' => '1',
                       ],
                   ],
                   'hidden_settings' => [

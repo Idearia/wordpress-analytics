@@ -48,7 +48,7 @@
 
     $name = 'detect_phone_numbers';
     $title = 'Detect phone numbers automatically';
-    $desc = "If set, automatically convert text like `TEL: 123456` into a phone number link. Useful if you can't input HTML in pages, ex. if you use Visual Composer contact-info element.";
+    $desc = "If set, automatically convert text like `TEL: +39 06 123456` into a phone number link. Useful if you can't input HTML in pages, ex. in a Visual Composer module.";
     add_settings_field(
       $name,
       $title,
@@ -65,7 +65,7 @@
         'label_for'    => $name,
       ]
     );
-    
+
   }
 
 
