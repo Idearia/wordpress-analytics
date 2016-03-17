@@ -17,6 +17,11 @@
     /* Extract the tracking UID from the database */
     $options = wpan_get_options ();
     $tracking_uid = isset ( $options ['tracking_uid'] ) ? $options ['tracking_uid'] : '';
+    $content_grouping = is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'];
+    $scroll_tracking = is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'];
+    $call_tracking = isset ( $options ['call_tracking'] ) && $options ['call_tracking'];
+    $enhanced_link_attribution = isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'];
+    $vertical_booking_support = isset ( $options['vertical_booking_support'] ) && $options['vertical_booking_support'];
 
     /* Execute the script only if the tracking ID exists */
     if ($tracking_uid) {
@@ -30,7 +35,14 @@
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
   /* Pass the tracking UID of the GA property associated to this website */
-  <?php echo "ga('create', '" . $tracking_uid . "', 'auto');\n";?>
+  <?php
+    if ( ! $vertical_booking_support ) {
+      echo "ga('create', '" . $tracking_uid . "', 'auto');\n";
+    }
+    else {
+      echo "ga('create', '" . $tracking_uid . "', 'auto', {'allowLinker': true});\n";
+    }
+  ?>
 </script>
 
 <?php
@@ -39,29 +51,29 @@
     $is_product = function_exists('is_product') && is_product();
 
     /* Scroll tracking script to track reading behaviour */
-    if ( is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] ) {
+    if ( $scroll_tracking ) {
       wordpress_analytics_scroll_tracking();
     }
 
     /* Call tracking script to track clicks on phone number links */
-    if ( isset ( $options ['call_tracking'] ) && $options ['call_tracking'] ) {
+    if ( $call_tracking ) {
       wordpress_analytics_call_tracking();
     }
 
     /* Content grouping script to categorise the website content in GA */
-    if ( is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'] ) {
+    if ( $content_grouping ) {
       wordpress_analytics_content_grouping();
     }
 
     /* Enable Vertical Booking support */
-    if ( isset ( $options['vertical_booking_support'] ) && $options['vertical_booking_support'] ) {
+    if ( $vertical_booking_support ) {
       echo "<script> ga('require', 'linker'); </script>\n";
-      echo "<script> ga('linker:autoLink', [/\\.(com|net)$/], true, true); </script>\n";
+      echo "<script> ga('linker:autoLink', ['verticalbooking.com'], true, true); </script>\n";
       echo "<script> ga('require', 'displayfeatures'); </script>\n"; 
     }
 
     /* Enable Enhanced Link attribution */
-    if ( isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'] ) {
+    if ( $enhanced_link_attribution ) {
       echo "<script> ga('require', 'linkid'); </script>\n";
     }
 
