@@ -27,6 +27,8 @@
     /* Execute the script only if the tracking ID exists */
     if ($tracking_uid) {
 
+      echo PHP_EOL . PHP_EOL . "<!-- BEGIN: Tracking code inserted by Wordpress Analytics " . WPAN_VERSION . " - " . WPAN_URL . "-->" . PHP_EOL;
+
 ?>
 
 <script>
@@ -92,6 +94,8 @@
 <?php
   
     } // if $tracking_uid
+    
+    echo "<!-- END: Tracking code inserted by Wordpress Analytics " . WPAN_VERSION . " - " . WPAN_URL . "-->" . PHP_EOL . PHP_EOL;
     
   } // end of function
   

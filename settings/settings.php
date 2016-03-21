@@ -248,10 +248,11 @@
 
           switch ($key) {
 
-            case 'tracking_uid':            
-              if ( strlen ( trim ( $value ) ) < 13 ) {
-                $error_code = 'tracking-uid-too-short';
-                $error_message = 'The tracking ID should be of the form UA-XXXXXXX-Y';
+            case 'tracking_uid':
+              $tracking_uid_regex = '/(UA|YT|MO)-\d+-\d+/i';
+              if ( ! preg_match( $tracking_uid_regex, $value ) ) {
+                $error_code = 'wrong-tracking-uid';
+                $error_message = 'The tracking ID should be of the form UA-XXXXXXXX-Y';
                 $error_type = 'error';
               }
               break;
