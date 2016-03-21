@@ -1,5 +1,9 @@
 <?php
 
+  /**
+   * Register the fields contained in the the "Advanced settings" section.
+   */
+
   function wpan_register_advanced_settings_fields( $section, $displayed_values ) {
 
     $name = 'enhanced_link_attribution';
@@ -66,10 +70,18 @@
   }
 
 
-  /** display the "Advanced settings" section */
+  /**
+   * Build the "Advanced settings" section.
+   **/
+
   function wpan_display_advanced_settings_section () {
 
   }
+
+
+  /**
+   * Display the single fields in the "Advanced settings" section.
+   */   
 
   function wpan_display_enhanced_link_attribution ( $args ) {
 

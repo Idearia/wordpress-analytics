@@ -1,5 +1,9 @@
 <?php
 
+  /**
+   * Register the fields contained in the the "Custom dimensions" section.
+   */
+
   function wpan_register_custom_dimensions_fields( $section, $displayed_values ) {
 
     $name = 'custom_dimensions_repeater';
@@ -24,12 +28,20 @@
   }
 
 
-  /** display the "Content grouping" section */
+  /**
+   * Build the "Custom dimensions" section.
+   **/
+
   function wpan_display_custom_dimensions_section () {
 
     echo "<p>Settings for the Custom Dimensions functionality</p>";
 
   }
+
+
+  /**
+   * Display the single fields in the "Custom dimensions" section.
+   */   
 
   function wpan_display_custom_dimensions_repeater ( $args ) {
     

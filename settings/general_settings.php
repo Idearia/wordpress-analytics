@@ -1,5 +1,9 @@
 <?php
 
+  /**
+   * Register the fields contained in the the "General settings" section.
+   */
+
   function wpan_register_general_settings_fields( $section, $displayed_values ) {
 
     $name = 'tracking_uid';
@@ -86,7 +90,11 @@
 
   }
 
-  /** display the "General settings" section */
+
+  /**
+   * Build the "General settings" section.
+   **/
+
   function wpan_display_general_settings_section () {
 
   }
