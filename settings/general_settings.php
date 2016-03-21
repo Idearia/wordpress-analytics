@@ -22,7 +22,7 @@
         'desc'         => $desc,
         'section'      => $section,
         'value'        => $displayed_values[ $name ],
-        'maxlength'    => '16',
+        'maxlength'    => '20',
         'label_for'    => $name,
       ]
     );
