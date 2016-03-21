@@ -265,8 +265,13 @@
         );
 
 
-        /* Add the fields to the section by calling the 'func_register' function
-        for the considered section. */
+        /* Register the fields in the section by calling the 'func_register_'
+        function for the considered section.
+        
+        In the Settings API language, a field is a single option. Registering
+        a field means telling Wordpress how to build the HTML for that field
+        in the settings page, and where to store/retrieve the value of the
+        field in the database. This is what the func_register_ functions do. */
 
         require_once ( WPAN_PLUGIN_DIR . 'settings/' . $section['id'] . '.php' );
 
@@ -292,8 +297,10 @@
   // =                                Display functions                               =
   // ==================================================================================
 
-  /** Generic displaying functions */
 
+  /** 
+   * Display a single-line input field (<input type="text">).
+   */
   function wpan_display_text_input ( $args ) {
 
     // /* Print description */
@@ -302,14 +309,18 @@
     /* Create a text input */
     printf(
         '<input type="text" name="%1$s[%2$s]" id="%2$s" value="%3$s" maxlength="%4$s" size="%5$s">',
-        esc_attr ($args['db_key']),
-        esc_attr ($args['name']),
-        esc_attr ($args['value']),
-        esc_attr ($args['maxlength']),
-        esc_attr ($args['size'])
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_attr( $args['value'] ),
+        esc_attr( $args['maxlength'] ),
+        esc_attr( $args['size'] )
     );
   }
 
+
+  /** 
+   * Display a number input field (<input type="number">).
+   */
   function wpan_display_number_input ( $args ) {
 
     /* Print description
@@ -319,14 +330,18 @@
     /* Create a text input */
     printf(
         '<input type="number" name="%1$s[%2$s]" id="%2$s" value="%3$s" min="%4$s" max="%5$s">',
-        esc_attr ($args['db_key']),
-        esc_attr ($args['name']),
-        esc_attr ($args['value']),
-        esc_attr ($args['min']),
-        esc_attr ($args['max'])
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_attr( $args['value'] ),
+        esc_attr( $args['min'] ),
+        esc_attr( $args['max'] )
     );
   }
 
+
+  /** 
+   * Display a checkbox input field (<input type="checkbox">).
+   */
   function wpan_display_checkbox_input ( $args ) {
 
     /* Print description
@@ -337,9 +352,54 @@
     $checked = checked('1', $args['value'], false);
     printf(
         '<input type="checkbox" name="%1$s[%2$s]" id="%2$s" value="1" %3$s>',
-        esc_attr ($args['db_key']),
-        esc_attr ($args['name']),
-        esc_attr ($checked)
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_attr( $checked )
     );
+  }
+
+
+  /** 
+   * Display a multi-line input field (<textarea>).
+   */
+  function wpan_display_textarea_input ( $args ) {
+
+    /* Print description
+    TODO: should use a question mark popup */
+    // echo '<p>' . $args['desc'] . '</p>';
+
+    /* Create a textarea input */
+    printf(
+        '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_textarea( $args['value'] ),
+        esc_attr( $args['rows'] ),
+        esc_attr( $args['cols'] ),
+        esc_attr( $args['placeholder'] )
+    );
+  }
+
+
+  /** 
+   * Display a multi-line input field (<textarea>) meant to include PHP & HTML code.
+   */
+  function wpan_display_code_input ( $args ) {
+
+    /* Print description
+    TODO: should use a question mark popup */
+    // echo '<p>' . $args['desc'] . '</p>';
+
+    /* Create a textarea input */
+    printf(
+        '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        htmlspecialchars( $args['value'] ), /* Escape HTML special characters (',",&,<,>) */
+        esc_attr( $args['rows'] ),
+        esc_attr( $args['cols'] ),
+        esc_attr( $args['placeholder'] )
+    );
+
   }
 

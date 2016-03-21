@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Register the fields contained in the the "Scroll tracking" section.
+ */
+
   function wpan_register_scroll_tracking_fields( $section, $displayed_values ) {
 
     $name = 'pixel_threshold';
@@ -49,7 +53,10 @@
   }
 
 
-  /** display the "Scroll tracking" section */
+  /**
+   * Build the "Scroll tracking" section.
+   **/
+
   function wpan_display_scroll_tracking_section () {
 
     echo "<p>Settings for the scroll tracking functionality.</p>";
@@ -58,6 +65,11 @@
 
   }
 
+
+  /**
+   * Display the single fields in the "Scroll tracking" section.
+   */
+   
   function wpan_display_pixel_threshold ( $args ) {
 
     wpan_display_number_input ( $args );

@@ -20,6 +20,7 @@
     $content_grouping = is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'];
     $scroll_tracking = is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'];
     $call_tracking = isset ( $options ['call_tracking'] ) && $options ['call_tracking'];
+    $custom_code = isset ( $options ['custom_code'] ) && $options ['custom_code'];
     $enhanced_link_attribution = isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'];
     $vertical_booking_support = isset ( $options['vertical_booking_support'] ) && $options['vertical_booking_support'];
 
@@ -47,9 +48,6 @@
 
 <?php
  
-    /* Is this page an ecommerce product? */
-    $is_product = function_exists('is_product') && is_product();
-
     /* Scroll tracking script to track reading behaviour */
     if ( $scroll_tracking ) {
       wordpress_analytics_scroll_tracking();
@@ -75,6 +73,11 @@
     /* Enable Enhanced Link attribution */
     if ( $enhanced_link_attribution ) {
       echo "<script> ga('require', 'linkid'); </script>\n";
+    }
+
+    /* Execute code specified by the user */
+    if ( $custom_code ) {
+      echo php_eval( $options ['custom_code'] );
     }
 
 ?>

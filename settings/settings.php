@@ -155,10 +155,25 @@
                       'db_key' => 'wpan:advanced_settings',
                       'func_register' => 'wpan_register_advanced_settings_fields',
                       'func_display' => 'wpan_display_advanced_settings_section',
+                      'display_section_title' => false,
                       'fields' => [
                           'vertical_booking_support' => '0',
                           'enhanced_link_attribution' => '0',
                           'debug' => '0',
+                      ],
+                  ],
+                  'custom_code' => [
+                      'id' => 'custom_code',
+                      'name' => 'custom_code_section',
+                      'display' => 'Custom code',
+                      'page' => 'wpan_custom_code_page',
+                      'group' => 'wpan_custom_code_option_group',
+                      'visible' => true,
+                      'db_key' => 'wpan:custom_code',
+                      'func_register' => 'wpan_register_custom_code_fields',
+                      'func_display' => 'wpan_display_custom_code_section',
+                      'fields' => [
+                          'custom_code' => '',
                       ],
                   ],
               ],
@@ -316,6 +331,10 @@
               $error_type = 'updated';
               break;
 
+            case 'custom_code':
+              /* TODO: add syntax & malware checks */
+              break;
+
           } // switch
 
         } // if not empty
@@ -347,6 +366,7 @@
         $dont_strip = [
           'phone_regex_include_pattern',
           'phone_regex_exclude_pattern',
+          'custom_code',
         ];
         if ( isset ( $output[$key] ) && ! in_array ( $key, $dont_strip ) )
           $output[$key] = strip_tags( stripslashes( $output[$key] ) );        
