@@ -331,6 +331,10 @@
               $error_type = 'updated';
               break;
 
+            case 'custom_code':
+              /* TODO: add syntax & malware checks */
+              break;
+
           } // switch
 
         } // if not empty
@@ -362,6 +366,7 @@
         $dont_strip = [
           'phone_regex_include_pattern',
           'phone_regex_exclude_pattern',
+          'custom_code',
         ];
         if ( isset ( $output[$key] ) && ! in_array ( $key, $dont_strip ) )
           $output[$key] = strip_tags( stripslashes( $output[$key] ) );        

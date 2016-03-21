@@ -309,11 +309,11 @@
     /* Create a text input */
     printf(
         '<input type="text" name="%1$s[%2$s]" id="%2$s" value="%3$s" maxlength="%4$s" size="%5$s">',
-        esc_attr ($args['db_key']),
-        esc_attr ($args['name']),
-        esc_attr ($args['value']),
-        esc_attr ($args['maxlength']),
-        esc_attr ($args['size'])
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_attr( $args['value'] ),
+        esc_attr( $args['maxlength'] ),
+        esc_attr( $args['size'] )
     );
   }
 
@@ -330,11 +330,11 @@
     /* Create a text input */
     printf(
         '<input type="number" name="%1$s[%2$s]" id="%2$s" value="%3$s" min="%4$s" max="%5$s">',
-        esc_attr ($args['db_key']),
-        esc_attr ($args['name']),
-        esc_attr ($args['value']),
-        esc_attr ($args['min']),
-        esc_attr ($args['max'])
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_attr( $args['value'] ),
+        esc_attr( $args['min'] ),
+        esc_attr( $args['max'] )
     );
   }
 
@@ -352,9 +352,9 @@
     $checked = checked('1', $args['value'], false);
     printf(
         '<input type="checkbox" name="%1$s[%2$s]" id="%2$s" value="1" %3$s>',
-        esc_attr ($args['db_key']),
-        esc_attr ($args['name']),
-        esc_attr ($checked)
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_attr( $checked )
     );
   }
 
@@ -371,12 +371,12 @@
     /* Create a textarea input */
     printf(
         '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
-        esc_attr ($args['db_key']),
-        esc_attr ($args['name']),
-        esc_attr ($args['value']),
-        esc_attr ($args['rows']),
-        esc_attr ($args['cols']),
-        esc_attr ($args['placeholder'])
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        esc_textarea( $args['value'] ),
+        esc_attr( $args['rows'] ),
+        esc_attr( $args['cols'] ),
+        esc_attr( $args['placeholder'] )
     );
   }
 
@@ -386,11 +386,20 @@
    */
   function wpan_display_code_input ( $args ) {
 
-    /* Escape HTML special characters (',",&,<,>) */
-    $args['value'] = htmlspecialchars ( $args['value'] );
+    /* Print description
+    TODO: should use a question mark popup */
+    // echo '<p>' . $args['desc'] . '</p>';
 
-    /* Display the input field */
-    wpan_display_textarea_input ( $args );
+    /* Create a textarea input */
+    printf(
+        '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] ),
+        htmlspecialchars( $args['value'] ), /* Escape HTML special characters (',",&,<,>) */
+        esc_attr( $args['rows'] ),
+        esc_attr( $args['cols'] ),
+        esc_attr( $args['placeholder'] )
+    );
 
   }
 
