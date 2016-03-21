@@ -143,7 +143,9 @@
     /* TODO: Include the jQuery to enable contextual popup help */
 
     /* Intercept the calls to add_settings_error() in wpan_sanitize_options(),
-    and complain if the options are wrong. */
+    and complain if the options are wrong. Otherwise show a nice "Settings 
+    saved" notice. TODO: It seems this call is unnecessary when dealing with
+    a submenu; actually, including it will lead to duplicate notices! */
     settings_errors ();
 
     /* By default, we set the first tab to be the active one */
