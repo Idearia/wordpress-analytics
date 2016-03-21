@@ -11,7 +11,7 @@
    */
 
   /* Define plugin version */
-  define ("WPAN_VERSION", "alpha_v5");
+  define ("WPAN_VERSION", "alpha_v6");
   define ("WPAN_URL", "https://github.com/coccoinomane/wordpress_analytics");
 
   /* Define plugin directory & URL */
