@@ -141,7 +141,7 @@ jQuery(document).ready(function($) {
     
     /* For the same reason, we also strip any 00 or + symbol from the beginning
     of the phone number */
-    var prefixPattern = '(00|\\+)';
+    var prefixPattern = '^(00|\\+)';
     var prefixRegex = new RegExp(prefixPattern, 'g');
     var strippedPhoneNumber = phoneNumber.replace(delimitersRegex,'').replace(prefixRegex,'');
 
