@@ -178,7 +178,7 @@ jQuery(document).ready(function($) {
           }
 
           if (debugMode)
-            console.log ("Added " + element[0].outerHTML.split(element.html())[0] + " to " + self.name);
+            console.log ("Added " + element[0].outerHTML.split(element.html())[0] + " to content '" + self.name + "'");
           
           /* Add the element to the array of elements making up the content */
           self.elements = self.elements.add (element);
@@ -187,7 +187,7 @@ jQuery(document).ready(function($) {
           /* Self consistency check */
           if (self.n_elements !== self.elements.length)
             console.warn ('Error in elements count: ' + self.n_elements + '!=' + self.elements.length);
-        
+
           /* Where the current element starts */
           var elementStartPixel = element.offset().top;
 
@@ -234,7 +234,8 @@ jQuery(document).ready(function($) {
       var content;
 
       /* Selector for a Wordpress post */
-      var postSelector = $('article[id^="post-"]').find('div.entry-content');
+      // var postSelector = $('article[id^="post-"]').find('div.entry-content');
+      var postSelector = $('article[id^="post-"], article.single-post, #blogread');
 
       /* Selector for a Schema.org recipe */
       var recipeSelector = $('article[itemtype="http://schema.org/Recipe"]');
@@ -247,11 +248,19 @@ jQuery(document).ready(function($) {
       /* Does this post contain a blog entry according to the hentry/hatom microformat? */
       if (postSelector.length && !recipeSelector.length && !productSelector.length) {
         content = new Content ('Blog entry', resizeFactor, debugMode);
-        postSelector.each(content.addElement);
+        var postSelectorStrings = [
+          'div.entry-content',
+          '.article__content',
+          '.article_content',
+          '.blog-content',
+        ];
+        postSelector.find(postSelectorStrings.join(',')).each(content.addElement);
+
         /* Do not consider the top image as content */
         var imageSelector = postSelector.find('p:first').find('img:first');
         if (imageSelector.length) {
-          console.log ('Will not consider the first image as content');
+          if (debugMode)
+            console.log ('Will not consider the first image as content');
           content.startPixel = parseInt (imageSelector.offset().top + imageSelector.outerHeight());
           content.updateHeight();
         }
@@ -275,6 +284,7 @@ jQuery(document).ready(function($) {
           '[class^="recipe-instructions"]',
           '.recipe-making',
           '.recipe-notes',
+          '.recipe__content',
           /* Easyrecipe plugin */
           '.easyrecipe',
         ];
@@ -310,7 +320,7 @@ jQuery(document).ready(function($) {
         the HTML page, issue a warning, and send an event to GA */
         else {
           content = new Content ('<body>', resizeFactor, debugMode);
-          content.addElement($(document.body));
+          $('body').each(content.addElement);
         }
 
         console.warn(" -> Content type could not be identified properly, will use " + content.name);
@@ -324,6 +334,7 @@ jQuery(document).ready(function($) {
         '#comment-wrap',
         '#comments',
         '.comments_area',
+        '.comment-respond',
       ];
       $(commentsSelectorStrings.join(',')).each(comments.addElement);
 
@@ -384,7 +395,7 @@ jQuery(document).ready(function($) {
         the shown content exceed the threshold even if the user scrolls one pixel;
         therefore, we ask the user to actually scroll at least pixelThreshold/2
         pixels. */
-        if (!startedReading && contentShown > pixelThreshold && windowScroll > pixelThreshold/2) {
+        if (!startedReading && contentShown > pixelThreshold && windowScroll > pixelThreshold/2.0) {
 
           startedReading = true;
           currentTime = new Date();
@@ -398,6 +409,12 @@ jQuery(document).ready(function($) {
 
         /* If user reached the end of the content, send an event */
         if (!endContent && contentShown > contentLength) {
+
+          if (!startedReading) {
+            if (debugMode)
+              console.warn('Could not estimate correctly the height of the content');
+            return;
+          }
 
           endContent = true;
           currentTime = new Date();
@@ -427,6 +444,12 @@ jQuery(document).ready(function($) {
         /* If user has hit the bottom of page, send an event */
         if (!didComplete && bottom >= documentLength*resizeFactor) {
 
+          if (!startedReading || !endContent) {
+            if (debugMode)
+              console.warn('Could not estimate correctly the height of the content');
+            return;
+          }
+
           didComplete = true;
           currentTime = new Date();
           end = currentTime.getTime();
@@ -443,7 +466,7 @@ jQuery(document).ready(function($) {
       /* Track the scrolling and track location only when the user scrolls down */
       $(window).scroll(function() {
         if (timer) {
-            clearTimeout(timer);
+          clearTimeout(timer);
         }
         // Use a buffer so we don't call trackLocation too often.
         timer = setTimeout(trackLocation, callBackTime);
