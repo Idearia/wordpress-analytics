@@ -55,7 +55,7 @@ jQuery(document).ready(function($) {
 
   /* Delimiters that can appear in phone numbers */
   var delimiters = [' ', '.', '-', ','];
-  
+
 
 
   // ==========================================================================
@@ -89,9 +89,9 @@ jQuery(document).ready(function($) {
     }
 
   }
-  
-  
-  
+
+
+
   // ===========================================================================
   // =                             Track phone clicks                          =
   // ===========================================================================
@@ -102,7 +102,7 @@ jQuery(document).ready(function($) {
   var telSelector = $("a[href^='tel:']");
 
   /* Number of clicks so far */
-  var numberOfClicks = 0; 
+  var numberOfClicks = 0;
 
   telSelector.click(function () {
 
@@ -138,12 +138,12 @@ jQuery(document).ready(function($) {
     we strip all delimiters from the phone number before sending the event */
     var delimitersPattern = '[' + RegExp.escape (delimiters.join('')) + ']';
     var delimitersRegex = new RegExp(delimitersPattern, 'g');
-    
+
     /* For the same reason, we also strip any 00 or + symbol from the beginning
     of the phone number */
-    var prefixPattern = 'tel:(00|\\+)';
+    var prefixPattern = '(tel:)(00|\\+)';
     var prefixRegex = new RegExp(prefixPattern, 'g');
-    var strippedPhoneNumber = phoneNumber.replace(delimitersRegex,'').replace(prefixRegex,'');
+    var strippedPhoneNumber = phoneNumber.replace(delimitersRegex,'').replace(prefixRegex,'$1');
 
     /* Send the event, attaching phone number & page information. Do so only
     if the user hasn't already clicked on the phone number before. */
