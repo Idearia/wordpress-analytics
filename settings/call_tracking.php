@@ -1,5 +1,9 @@
 <?php
 
+  /**
+   * Register the fields contained in the the "Call tracking" section.
+   */
+
   function wpan_register_call_tracking_fields( $section, $displayed_values ) {
 
     $name = 'phone_regex_include_pattern';
@@ -47,8 +51,8 @@
     );
 
     $name = 'detect_phone_numbers';
-    $title = 'Detect phone numbers automatically (NOT IMPLEMENTED YET)';
-    $desc = "If set, we shall treat all numbers matching the inclusion regex pattern above as clickable phone numbers, regardless of whether they are 'tel:' links";
+    $title = 'Detect phone numbers automatically';
+    $desc = "If set, automatically convert text like `TEL: +39 06 123456` into a phone number link. Useful if you can't input HTML in pages, ex. in a Visual Composer module.";
     add_settings_field(
       $name,
       $title,
@@ -65,11 +69,14 @@
         'label_for'    => $name,
       ]
     );
-    
+
   }
 
 
-  /** display the "Scroll tracking" section */
+  /**
+   * Build the "Call tracking" section.
+   **/
+
   function wpan_display_call_tracking_section () {
 
     echo "<p>Settings for the call tracking functionality.</p>";
@@ -77,6 +84,11 @@
     echo "<p>$desc</p>";
 
   }
+
+
+  /**
+   * Display the single fields in the "Call tracking" section.
+   */   
 
   function wpan_display_phone_regex_include_pattern ( $args ) {
 

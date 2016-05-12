@@ -1,5 +1,9 @@
 <?php
 
+  /**
+   * Register the fields contained in the the "Hidden settings" section.
+   */
+
   function wpan_register_hidden_settings_fields( $section, $displayed_values ) {
 
     $name = 'enable_json_folder';
@@ -25,12 +29,21 @@
 
   }
 
-  /** display the "Hidden settings" section */
+
+  /**
+   * Build the "Hidden settings" section.
+   **/
+
   function wpan_display_hidden_settings_section () {
 
     echo "<p>Really advanced settings that should be left untouched</p>";
 
   }
+
+
+  /**
+   * Display the single fields in the "Custom code" section.
+   */
 
   function wpan_display_enable_json_folder ( $args ) {
 

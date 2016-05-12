@@ -1,5 +1,9 @@
 <?php
 
+  /**
+   * Register the fields contained in the the "Content grouping" section.
+   */
+
   function wpan_register_content_grouping_fields( $section, $displayed_values ) {
 
     $name = 'group_index_wordpress';
@@ -71,12 +75,20 @@
   }
 
 
-  /** display the "Content grouping" section */
+  /**
+   * Build the "Content grouping" section.
+   **/
+
   function wpan_display_content_grouping_section () {
 
     echo "<p>Settings for the content grouping functionality</p>";
 
   }
+
+
+  /**
+   * Display the single fields in the "Content grouping" section.
+   */   
 
   function wpan_display_group_index_wordpress ( $args ) {
 

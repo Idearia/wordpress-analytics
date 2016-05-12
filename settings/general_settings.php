@@ -1,5 +1,9 @@
 <?php
 
+  /**
+   * Register the fields contained in the the "General settings" section.
+   */
+
   function wpan_register_general_settings_fields( $section, $displayed_values ) {
 
     $name = 'tracking_uid';
@@ -18,7 +22,7 @@
         'desc'         => $desc,
         'section'      => $section,
         'value'        => $displayed_values[ $name ],
-        'maxlength'    => '16',
+        'maxlength'    => '20',
         'label_for'    => $name,
       ]
     );
@@ -86,10 +90,12 @@
 
   }
 
-  /** display the "General settings" section */
-  function wpan_display_general_settings_section () {
 
-    echo "<p>General settings</p>";
+  /**
+   * Build the "General settings" section.
+   **/
+
+  function wpan_display_general_settings_section () {
 
   }
 
