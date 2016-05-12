@@ -230,11 +230,10 @@ jQuery(document).ready(function($) {
       // -                      Identify content                         -
       // -----------------------------------------------------------------
 
-      /* Variable that will be contain the content */
+      /* Variable that will contain the content */
       var content;
 
       /* Selector for a Wordpress post */
-      // var postSelector = $('article[id^="post-"]').find('div.entry-content');
       var postSelector = $('article[id^="post-"], article.single-post, #blogread');
 
       /* Selector for a Schema.org recipe */
@@ -257,6 +256,8 @@ jQuery(document).ready(function($) {
         postSelector.find(postSelectorStrings.join(',')).each(content.addElement);
 
         /* Do not consider the top image as content */
+        /* TODO: For more accurate results, look for the top image in content.elements
+        rather than in postSelector. */
         var imageSelector = postSelector.find('p:first').find('img:first');
         if (imageSelector.length) {
           if (debugMode)

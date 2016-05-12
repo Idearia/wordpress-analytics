@@ -6,7 +6,7 @@
    *
    * I've never tested the library with a theme, but it should
    * work with minor modifications, if any.
-   * 
+   *
    * Refer to https://codex.wordpress.org/Administration_Menus
    * for a list of slugs for the default admin menu, ex.
    * -> For Tools: add_submenu_page('tools.php',...)
@@ -38,11 +38,11 @@
    */
 
   function wpan_get_options () {
-    
+
     global $wpan_menu_structure;
-    
+
     $options = [];
-    
+
     foreach ( $wpan_menu_structure['menus'] as $menu ) {
 
       foreach ( $menu['sections'] as $section ) {
@@ -51,11 +51,11 @@
 
         if ($section_options)
           $options = array_merge ( $options, $section_options );
-        
+
       }
 
     }
-    
+
     return $options;
 
   }
@@ -89,7 +89,7 @@
           $menu[ 'slug' ],
           $menu[ 'func_display' ]
         );
- 
+
       }
 
       /* Otherwise, add it to the top level */
@@ -143,7 +143,7 @@
     /* TODO: Include the jQuery to enable contextual popup help */
 
     /* Intercept the calls to add_settings_error() in wpan_sanitize_options(),
-    and complain if the options are wrong. Otherwise show a nice "Settings 
+    and complain if the options are wrong. Otherwise show a nice "Settings
     saved" notice. TODO: It seems this call is unnecessary when dealing with
     a submenu; actually, including it will lead to duplicate notices! */
     settings_errors ();
@@ -156,7 +156,7 @@
     /* Check which tab is active; we define the 'tab' query parameter ourselves below */
     if( isset( $_GET[ 'tab' ] ) )
       $active_tab = $_GET[ 'tab' ];
-    
+
     ?>
 
     <div class="wrap">
@@ -174,7 +174,7 @@
                 "' class='nav-tab$is_active'$is_hidden>" . $tab['display'] . "</a>\n";
             }
           ?>
-          <script> jQuery("a.nav-tab[hidden='hidden']").hide() </script>
+          <script> jQuery("a.nav-tab[hidden='hidden']").hide(); </script>
         </h2>
 
         <?php endif ?>
@@ -182,7 +182,7 @@
         <form action="options.php" method="POST">
 
           <?php
-          
+
             /* Prints out all the settings sections that belong to the active tab */
             foreach ($tabs as $tab) {
               if ($active_tab == $tab['id']) {
@@ -193,7 +193,7 @@
             }
 
             submit_button();
-            
+
           ?>
 
         </form>
@@ -220,7 +220,7 @@
    *
    * This function allows for the display functions (ex. wpan_display_tabbed_page
    * and wpan_display_general_settings_section) to correctly display the settings
-   * pages. 
+   * pages.
    */
   function wpan_initialise_settings() {
 
@@ -259,9 +259,11 @@
 
 
         /* Add the section */
+        $show_section_title = isset( $section['display_section_title'] ) && $section['display_section_title'];
+
         add_settings_section(
           $section['name'],
-          $section['display_section_title'] ? $section['display'] : '',
+          $show_section_title ? $section['display'] : '',
           $section['func_display'],
           $section['page']
         );
@@ -269,7 +271,7 @@
 
         /* Register the fields in the section by calling the 'func_register_'
         function for the considered section.
-        
+
         In the Settings API language, a field is a single option. Registering
         a field means telling Wordpress how to build the HTML for that field
         in the settings page, and where to store/retrieve the value of the
@@ -282,25 +284,25 @@
             $section['db_key'],
             "function-not-callable",
             "BUG! Function '" . $section['func_register'] . "' is not callable!");
-        }      
-        else { 
+        }
+        else {
           call_user_func ($section['func_register'], $section, $displayed_values);
         }
-      
+
       } // foreach ($section)
-    
+
     } // foreach ($menu)
-    
+
   } // wpan_initialise_settings
 
 
-  
+
   // ==================================================================================
   // =                                Display functions                               =
   // ==================================================================================
 
 
-  /** 
+  /**
    * Display a single-line input field (<input type="text">).
    */
   function wpan_display_text_input ( $args ) {
@@ -315,12 +317,12 @@
         esc_attr( $args['name'] ),
         esc_attr( $args['value'] ),
         esc_attr( $args['maxlength'] ),
-        esc_attr( $args['size'] )
+        isset( $args['size'] ) ? esc_attr( $args['size'] ) : ''
     );
   }
 
 
-  /** 
+  /**
    * Display a number input field (<input type="number">).
    */
   function wpan_display_number_input ( $args ) {
@@ -341,7 +343,7 @@
   }
 
 
-  /** 
+  /**
    * Display a checkbox input field (<input type="checkbox">).
    */
   function wpan_display_checkbox_input ( $args ) {
@@ -361,7 +363,7 @@
   }
 
 
-  /** 
+  /**
    * Display a multi-line input field (<textarea>).
    */
   function wpan_display_textarea_input ( $args ) {
@@ -383,7 +385,7 @@
   }
 
 
-  /** 
+  /**
    * Display a multi-line input field (<textarea>) meant to include PHP & HTML code.
    */
   function wpan_display_code_input ( $args ) {
