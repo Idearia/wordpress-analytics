@@ -18,8 +18,7 @@
 
   function wordpress_analytics_debug () {
 
-    echo "<div hidden>\n";
-    echo "\n\nWPAN DEBUG INFORMATION\n\n";
+    echo "<!-- Wordpress Analytics debug information -->";
 
     /* Print all options in the database */
     // $options = wpan_get_options ();
@@ -46,8 +45,7 @@
     //     echo $taxonomy->labels->singular_name . PHP_EOL;
     // }
 
-    echo "\n\nEND OF WPAN DEBUG INFORMATION\n\n";
-    echo "</div>\n";
+    echo "<!-- End of Wordpress Analytics debug information -->";
 
   }
 

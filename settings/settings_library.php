@@ -385,8 +385,15 @@
   }
 
 
+
   /**
-   * Display a multi-line input field (<textarea>) meant to include PHP & HTML code.
+   * Display a multi-line input field meant to insert PHP & HTML code.
+   *
+   * If available, we use the great CodeMirror library to enable syntax
+   * highlighting. Otherwise, we use the standard <textarea> input
+   * element.
+   *
+   * CodeMirror can be found at https://codemirror.net.
    */
   function wpan_display_code_input ( $args ) {
 
@@ -394,9 +401,9 @@
     TODO: should use a question mark popup */
     // echo '<p>' . $args['desc'] . '</p>';
 
-    /* Create a textarea input */
+    /* Show a simple textarea input */
     printf(
-        '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
+        '<textarea id=custom_code name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
         esc_attr( $args['db_key'] ),
         esc_attr( $args['name'] ),
         htmlspecialchars( $args['value'] ), /* Escape HTML special characters (',",&,<,>) */
@@ -404,6 +411,22 @@
         esc_attr( $args['cols'] ),
         esc_attr( $args['placeholder'] )
     );
+
+    if ( WPAN_DO_SYNTAX_HIGHLIGHTING ) {
+
+    ?>
+
+  <script>
+  var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('custom_code'), {
+      mode:  "php",
+      smartIndent: true,
+      lineNumbers: true,
+  });
+  </script>
+
+    <?php
+
+    }
 
   }
 

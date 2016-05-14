@@ -39,13 +39,30 @@
 
   function wpan_display_custom_code_section () {
 
+    /* Load from the CodeMirror library all the scripts needed to
+    have PHP syntax highlighting */
+    if ( WPAN_DO_SYNTAX_HIGHLIGHTING ) {
+    ?>
+
+<link rel="stylesheet" href=<?php echo WPAN_CODEMIRROR_URL.'lib/codemirror.css'; ?>>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'lib/codemirror.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'addon/edit/matchbrackets.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/htmlmixed/htmlmixed.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/xml/xml.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/javascript/javascript.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/css/css.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/clike/clike.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/php/php.js'; ?>></script>
+
+    <?php
+    }
   }
 
 
   /**
    * Display the single fields in the "Custom code" section.
    */
-   
+
   function wpan_display_custom_code ( $args ) {
 
     wpan_display_code_input ( $args );
