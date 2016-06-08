@@ -22,7 +22,7 @@
     $call_tracking = isset ( $options ['call_tracking'] ) && $options ['call_tracking'];
     $custom_code = isset ( $options ['custom_code'] ) && $options ['custom_code'];
     $enhanced_link_attribution = isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'];
-    $vertical_booking_support = isset ( $options['vertical_booking_support'] ) && $options['vertical_booking_support'];
+    $cross_domain_support = isset ( $options['cross_domain_support'] ) && $options['cross_domain_support'];
 
     /* Execute the script only if the tracking ID exists */
     if ($tracking_uid) {
@@ -39,10 +39,13 @@
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
   /* Pass the tracking UID of the GA property associated to this website */
   <?php
-    if ( ! $vertical_booking_support ) {
+    if ( ! $cross_domain_support ) {
       echo "ga('create', '" . $tracking_uid . "', 'auto');\n";
     }
     else {
+      /* Alas, the allowLinker field can be passed only within a create command
+      (https://developers.google.com/analytics/devguides/collection/analyticsjs/
+      field-reference#allowLinker) */
       echo "ga('create', '" . $tracking_uid . "', 'auto', {'allowLinker': true});\n";
     }
   ?>
@@ -65,10 +68,9 @@
       wordpress_analytics_content_grouping();
     }
 
-    /* Enable Vertical Booking support */
-    if ( $vertical_booking_support ) {
+    /* Enable Cross Domain support */
+    if ( $cross_domain_support ) {
       echo "<script> ga('require', 'linker'); </script>\n";
-      echo "<script> ga('linker:autoLink', ['verticalbooking.com'], true, true); </script>\n";
       echo "<script> ga('require', 'displayfeatures'); </script>\n"; 
     }
 
