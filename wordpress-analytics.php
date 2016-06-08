@@ -11,12 +11,17 @@
    */
 
   /* Define plugin version */
-  define ("WPAN_VERSION", "alpha_v6");
-  define ("WPAN_URL", "https://github.com/coccoinomane/wordpress_analytics");
+  define( "WPAN_VERSION", "alpha_v6" );
+  define( "WPAN_URL", "https://github.com/coccoinomane/wordpress_analytics" );
 
   /* Define plugin directory & URL */
-  define ("WPAN_PLUGIN_DIR", plugin_dir_path(__FILE__));
-  define ("WPAN_PLUGIN_URL", plugin_dir_url(__FILE__));
+  define( "WPAN_PLUGIN_DIR", plugin_dir_path(__FILE__) );
+  define( "WPAN_PLUGIN_URL", plugin_dir_url(__FILE__) );
+
+  /* Codemirror directory & URL */
+  define( "WPAN_CODEMIRROR_DIR", WPAN_PLUGIN_DIR . 'codemirror/' );
+  define( "WPAN_CODEMIRROR_URL", WPAN_PLUGIN_URL . 'codemirror/' );
+  define( "WPAN_DO_SYNTAX_HIGHLIGHTING", file_exists( WPAN_CODEMIRROR_DIR ) );
 
   /* Include utility functions */
   require_once ( WPAN_PLUGIN_DIR . 'functions.php' );
@@ -55,7 +60,7 @@
     /* Insert debug tools */
     if ( isset ( $options ['debug'] ) && $options ['debug'] )
       require_once ( WPAN_PLUGIN_DIR . 'debug.php' );
-    
+
   }
 
 ?>

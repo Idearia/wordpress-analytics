@@ -27,9 +27,9 @@
       ]
     );
 
-    $name = 'vertical_booking_support';
-    $title = 'Vertical Booking support';
-    $desc = 'Enable support for the Vertical Booking CRS (customer reservation system)? Checking this box will automatically enable Enhanced Link Attribution.';
+    $name = 'cross_domain_support';
+    $title = 'Cross Domain support';
+    $desc = 'Enable support for cross-domain tracking as described in <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/linker#bi-directional_cross-domain_tracking">in Google\'s documentation</a>? This feature just loads the linker plugin: you need to call the \'autoLink\' function yourself using the Custom Code tab.';
     add_settings_field(
       $name,
       $title,
@@ -89,7 +89,7 @@
 
   }
 
-  function wpan_display_vertical_booking_support ( $args ) {
+  function wpan_display_cross_domain_support ( $args ) {
 
     wpan_display_checkbox_input ( $args );
 
@@ -97,36 +97,37 @@
 
     <script>
 
-    /* Script to make sure that enhanced_link_attribution is turned on
-    whenever the vertical_booking_support is on */
-
-    var vb_checkbox = jQuery('input#vertical_booking_support');
-    var la_checkbox = jQuery('input#enhanced_link_attribution');
-
-    vb_checkbox.click (function () {
-
-      if (vb_checkbox.is(':checked')) {
-
-        la_checkbox.prop('checked', true);
-        la_checkbox.prop('readonly', true);
-
-      }
-      else {
-
-        la_checkbox.prop('readonly', false);
-
-      }
-
-    });
-
-    la_checkbox.click (function() {
-
-      if (vb_checkbox.is(':checked')) {
-        alert ('Enhanced Link Attribution cannot be disabled when Vertical Booking support is turned on');
-        return false;
-      }
-
-    });
+    /* Script to make sure that enhanced_link_attribution is turned on 
+    (DISABLED) */
+    // whenever the cross_domain_support is on */
+    //
+    // var vb_checkbox = jQuery('input#cross_domain_support');
+    // var la_checkbox = jQuery('input#enhanced_link_attribution');
+    //
+    // vb_checkbox.click (function () {
+    //
+    //   if (vb_checkbox.is(':checked')) {
+    //
+    //     la_checkbox.prop('checked', true);
+    //     la_checkbox.prop('readonly', true);
+    //
+    //   }
+    //   else {
+    //
+    //     la_checkbox.prop('readonly', false);
+    //
+    //   }
+    //
+    // });
+    //
+    // la_checkbox.click (function() {
+    //
+    //   if (vb_checkbox.is(':checked')) {
+    //     alert ('Enhanced Link Attribution cannot be disabled when Vertical Booking support is turned on');
+    //     return false;
+    //   }
+    //
+    // });
 
     </script>
     
