@@ -43,10 +43,6 @@
     if ( isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
       require_once ( WPAN_PLUGIN_DIR . 'scroll_tracking.php' );
 
-    /* Load scroll tracking function */
-    if ( isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] )
-      require_once ( WPAN_PLUGIN_DIR . 'scroll_tracking.php' );
-
     /* Load call tracking function */
     if ( isset ( $options ['call_tracking'] ) && $options ['call_tracking'] )
       require_once ( WPAN_PLUGIN_DIR . 'call_tracking.php' );
