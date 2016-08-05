@@ -11,7 +11,7 @@
    */
 
   /* Define plugin version */
-  define( "WPAN_VERSION", "alpha_v6" );
+  define( "WPAN_VERSION", "alpha_v7" );
   define( "WPAN_URL", "https://github.com/coccoinomane/wordpress_analytics" );
 
   /* Define plugin directory & URL */
@@ -46,6 +46,10 @@
     /* Load call tracking function */
     if ( isset ( $options ['call_tracking'] ) && $options ['call_tracking'] )
       require_once ( WPAN_PLUGIN_DIR . 'call_tracking.php' );
+
+    /* Load Gravity Forms tracking */
+    if ( isset ( $options ['form_tracking'] ) && $options ['form_tracking'] )
+      require_once ( WPAN_PLUGIN_DIR . 'form_tracking.php' );
 
     /* Write the actual Google Analytics tracking code */
     require_once ( WPAN_PLUGIN_DIR . 'tracking_code.php' );
