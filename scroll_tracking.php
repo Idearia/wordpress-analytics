@@ -32,7 +32,7 @@
     /* Load the imagesLoaded javascript library to ensure that scroll
     tracking works properly with image-rich pages.
     TODO: we should use wp_enqueue() here. */
-    echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js' defer='defer'></script>\n";
+    echo "<script src='https://unpkg.com/imagesloaded@4.1/imagesloaded.pkgd.js' defer='defer'></script>\n";
 
     /* Load the script.
     TODO: we should use wp_enqueue() here. */
