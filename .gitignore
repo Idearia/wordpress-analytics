@@ -1,11 +1,18 @@
 # Ad hoc folder for untracked files
 untracked
 
-# Google Drive annoying files
+# Annoying files
+.DS_Store
 Icon*
 
 # Output directory
 output/*
+
+# Composer packages directory
+vendor/*
+
+# Log files
+wpan_debug.txt
 
 # Compressed files
 *.tar

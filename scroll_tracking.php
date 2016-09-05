@@ -12,7 +12,7 @@
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
-  function wordpress_analytics_scroll_tracking () {
+  function wpan_scroll_tracking () {
 
     /* Extract the scroll tracking options from the database */
     $options = wpan_get_options ();
