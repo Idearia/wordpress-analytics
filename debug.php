@@ -9,14 +9,14 @@
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
-  add_action ('wp_footer', 'wordpress_analytics_debug', 100);
+  add_action ('wp_footer', 'wpan_debug', 100);
 
   /**
    * Execute a debug function at the very bottom of all posts
    * and pages.
    */
 
-  function wordpress_analytics_debug () {
+  function wpan_debug () {
 
     echo "<!-- Wordpress Analytics debug information -->";
 

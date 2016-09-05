@@ -412,7 +412,7 @@
         esc_attr( $args['placeholder'] )
     );
 
-    if ( WPAN_DO_SYNTAX_HIGHLIGHTING ) {
+    if ( WPAN_SYNTAX_HIGHLIGHTING_LOADED ) {
 
     ?>
 

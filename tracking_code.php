@@ -1,8 +1,8 @@
 <?php
 
   /**
-   * Insert Google Analytics (GA) code for Wordpress websites,
-   * including scroll tracking and content grouping.
+   * Insert Google Analytics (GA) tracking code in Javascript
+   * in the .
    *
    * Anything echoed by this function will be written in the 
    * head of all pages.
@@ -12,7 +12,7 @@
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
-  function wordpress_analytics_tracking_code () {
+  function wpan_tracking_code () {
     
     /* Extract the tracking UID from the database */
     $options = wpan_get_options ();
@@ -20,6 +20,7 @@
     $content_grouping = is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'];
     $scroll_tracking = is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'];
     $call_tracking = isset ( $options ['call_tracking'] ) && $options ['call_tracking'];
+    $form_tracking = isset ( $options ['form_tracking'] ) && $options ['form_tracking'];
     $custom_code = isset ( $options ['custom_code'] ) && $options ['custom_code'];
     $enhanced_link_attribution = isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'];
     $cross_domain_support = isset ( $options['cross_domain_support'] ) && $options['cross_domain_support'];
@@ -55,17 +56,17 @@
  
     /* Scroll tracking script to track reading behaviour */
     if ( $scroll_tracking ) {
-      wordpress_analytics_scroll_tracking();
+      wpan_scroll_tracking();
     }
 
     /* Call tracking script to track clicks on phone number links */
     if ( $call_tracking ) {
-      wordpress_analytics_call_tracking();
+      wpan_call_tracking();
     }
 
     /* Content grouping script to categorise the website content in GA */
     if ( $content_grouping ) {
-      wordpress_analytics_content_grouping();
+      wpan_content_grouping();
     }
 
     /* Enable Cross Domain support */
@@ -81,7 +82,7 @@
 
     /* Execute code specified by the user */
     if ( $custom_code ) {
-      echo php_eval( $options ['custom_code'] );
+      echo wpan_php_eval( $options ['custom_code'] );
     }
 
 ?>
