@@ -9,7 +9,7 @@
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
-  function wordpress_analytics_call_tracking () {
+  function wpan_call_tracking () {
 
     /* Extract the call tracking options from the database */
     $options = wpan_get_options ();

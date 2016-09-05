@@ -83,6 +83,7 @@
                           'scroll_tracking' => '0',
                           'content_grouping' => '0',
                           'call_tracking' => '0',
+                          'form_tracking' => '0',
                       ],
                   ],
                   'content_grouping' => [
@@ -132,6 +133,21 @@
                           'detect_phone_numbers' => '1',
                       ],
                   ],
+                  // 'form_tracking' => [
+                  //     'id' => 'form_tracking',
+                  //     'name' => 'form_tracking_section',
+                  //     'display' => 'Form tracking',
+                  //     'page' => 'wpan_form_tracking_page',
+                  //     'group' => 'wpan_form_tracking_option_group',
+                  //     'visible' => true,
+                  //     'db_key' => 'wpan:form_tracking',
+                  //     'func_register' => 'wpan_register_form_tracking_fields',
+                  //     'func_display' => 'wpan_display_form_tracking_section',
+                  //     'fields' => [
+                  //         'form_include_id' => '',
+                  //         'form_exclude_id' => '',
+                  //     ],
+                  // ],
                   'hidden_settings' => [
                       'id' => 'hidden_settings',
                       'name' => 'hidden_settings_section',

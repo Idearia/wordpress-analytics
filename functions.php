@@ -35,7 +35,7 @@
    * can not overwrite any variables in the calling code, unlike a regular
    * eval() call.
    */
-  function php_eval( $code ) {
+  function wpan_php_eval( $code ) {
 
     if ( empty( $code ) ) {
      return '';
@@ -49,4 +49,104 @@
     return $output;
   }
 
-?>
+
+  /**
+   * Load the PHP client in order to send hits to Google Analytics
+   * via the measurement protocol.
+   *
+   * In order to send hits to Google Analytics from the server, we employ Google's
+   * measurement protocol (https://developers.google.com/analytics/devguides/
+   * collection/protocol/v1/devguide). Rather than dealing with the raw library,
+   * we use a lightweight PHP client from Racecore (https://github.com/ins0/google-
+   * measurement-php-client) which we will refer to as ga-mp.
+   */  
+  
+  function wpan_load_measurement_protocol_client () {
+    
+    define( "WPAN_GAMP_DIR", WPAN_PLUGIN_DIR . 'vendor/ga-mp/src/' );
+    define( "WPAN_GAMP_URL", WPAN_PLUGIN_URL . 'vendor/ga-mp/src/' );
+    $autoload_file = WPAN_GAMP_DIR . 'Racecore/GATracking/Autoloader.php';
+
+    if ( file_exists( $autoload_file ) ) {
+
+      try {
+
+        require_once $autoload_file;
+        Racecore\GATracking\Autoloader::register( WPAN_GAMP_DIR );
+        define ("WPAN_GAMP_LOADED", true);
+        wpan_log_debug( "Measurement protocol client loaded." );
+        return true;
+        
+      } catch (Exception $e) {
+
+        wpan_log_debug( "Could not load measurement protocol client; error message:" );
+        wpan_log_debug( $e->getMessage() );
+        
+      }
+      
+    }
+    else {
+      
+      wpan_log_debug( "Could not load measurement protocol client; file $autoload_file could not be found." );
+      
+    }
+
+  }
+
+
+  /**
+   * Define directories where the syntax highglighting library can be found.
+   *
+   * In order to provide syntax highlighting in HTML text areas, we use
+   * the CodeMirror Javascript library (https://codemirror.net/).
+   */  
+  
+  function wpan_load_syntax_highlighting () {
+    
+    define( "WPAN_CODEMIRROR_DIR", WPAN_PLUGIN_DIR . 'vendor/codemirror/' );
+    define( "WPAN_CODEMIRROR_URL", WPAN_PLUGIN_URL . 'vendor/codemirror/' );
+
+    if ( file_exists( WPAN_CODEMIRROR_DIR ) ) {
+
+      define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED" );
+      wpan_log_debug( "Syntax highlighting library loaded." );
+      return true;
+
+    }
+    else {
+      
+      wpan_log_debug( "Could not load syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
+      
+    }
+
+  }
+  
+
+  /**
+   * Debug function: write to debug.log in plugin directory.
+   */
+  function wpan_log_debug ( $log ) {
+
+    $options = wpan_get_options ();
+    $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
+
+    if ( $debug && defined( 'WPAN_PLUGIN_DIR' ) ) {
+    
+      $debug_file = WPAN_PLUGIN_DIR . 'wpan_debug.txt';
+
+      $pre = preg_replace('/.*?public_html/', '', __FILE__) . ':' . __LINE__ . ': ';
+
+      if ( is_array( $log ) || is_object( $log ) ) {
+
+         file_put_contents( $debug_file, $pre . print_r( $log, true ) . PHP_EOL, FILE_APPEND );
+
+      } else {
+
+         file_put_contents( $debug_file, $pre . $log . PHP_EOL, FILE_APPEND );
+
+      }
+    }
+
+  }
+  
+  

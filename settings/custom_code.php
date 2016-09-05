@@ -25,7 +25,7 @@
         'value'        => $displayed_values[ $name ],
         'rows'         => 15,
         'cols'         => 120,
-        'placeholder'  => 'Insert code here; leave blank for no effect',
+        'placeholder'  => 'Code written here will be injected in the head of the document. Remeber the <?php tag to write PHP code.',
         'label_for'    => $name,
       ]
     );
@@ -39,9 +39,14 @@
 
   function wpan_display_custom_code_section () {
 
+    /* Load syntax highlighting library */
+    if ( ! defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) ) {
+      wpan_load_syntax_highlighting ();
+    }
+
     /* Load from the CodeMirror library all the scripts needed to
     have PHP syntax highlighting */
-    if ( WPAN_DO_SYNTAX_HIGHLIGHTING ) {
+    if ( WPAN_SYNTAX_HIGHLIGHTING_LOADED ) {
     ?>
 
 <link rel="stylesheet" href=<?php echo WPAN_CODEMIRROR_URL.'lib/codemirror.css'; ?>>

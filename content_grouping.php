@@ -32,7 +32,7 @@
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
-  function wordpress_analytics_content_grouping() {
+  function wpan_content_grouping() {
 
     /* Extract the content grouping options from the database. If these are
     not properly formatted, nothing will be sent to GA. */
@@ -102,7 +102,7 @@
 
     }
     
-  } // wordpress_analytics_content_grouping
+  } // wpan_content_grouping
   
 
   /* If Advanced Custom Fields is installed, load all JSON files
