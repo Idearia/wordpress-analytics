@@ -61,10 +61,10 @@
       $gatracking = new \Racecore\GATracking\GATracking( $tracking_uid, $ga_options );
 
       /* Build GA event */
-      $event = $gatracking->createTracking('Event');
+      $event = $gatracking->createTracking( 'Event' );
       $event->setAsNonInteractionHit( false );
       $event->setEventCategory( 'Contact' );
-      $event->setEventAction( $form_title );
+      $event->setEventAction( 'form:' . $form_title );
       $event->setEventLabel( $document_path );
 
   		$event->setDocumentPath( $document_path );

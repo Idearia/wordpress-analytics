@@ -10,6 +10,11 @@
    * License: GPL3
    */
 
+  /* If this file is called directly, abort (security measure) */
+  if ( ! defined( 'WPINC' ) ) {
+  	die;
+  }
+
   /* Define plugin version */
   define( "WPAN_VERSION", "alpha_v7" );
   define( "WPAN_URL", "https://github.com/coccoinomane/wordpress_analytics" );
@@ -24,12 +29,25 @@
   /* Build settings page */
   require_once ( WPAN_PLUGIN_DIR . 'settings/settings.php' );
 
+  /* @todo Boilerplate copied from a proper plugin (SG_cachepress), to personalize later */
+  // // Load text Domain
+  // add_action( 'plugins_loaded', 'sgcachepress_load_textdomain' );
+  // function sgcachepress_load_textdomain() {
+  //   load_plugin_textdomain( 'sg-cachepress', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
+  // }
+  //
+  // // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
+  // register_activation_hook( __FILE__, array( 'SG_CachePress', 'activate' ) );
+  // register_deactivation_hook( __FILE__, array( 'SG_CachePress', 'deactivate' ) );
+  // add_action( 'plugins_loaded','sg_cachepress_start' );
+  // add_action( 'admin_init', array('SG_CachePress','admin_init_cachepress') );
+  // add_action( 'init', 'disable_other_caching_plugins' );
+
   /* Extract plugin options from the database */
   $options = wpan_get_options ();
 
   /* Stop unless we have a valid tracking ID */
   if ( isset ( $options ['tracking_uid'] ) && $options ['tracking_uid'] ) {
-
 
     // ========================
     // = Client-side tracking =
