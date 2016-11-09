@@ -84,6 +84,7 @@
                           'content_grouping' => '0',
                           'call_tracking' => '0',
                           'form_tracking' => '0',
+                          'email_tracking' => '0',
                       ],
                   ],
                   'content_grouping' => [

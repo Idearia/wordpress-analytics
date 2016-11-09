@@ -4,7 +4,7 @@
    * Plugin Name: Wordpress Analytics
    * Plugin URI: https://github.com/coccoinomane/wordpress_analytics
    * Description: Let Google Analytics communicate with Wordpress and track user activity beyond pageviews
-   * Version: alpha_v7
+   * Version: alpha_v8
    * Author: Guido W. Pettinari
    * Author URI: http://www.guidowalterpettinari.eu
    * License: GPL3
@@ -16,7 +16,7 @@
   }
 
   /* Define plugin version */
-  define( "WPAN_VERSION", "alpha_v7" );
+  define( "WPAN_VERSION", "alpha_v8" );
   define( "WPAN_URL", "https://github.com/coccoinomane/wordpress_analytics" );
 
   /* Define plugin directory & URL */
@@ -64,6 +64,10 @@
     /* Load call tracking function */
     if ( isset ( $options ['call_tracking'] ) && $options ['call_tracking'] )
       require_once ( WPAN_PLUGIN_DIR . 'call_tracking.php' );
+
+    /* Load email tracking function */
+    if ( isset ( $options ['email_tracking'] ) && $options ['email_tracking'] )
+      require_once ( WPAN_PLUGIN_DIR . 'email_tracking.php' );
 
     /* Load the function to write the actual complete GA tracking code */
     require_once ( WPAN_PLUGIN_DIR . 'tracking_code.php' );

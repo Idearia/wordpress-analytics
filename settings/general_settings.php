@@ -108,6 +108,26 @@
       ]
     );
 
+    $name = 'email_tracking';
+    $title = 'Enable email tracking?';
+    $desc = 'Send an event to Google Analytics every time a user clicks on an email address';
+    add_settings_field(
+      $name,
+      $title,
+      'wpan_display_' . $name,
+      $section['page'],
+      $section['name'],
+      [
+        'db_key'       => $section['db_key'],
+        'options_vals' => $displayed_values,
+        'name'         => $name,
+        'desc'         => $desc,
+        'section'      => $section,
+        'value'        => $displayed_values[ $name ],
+        'label_for'    => $name,
+      ]
+    );
+
   }
 
 
@@ -144,6 +164,12 @@
   }
 
   function wpan_display_form_tracking ( $args ) {
+
+    wpan_display_checkbox_input ( $args );
+
+  }
+
+  function wpan_display_email_tracking ( $args ) {
 
     wpan_display_checkbox_input ( $args );
 

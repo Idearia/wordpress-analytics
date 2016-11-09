@@ -4,7 +4,7 @@
  *
  * To be tracked, the phone numbers must be in the following markup:
  *
- *   <a href="tel:+1-303-499-7111">+1 (303) 499-7111</a>
+ *   <a href="tel:+1-303-499-7111">Whatever text there is.</a>
  *
  * See https://developers.google.com/web/fundamentals/native-hardware
  * /click-to-call/?hl=en for further details.

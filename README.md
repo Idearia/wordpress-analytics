@@ -6,6 +6,9 @@ So far *Wordpress Analytics* supports the following features:
 * **Scroll tracking**: track the scrolling actions performed by users; this is an improved version of Justin Cutroni's [content tracking script].
 * **Content grouping**: send category information from Wordpress to Google Analytics, with WooCommerce support.
 * **Call tracking**: track clicks on phone numbers throughout the website, with the possibility to include/exclude certain numbers based on regex.
+* **Email tracking**: track clicks on email addresses throughout the website.
+* **Form tracking**: track form submissions made via [Gravity Forms](http://www.gravityforms.com/).
+
 
 The next feature to be implemented will be:
 

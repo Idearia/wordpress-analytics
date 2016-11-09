@@ -20,7 +20,7 @@
     $content_grouping = is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'];
     $scroll_tracking = is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'];
     $call_tracking = isset ( $options ['call_tracking'] ) && $options ['call_tracking'];
-    $form_tracking = isset ( $options ['form_tracking'] ) && $options ['form_tracking'];
+    $email_tracking = isset ( $options ['email_tracking'] ) && $options ['email_tracking'];
     $custom_code = isset ( $options ['custom_code'] ) && $options ['custom_code'];
     $enhanced_link_attribution = isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'];
     $cross_domain_support = isset ( $options['cross_domain_support'] ) && $options['cross_domain_support'];
@@ -62,6 +62,11 @@
     /* Call tracking script to track clicks on phone number links */
     if ( $call_tracking ) {
       wpan_call_tracking();
+    }
+
+    /* Email tracking script to track clicks on email links */
+    if ( $email_tracking ) {
+      wpan_email_tracking();
     }
 
     /* Content grouping script to categorise the website content in GA */
