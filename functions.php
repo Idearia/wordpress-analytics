@@ -108,7 +108,7 @@
 
     if ( file_exists( WPAN_CODEMIRROR_DIR ) ) {
 
-      define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED" );
+      define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED", true );
       wpan_log_debug( "Syntax highlighting library loaded." );
       return true;
 
