@@ -125,10 +125,10 @@
   /**
    * Debug function: write to debug.log in plugin directory.
    */
-  function wpan_log_debug ( $log ) {
+  function wpan_log_debug ( $log, $force=false ) {
 
     $options = wpan_get_options ();
-    $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
+    $debug = isset ( $options['debug'] ) ? $options['debug'] : $force;
 
     if ( $debug && defined( 'WPAN_PLUGIN_DIR' ) ) {
     
@@ -148,5 +148,43 @@
     }
 
   }
+
+
+  /**
+   * Return the blog ID of the main blog of the newtork (usually 1)
+   */
+  function wpan_get_main_blog_id () {
+    
+    global $current_site;
+    
+    return $current_site->blog_id;
+
+  }
+
+
+  /**
+   * Return true if the current blog is the main blog, false otherwise
+   */
+  function wpan_is_main_blog () {
+        
+    return wpan_get_main_blog_id() === get_current_blog_id();
+
+  }
   
-  
+
+  /**
+   * Return true if WordPress analytics is running in network mode,
+   * which means that the plugin options can only be modified from
+   * the network's admin interface.
+   */
+  function wpan_is_network_mode () {
+    
+    /* This is the way it should be when we will learn how to use the Settings
+    API in the network admin (see long comment in settings.php) */
+    // $advanced_options = get_site_option ( 'wpan:advanced_settings' );
+    /* In the mean while we just check in the main blog options */
+    $advanced_options = get_blog_option ( wpan_get_main_blog_id(), 'wpan:advanced_settings' );
+    
+    return is_multisite() && isset( $advanced_options['network_mode'] ) && $advanced_options['network_mode'];    
+    
+  }

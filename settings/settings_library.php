@@ -47,7 +47,15 @@
 
       foreach ( $menu['sections'] as $section ) {
 
-        $section_options = get_option ( $section['db_key'] );
+        /* In network mode, settings are read from the main blog's database */
+        if ( is_multisite() && wpan_is_network_mode() ) {
+          $section_options = get_blog_option ( wpan_get_main_blog_id(), $section['db_key'] );
+        }
+
+        /* In normal mode, the settings are read from each blog's database */
+        else {
+          $section_options = get_option ( $section['db_key'] );
+        }
 
         if ($section_options)
           $options = array_merge ( $options, $section_options );
@@ -65,11 +73,6 @@
   // ==================================================================================
   // =                                 Add menu pages                                 =
   // ==================================================================================
-
-  /**
-   * Add the menu pages to the admin menu.
-   */
-  add_action('admin_menu', 'wpan_add_menu_pages');
 
   function wpan_add_menu_pages() {
 
@@ -207,8 +210,6 @@
   // ==================================================================================
   // =                               Register settings                                =
   // ==================================================================================
-
-  add_action('admin_init', 'wpan_initialise_settings');
 
   /**
    * Build the internal structure of the settings menus, using $wpan_menu_structure

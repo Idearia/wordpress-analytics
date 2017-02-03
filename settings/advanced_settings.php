@@ -47,6 +47,29 @@
       ]
     );
 
+    $name = 'network_mode';
+    $title = 'Network Mode';
+    $desc = 'Manage plugin options only at the network level, preventing site admins to change them.';
+    $desc .= 'IMPORTANT: Until I find a way to use the Settings API to set options in the network admin (ex.';
+    $desc .= 'using http://wordpress.stackexchange.com/a/72503/86662), the plugin options will be set and read';
+    $desc .= 'from the main blog admin page rather than the network admin page.';
+    add_settings_field(
+      $name,
+      $title,
+      'wpan_display_' . $name,
+      $section['page'],
+      $section['name'],
+      [
+        'db_key'       => $section['db_key'],
+        'options_vals' => $displayed_values,
+        'name'         => $name,
+        'desc'         => $desc,
+        'section'      => $section,
+        'value'        => $displayed_values[ $name ],
+        'label_for'    => $name,
+      ]
+    );
+
     $name = 'debug';
     $title = 'Debug mode';
     $desc = 'Print useful information to console';
@@ -97,8 +120,8 @@
 
     <script>
 
-    /* Script to make sure that enhanced_link_attribution is turned on 
-    (DISABLED) */
+    /* DISABLED */
+    // /* Script to make sure that enhanced_link_attribution is turned on 
     // whenever the cross_domain_support is on */
     //
     // var vb_checkbox = jQuery('input#cross_domain_support');
@@ -132,6 +155,12 @@
     </script>
     
     <?php
+
+  }
+
+  function wpan_display_network_mode ( $args ) {
+
+    wpan_display_checkbox_input ( $args );
 
   }
 

@@ -12,7 +12,7 @@
 
   /* Include the settings library */
   require_once ( WPAN_PLUGIN_DIR . 'settings/settings_library.php' );
-  
+
 
   // ==================================================================================
   // =                              Settings structure                                =
@@ -192,6 +192,7 @@
                       'fields' => [
                           'cross_domain_support' => '0',
                           'enhanced_link_attribution' => '0',
+                          'network_mode' => '0',
                           'debug' => '0',
                       ],
                   ],
@@ -213,6 +214,61 @@
           ],
       ],
   ];
+
+
+
+  // ==================================================================================
+  // =                               Register settings                                =
+  // ==================================================================================
+
+  add_action('admin_init', 'wpan_initialise_settings');
+
+
+
+  // ==================================================================================
+  // =                                 Add menu pages                                 =
+  // ==================================================================================  
+
+  /* Extract the options from the database. Must be after the declaration
+  of $wpan_menu_structure. */
+  $options = wpan_get_options ();
+  
+  /* In network mode the plugin's settings are controlled only by the network
+  super admninstrator. This means that the settings menu is visible only at
+  the network level, and not at the site level */
+  if ( is_multisite() && isset ( $options['network_mode'] ) && $options['network_mode'] ) {
+
+    /* As for now (03-02-2017) I haven't found a simple way to set the network 
+    settings (wp_sitemeta) via the Settings API. The problem is that the Settings API
+    uses options.php as a callback for the input form, but options.php is not available
+    on the network admin pages. As a result, although the settings menu correctly
+    shows in the network admin menu, if you change a plugin setting in the network
+    admin menu, you end up with an Internal Server Error. */ 
+    /* Therefore, for now, in network mode we show the settings menu only on the
+    main site. Every change made to the plugin settings on the main blog will
+    affect the plugin behaviour on all sites. */
+    /* TODO: Try to implement the solution is shown here:
+    http://wordpress.stackexchange.com/a/72503/86662. See also the solution
+    proposed by @convissor on https://core.trac.wordpress.org/ticket/15691
+    (i.e. copy from http://wordpress.org/extend/plugins/login-security-solution/) */
+    
+    /* This line should be commented until we solve the problem described above */
+    // add_action('network_admin_menu', 'wpan_add_menu_pages'); 
+
+    if ( wpan_is_main_blog() ) {
+
+      add_action('admin_menu', 'wpan_add_menu_pages'); 
+
+    }
+    
+  }
+
+  /* In normal mode, every site can set its own settings */
+  else {
+    
+    add_action('admin_menu', 'wpan_add_menu_pages');
+    
+  }
 
 
 
