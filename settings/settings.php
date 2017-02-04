@@ -236,8 +236,8 @@
   /* In network mode the plugin's settings are controlled only by the network
   super admninstrator. This means that the settings menu is visible only at
   the network level, and not at the site level */
-  if ( is_multisite() && isset ( $options['network_mode'] ) && $options['network_mode'] ) {
-
+  if ( is_multisite() && wpan_is_network_mode() ) {
+    
     /* As for now (03-02-2017) I haven't found a simple way to set the network 
     settings (wp_sitemeta) via the Settings API. The problem is that the Settings API
     uses options.php as a callback for the input form, but options.php is not available

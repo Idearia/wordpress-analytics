@@ -47,28 +47,34 @@
       ]
     );
 
-    $name = 'network_mode';
-    $title = 'Network Mode';
-    $desc = 'Manage plugin options only at the network level, preventing site admins to change them.';
-    $desc .= 'IMPORTANT: Until I find a way to use the Settings API to set options in the network admin (ex.';
-    $desc .= 'using http://wordpress.stackexchange.com/a/72503/86662), the plugin options will be set and read';
-    $desc .= 'from the main blog admin page rather than the network admin page.';
-    add_settings_field(
-      $name,
-      $title,
-      'wpan_display_' . $name,
-      $section['page'],
-      $section['name'],
-      [
-        'db_key'       => $section['db_key'],
-        'options_vals' => $displayed_values,
-        'name'         => $name,
-        'desc'         => $desc,
-        'section'      => $section,
-        'value'        => $displayed_values[ $name ],
-        'label_for'    => $name,
-      ]
-    );
+    /* Show the Network Mode setting only for multisite installations and
+    only in the main site */
+    if ( is_multisite() && wpan_is_main_blog() ) {
+
+      $name = 'network_mode';
+      $title = 'Network Mode';
+      $desc = 'Manage plugin options only at the network level, preventing site admins to change them.';
+      $desc .= 'IMPORTANT: Until I find a way to use the Settings API to set options in the network admin (ex.';
+      $desc .= 'using http://wordpress.stackexchange.com/a/72503/86662), the plugin options will be set and read';
+      $desc .= 'from the main blog admin page rather than the network admin page.';
+      add_settings_field(
+        $name,
+        $title,
+        'wpan_display_' . $name,
+        $section['page'],
+        $section['name'],
+        [
+          'db_key'       => $section['db_key'],
+          'options_vals' => $displayed_values,
+          'name'         => $name,
+          'desc'         => $desc,
+          'section'      => $section,
+          'value'        => $displayed_values[ $name ],
+          'label_for'    => $name,
+        ]
+      );
+
+    }
 
     $name = 'debug';
     $title = 'Debug mode';
