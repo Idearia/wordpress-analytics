@@ -52,6 +52,7 @@ jQuery(document).ready(function($) {
 
   /* Get some information about the current page */
   var pageTitle = document.title;
+  var pagePath = window.location.pathname;
 
   /* Delimiters that can appear in phone numbers */
   var delimiters = [' ', '.', '-', ','];
@@ -148,7 +149,7 @@ jQuery(document).ready(function($) {
     /* Send the event, attaching phone number & page information. Do so only
     if the user hasn't already clicked on the phone number before. */
     if (numberOfClicks == 1) {
-      ga('send', 'event', 'Contact', strippedPhoneNumber, pageTitle);
+      ga('send', 'event', 'Contact', strippedPhoneNumber, pagePath);
       if (debugMode)
         console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
     }

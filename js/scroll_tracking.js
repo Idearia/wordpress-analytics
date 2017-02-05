@@ -121,10 +121,11 @@ jQuery(document).ready(function($) {
 
       /* Get some information about the current page */
       var pageTitle = document.title;
+      var pagePath = window.location.pathname;
       var documentLength = $(document).height();
 
       /* First analytics action: send an event telling GA that the article has loaded */
-      ga('send', 'event', 'Reading', 'ArticleLoaded', pageTitle, {'nonInteraction': 1});
+      ga('send', 'event', 'Reading', 'ArticleLoaded', pagePath, {'nonInteraction': 1});
       if (debugMode)
         console.log(' -> ArticleLoaded event sent');
 
@@ -325,7 +326,7 @@ jQuery(document).ready(function($) {
         }
 
         console.warn(" -> Content type could not be identified properly, will use " + content.name);
-        ga('send', 'event', 'Reading', 'ContentGuessed', pageTitle, {'nonInteraction': 1});
+        ga('send', 'event', 'Reading', 'ContentGuessed', pagePath, {'nonInteraction': 1});
         
       } // content identification
 
@@ -353,7 +354,7 @@ jQuery(document).ready(function($) {
       /* Check that the content is longer than the pixel threshold */
       if (contentLength < pixelThreshold) {
         console.warn(" -> Content too short or threshold too large for '" + content.name + "'");
-        ga('send', 'event', 'Reading', 'ContentTooShort', pageTitle, {'nonInteraction': 1});
+        ga('send', 'event', 'Reading', 'ContentTooShort', pagePath, {'nonInteraction': 1});
       }
 
       /* Print some useful info */
@@ -403,7 +404,7 @@ jQuery(document).ready(function($) {
           scrollStart = currentTime.getTime();
           timeToScroll = Math.round((scrollStart - beginning) / 1000);
 
-          ga('send', 'event', 'Reading', 'StartReading', pageTitle, timeToScroll, {'metric1' : timeToScroll});
+          ga('send', 'event', 'Reading', 'StartReading', pagePath, timeToScroll, {'metric1' : timeToScroll});
           if (debugMode)
             console.log(' -> Started reading (' + timeToScroll + 's)');
         }
@@ -432,13 +433,13 @@ jQuery(document).ready(function($) {
           }
           else {
             ga('set', 'dimension1', 'Reader');
-            ga('send', 'event', 'Reading', 'ContentRead', pageTitle, timeToContentEnd);
+            ga('send', 'event', 'Reading', 'ContentRead', pagePath, timeToContentEnd);
             if (debugMode)
               console.log(' -> End of content section ('+timeToContentEnd+'s), you are a reader :-)');
           }
 
           /* In both cases, tell GA that the user reached the bottom of the content */
-          ga('send', 'event', 'Reading', 'ContentBottom', pageTitle, timeToContentEnd, {'metric2' : timeToContentEnd});
+          ga('send', 'event', 'Reading', 'ContentBottom', pagePath, timeToContentEnd, {'metric2' : timeToContentEnd});
 
         }
 
@@ -456,7 +457,7 @@ jQuery(document).ready(function($) {
           end = currentTime.getTime();
           totalTime = Math.round((end - scrollStart) / 1000);
 
-          ga('send', 'event', 'Reading', 'PageBottom', pageTitle, totalTime, {'metric3' : totalTime});
+          ga('send', 'event', 'Reading', 'PageBottom', pagePath, totalTime, {'metric3' : totalTime});
           if (debugMode)
             console.log(' -> Bottom of page (' + totalTime + 's)');
         }

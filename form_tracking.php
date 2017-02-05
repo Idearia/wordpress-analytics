@@ -41,7 +41,7 @@
       /* I have taken the following four lines of code from
       https://github.com/theiconic/php-ga-measurement-protocol;
       thank you! */
-      $document_path = str_replace( home_url(), '', $entry['source_url'] );
+      $document_path = parse_url( $entry['source_url'], PHP_URL_PATH );
   		$document_location = 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . $_SERVER['HTTP_HOST'] . '/' . $_SERVER['REQUEST_URI'];
   		$document_title = isset( $post ) && get_the_title( $post ) ? get_the_title( $post ) : 'no title';
 
