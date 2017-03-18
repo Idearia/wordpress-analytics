@@ -8,9 +8,6 @@ Icon*
 # Output directory
 output/*
 
-# Composer packages directory
-vendor/*
-
 # Log files
 wpan_debug.txt
 
