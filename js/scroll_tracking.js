@@ -87,6 +87,19 @@ jQuery(document).ready(function($) {
       that end with the filename of this file */
       var this_js_script = $('script[src*=scroll_tracking\\.js]');
 
+      /* Parse the Google Analytics tracker name */
+      var gaTrackerName = this_js_script.attr('gaTracker');
+      if (gaTrackerName === undefined) {
+        console.warn(" -> The 'gaTracker' argument was not found, using 'ga'");
+        gaTrackerName = 'ga'
+      }
+  
+      /* Check whether the tracker exists */
+      var gaTracker = window[gaTrackerName];
+      if (typeof gaTracker !== 'function') {
+        console.warn(" -> The function '" + gaTrackerName + "' does not exist in the global scope");
+      }
+
       /* Debug flag, set to true to log useful messages */
       var debugMode = parseInt (this_js_script.attr('debug'));
       if (debugMode === undefined)
@@ -125,7 +138,7 @@ jQuery(document).ready(function($) {
       var documentLength = $(document).height();
 
       /* First analytics action: send an event telling GA that the article has loaded */
-      ga('send', 'event', 'Reading', 'ArticleLoaded', pagePath, {'nonInteraction': 1});
+      gaTracker('send', 'event', 'Reading', 'ArticleLoaded', pagePath, {'nonInteraction': 1});
       if (debugMode)
         console.log(' -> ArticleLoaded event sent');
 
@@ -326,7 +339,7 @@ jQuery(document).ready(function($) {
         }
 
         console.warn(" -> Content type could not be identified properly, will use " + content.name);
-        ga('send', 'event', 'Reading', 'ContentGuessed', pagePath, {'nonInteraction': 1});
+        gaTracker('send', 'event', 'Reading', 'ContentGuessed', pagePath, {'nonInteraction': 1});
         
       } // content identification
 
@@ -354,7 +367,7 @@ jQuery(document).ready(function($) {
       /* Check that the content is longer than the pixel threshold */
       if (contentLength < pixelThreshold) {
         console.warn(" -> Content too short or threshold too large for '" + content.name + "'");
-        ga('send', 'event', 'Reading', 'ContentTooShort', pagePath, {'nonInteraction': 1});
+        gaTracker('send', 'event', 'Reading', 'ContentTooShort', pagePath, {'nonInteraction': 1});
       }
 
       /* Print some useful info */
@@ -404,7 +417,7 @@ jQuery(document).ready(function($) {
           scrollStart = currentTime.getTime();
           timeToScroll = Math.round((scrollStart - beginning) / 1000);
 
-          ga('send', 'event', 'Reading', 'StartReading', pagePath, timeToScroll, {'metric1' : timeToScroll});
+          gaTracker('send', 'event', 'Reading', 'StartReading', pagePath, timeToScroll, {'metric1' : timeToScroll});
           if (debugMode)
             console.log(' -> Started reading (' + timeToScroll + 's)');
         }
@@ -427,19 +440,19 @@ jQuery(document).ready(function($) {
           flag him/her as a scanner. Otherwise, flag him/her as a Reader, and
           fire a ContentRead event. */
           if (timeToContentEnd < timeThreshold) {
-            ga('set', 'dimension1', 'Scanner');
+            gaTracker('set', 'dimension1', 'Scanner');
             if (debugMode)
               console.log(' -> End of content section ('+timeToContentEnd+'s), you are a scanner :-(');
           }
           else {
-            ga('set', 'dimension1', 'Reader');
-            ga('send', 'event', 'Reading', 'ContentRead', pagePath, timeToContentEnd);
+            gaTracker('set', 'dimension1', 'Reader');
+            gaTracker('send', 'event', 'Reading', 'ContentRead', pagePath, timeToContentEnd);
             if (debugMode)
               console.log(' -> End of content section ('+timeToContentEnd+'s), you are a reader :-)');
           }
 
           /* In both cases, tell GA that the user reached the bottom of the content */
-          ga('send', 'event', 'Reading', 'ContentBottom', pagePath, timeToContentEnd, {'metric2' : timeToContentEnd});
+          gaTracker('send', 'event', 'Reading', 'ContentBottom', pagePath, timeToContentEnd, {'metric2' : timeToContentEnd});
 
         }
 
@@ -457,7 +470,7 @@ jQuery(document).ready(function($) {
           end = currentTime.getTime();
           totalTime = Math.round((end - scrollStart) / 1000);
 
-          ga('send', 'event', 'Reading', 'PageBottom', pagePath, totalTime, {'metric3' : totalTime});
+          gaTracker('send', 'event', 'Reading', 'PageBottom', pagePath, totalTime, {'metric3' : totalTime});
           if (debugMode)
             console.log(' -> Bottom of page (' + totalTime + 's)');
         }

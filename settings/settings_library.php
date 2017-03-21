@@ -252,12 +252,21 @@
           add_option( $section['db_key'], $section['fields'] );
         }
 
+        /* Values displayed in the input form. If an option is not present in the
+        database, we assume it is empty. We do this because of how the Settings API
+        works: the database entries associated to input forms with emtpy fields
+        are removed from the database rather than left there with an empty value.  */
+        $displayed_values = get_option( $section['db_key'] );
+        foreach ( $section['fields'] as $key => $value ) {
+          if ( ! isset( $displayed_values[ $key ] ) ) {
+            $displayed_values[ $key ] = ''; 
+          }
+        }
 
-        /* Values displayed in the input form. If an option is not present in the database,
-        then we display its default value. Should never happen because of the add_option
-        above. */
-        $displayed_values = shortcode_atts( $section['fields'], get_option( $section['db_key'] ) );
-
+        /* Debug option values and displayed values */
+        // wpan_log_debug ("FIELDS = " . print_r($section['fields'],true));
+        // wpan_log_debug ("DB = " . print_r(get_option( $section['db_key'] ),true));
+        // wpan_log_debug ("DISPLAYED VALUES = " . print_r($displayed_values,true));
 
         /* Add the section */
         $show_section_title = isset( $section['display_section_title'] ) && $section['display_section_title'];

@@ -30,6 +30,19 @@ jQuery(document).ready(function($) {
   that end with the filename of this file */
   var this_js_script = $('script[src*=call_tracking\\.js]');
 
+  /* Parse the Google Analytics tracker name */
+  var gaTrackerName = this_js_script.attr('gaTracker');
+  if (gaTrackerName === undefined) {
+    console.warn(" -> The 'gaTracker' argument was not found, using 'ga'");
+    gaTrackerName = 'ga'
+  }
+  
+  /* Check whether the tracker exists */
+  var gaTracker = window[gaTrackerName];
+  if (typeof gaTracker !== 'function') {
+    console.warn(" -> The function '" + gaTrackerName + "' does not exist in the global scope");
+  }
+  
   /* Debug flag, set to true to log useful messages */
   var debugMode = parseInt (this_js_script.attr('debug'));
   if (debugMode === undefined)
@@ -149,7 +162,7 @@ jQuery(document).ready(function($) {
     /* Send the event, attaching phone number & page information. Do so only
     if the user hasn't already clicked on the phone number before. */
     if (numberOfClicks == 1) {
-      ga('send', 'event', 'Contact', strippedPhoneNumber, pagePath);
+      gaTracker('send', 'event', 'Contact', strippedPhoneNumber, pagePath);
       if (debugMode)
         console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
     }

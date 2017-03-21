@@ -16,7 +16,7 @@
   }
 
   /* Define plugin version */
-  define( "WPAN_VERSION", "alpha_v8" );
+  define( "WPAN_VERSION", "alpha_v9" );
   define( "WPAN_URL", "https://github.com/coccoinomane/wordpress_analytics" );
 
   /* Define plugin directory & URL */
@@ -83,15 +83,6 @@
     /* Load Gravity Forms tracking */
     if ( isset ( $options ['form_tracking'] ) && $options ['form_tracking'] )
       require_once ( WPAN_PLUGIN_DIR . 'form_tracking.php' );
-
-
-    // ===============
-    // = Debug tools =
-    // ===============
-
-    /* Insert debug tools */
-    if ( isset ( $options ['debug'] ) && $options ['debug'] )
-      require_once ( WPAN_PLUGIN_DIR . 'debug.php' );
 
   }
 

@@ -132,7 +132,7 @@
 
     if ( $debug && defined( 'WPAN_PLUGIN_DIR' ) ) {
     
-      $debug_file = WPAN_PLUGIN_DIR . 'wpan_debug.txt';
+      $debug_file = WPAN_PLUGIN_DIR . 'debug.log';
 
       $pre = preg_replace('/.*?public_html/', '', __FILE__) . ':' . __LINE__ . ': ';
 

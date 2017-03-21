@@ -13,6 +13,7 @@
 
     /* Extract the call tracking options from the database */
     $options = wpan_get_options ();
+    $ga_tracker = isset ( $options ['tracker_name'] ) ? $options ['tracker_name'] : '';
     $phone_regex_include_pattern = isset ( $options['phone_regex_include_pattern'] ) ? $options['phone_regex_include_pattern'] : '';
     $phone_regex_exclude_pattern = isset ( $options['phone_regex_exclude_pattern'] ) ? $options['phone_regex_exclude_pattern'] : '';
     $detect_phone_numbers = isset ( $options['detect_phone_numbers'] ) ? $options['detect_phone_numbers'] : '';
@@ -30,6 +31,7 @@
 
     /* Load the script */
     echo "<script src='$script_versioned' "
+          . "gaTracker='$ga_tracker' "
           . "regexIncludePattern='$phone_regex_include_pattern' "
           . "regexExcludePattern='$phone_regex_exclude_pattern' "
           . "detectPhoneNumbers='$detect_phone_numbers' "

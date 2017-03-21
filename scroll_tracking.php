@@ -16,6 +16,7 @@
 
     /* Extract the scroll tracking options from the database */
     $options = wpan_get_options ();
+    $ga_tracker = isset ( $options ['tracker_name'] ) ? $options ['tracker_name'] : '';
     $pixel_threshold = isset ( $options['pixel_threshold'] ) ? $options['pixel_threshold'] : '';
     $time_threshold = isset ( $options['time_threshold'] ) ? $options['time_threshold'] : '';
     $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
@@ -37,6 +38,7 @@
     /* Load the script.
     TODO: we should use wp_enqueue() here. */
     echo "<script src='$script_versioned' "
+          . "gaTracker='$ga_tracker' "
           . "timeThreshold='$time_threshold' "
           . "pixelThreshold='$pixel_threshold' "
           . "debug='$debug' "

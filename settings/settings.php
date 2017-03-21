@@ -190,9 +190,11 @@
                       'func_display' => 'wpan_display_advanced_settings_section',
                       'display_section_title' => false,
                       'fields' => [
+                          'network_mode' => '0',
+                          'create_tracker' => '1',
+                          'tracker_name' => 'ga',
                           'cross_domain_support' => '0',
                           'enhanced_link_attribution' => '0',
-                          'network_mode' => '0',
                           'debug' => '0',
                       ],
                   ],
@@ -414,15 +416,16 @@
               break;
 
             case 'cross_domain_support':
-              /* Vertical booking support requires enhanced link attribution (DISABLED) */
-              // $output['enhanced_link_attribution'] = true;
-              // $error_code = 'set-enhanced-link-attribution';
-              // $error_message = 'Enhanced link attribution was turned on to allow Vertical Booking support';
-              // $error_type = 'updated';
               break;
 
             case 'custom_code':
-              /* TODO: add syntax & malware checks */
+              /* TODO: add syntax check */
+              break;
+
+            case 'create_tracker':
+              break;
+
+            case 'tracker_name':
               break;
 
           } // switch
