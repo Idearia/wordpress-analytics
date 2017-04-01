@@ -29,7 +29,7 @@
   		global $post;
 
       $msg = "About to send form tracking event to Google Analytics...";
-      wpan_log_debug( $msg );
+      wpan_debug( $msg );
       GFCommon::log_debug( $msg );
 
       /* Extract the plugin options from the database */
@@ -77,14 +77,14 @@
 
       /* Debug */
       if ( $debug ) {
-        wpan_log_debug( "Sent the following event to Google Analytics:" );
-        wpan_log_debug( $event );
-        wpan_log_debug( "Received the following respons from Google Analytics (ASYNC, so it might be empty): ");
-        wpan_log_debug( $response );
-        // wpan_log_debug( "This is the form that triggered the event:" );
-        // wpan_log_debug( $form );
-        // wpan_log_debug( "This is the entry of the form in Gravity Forms:" );
-        // wpan_log_debug( $entry );
+        wpan_debug( "Sent the following event to Google Analytics:" );
+        wpan_debug( $event );
+        wpan_debug( "Received the following respons from Google Analytics (ASYNC, so it might be empty): ");
+        wpan_debug( $response );
+        // wpan_debug( "This is the form that triggered the event:" );
+        // wpan_debug( $form );
+        // wpan_debug( "This is the entry of the form in Gravity Forms:" );
+        // wpan_debug( $entry );
       }
 
     }

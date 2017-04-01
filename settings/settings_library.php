@@ -264,9 +264,9 @@
         }
 
         /* Debug option values and displayed values */
-        // wpan_log_debug ("FIELDS = " . print_r($section['fields'],true));
-        // wpan_log_debug ("DB = " . print_r(get_option( $section['db_key'] ),true));
-        // wpan_log_debug ("DISPLAYED VALUES = " . print_r($displayed_values,true));
+        // wpan_debug ("FIELDS = " . print_r($section['fields'],true));
+        // wpan_debug ("DB = " . print_r(get_option( $section['db_key'] ),true));
+        // wpan_debug ("DISPLAYED VALUES = " . print_r($displayed_values,true));
 
         /* Add the section */
         $show_section_title = isset( $section['display_section_title'] ) && $section['display_section_title'];

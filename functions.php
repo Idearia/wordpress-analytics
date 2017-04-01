@@ -74,20 +74,20 @@
         require_once $autoload_file;
         Racecore\GATracking\Autoloader::register( WPAN_GAMP_DIR );
         define ("WPAN_GAMP_LOADED", true);
-        wpan_log_debug( "Measurement protocol client loaded." );
+        wpan_debug( "Measurement protocol client loaded." );
         return true;
         
       } catch (Exception $e) {
 
-        wpan_log_debug( "Could not load measurement protocol client; error message:" );
-        wpan_log_debug( $e->getMessage() );
+        wpan_debug( "Could not load measurement protocol client; error message:" );
+        wpan_debug( $e->getMessage() );
         
       }
       
     }
     else {
       
-      wpan_log_debug( "Could not load measurement protocol client; file $autoload_file could not be found." );
+      wpan_debug( "Could not load measurement protocol client; file $autoload_file could not be found." );
       
     }
 
@@ -109,13 +109,13 @@
     if ( file_exists( WPAN_CODEMIRROR_DIR ) ) {
 
       define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED", true );
-      wpan_log_debug( "Syntax highlighting library loaded." );
+      wpan_debug( "Syntax highlighting library loaded." );
       return true;
 
     }
     else {
       
-      wpan_log_debug( "Could not load syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
+      wpan_debug( "Could not load syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
       
     }
 
@@ -125,7 +125,7 @@
   /**
    * Debug function: write to debug.log in plugin directory.
    */
-  function wpan_log_debug ( $log, $force=false ) {
+  function wpan_debug ( $log, $force=false ) {
 
     $options = wpan_get_options ();
     $debug = isset ( $options['debug'] ) ? $options['debug'] : $force;

@@ -10,6 +10,8 @@
     only in the main site */
     if ( is_multisite() && wpan_is_main_blog() ) {
 
+      // wpan_register_setting_field( $section, 'network_mode' );
+
       $name = 'network_mode';
       $title = 'Network Mode';
       $desc = 'Manage plugin options only at the network level, preventing site admins to change them. ';
