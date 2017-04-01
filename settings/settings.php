@@ -4,14 +4,12 @@
    * Build the settings page for the Wordpress Analytics plugin,
    * using the settings library in settings.php.
    *
+   * This file is read only if is_admin() is true.
+   * 
    * Created by Guido W. Pettinari on 28.01.2016.
    * Part of Wordpress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */  
-
-
-  /* Include the settings library */
-  require_once ( WPAN_PLUGIN_DIR . 'settings/settings_library.php' );
 
 
   // ==================================================================================
@@ -56,167 +54,13 @@
    * 
    */
 
-  $wpan_menu_structure = [
-      'menus' => [
-          /* Top level menu */
-          'wordpress_analytics' => [
-              'parent_slug' => '',
-              'slug' => 'wordpress_analytics',
-              'display' => 'Wordpress Analytics Settings',
-              'display_menu' => 'Wordpress Analytics',
-              'func_display' => 'wpan_display_general_menu_page',
-              'capability' => 'administrator',
-              'sections' => [
-                  'general_settings' => [
-                      'id' => 'general_settings',
-                      'name' => 'general_settings_section',
-                      'display' => "General settings",
-                      'page' => 'wpan_general_settings_page',
-                      'group' => 'wpan_general_settings_option_group',
-                      'db_key' => 'wpan:general_settings',
-                      'visible' => true,
-                      'func_register' => 'wpan_register_general_settings_fields',
-                      'func_display' => 'wpan_display_general_settings_section',
-                      'display_section_title' => false,
-                      'fields' => [
-                          'tracking_uid' => '',
-                          'scroll_tracking' => '0',
-                          'content_grouping' => '0',
-                          'call_tracking' => '0',
-                          'form_tracking' => '0',
-                          'email_tracking' => '0',
-                      ],
-                  ],
-                  'content_grouping' => [
-                      'id' => 'content_grouping',
-                      'name' => 'content_grouping_section',
-                      'display' => 'Content grouping',
-                      'page' => 'wpan_content_grouping_page',
-                      'group' => 'wpan_content_grouping_option_group',
-                      'db_key' => 'wpan:content_grouping',
-                      'visible' => true,
-                      'func_register' => 'wpan_register_content_grouping_fields',
-                      'func_display' => 'wpan_display_content_grouping_section',
-                      'fields' => [
-                          'group_index_wordpress' => '1',
-                          'group_index_woocommerce' => '2',
-                          'group_index_blog' => '3',
-                      ],
-                  ],
-                  'scroll_tracking' => [
-                      'id' => 'scroll_tracking',
-                      'name' => 'scroll_tracking_section',
-                      'display' => 'Scroll tracking',
-                      'page' => 'wpan_scroll_tracking_page',
-                      'group' => 'wpan_scroll_tracking_option_group',
-                      'visible' => true,
-                      'db_key' => 'wpan:scroll_tracking',
-                      'func_register' => 'wpan_register_scroll_tracking_fields',
-                      'func_display' => 'wpan_display_scroll_tracking_section',
-                      'fields' => [
-                          'pixel_threshold' => '300',
-                          'time_threshold' => '60',
-                      ],
-                  ],
-                  'call_tracking' => [
-                      'id' => 'call_tracking',
-                      'name' => 'call_tracking_section',
-                      'display' => 'Call tracking',
-                      'page' => 'wpan_call_tracking_page',
-                      'group' => 'wpan_call_tracking_option_group',
-                      'visible' => true,
-                      'db_key' => 'wpan:call_tracking',
-                      'func_register' => 'wpan_register_call_tracking_fields',
-                      'func_display' => 'wpan_display_call_tracking_section',
-                      'fields' => [
-                          'phone_regex_include_pattern' => '',
-                          'phone_regex_exclude_pattern' => '',
-                          'detect_phone_numbers' => '1',
-                      ],
-                  ],
-                  // 'form_tracking' => [
-                  //     'id' => 'form_tracking',
-                  //     'name' => 'form_tracking_section',
-                  //     'display' => 'Form tracking',
-                  //     'page' => 'wpan_form_tracking_page',
-                  //     'group' => 'wpan_form_tracking_option_group',
-                  //     'visible' => true,
-                  //     'db_key' => 'wpan:form_tracking',
-                  //     'func_register' => 'wpan_register_form_tracking_fields',
-                  //     'func_display' => 'wpan_display_form_tracking_section',
-                  //     'fields' => [
-                  //         'form_include_id' => '',
-                  //         'form_exclude_id' => '',
-                  //     ],
-                  // ],
-                  'hidden_settings' => [
-                      'id' => 'hidden_settings',
-                      'name' => 'hidden_settings_section',
-                      'display' => 'Hidden settings',
-                      'page' => 'wpan_hidden_settings_page',
-                      'group' => 'wpan_hidden_settings_option_group',
-                      'visible' => false,
-                      'db_key' => 'wpan:hidden_settings',
-                      'func_register' => 'wpan_register_hidden_settings_fields',
-                      'func_display' => 'wpan_display_hidden_settings_section',
-                      'fields' => [
-                          'enable_json_folder' => '0',
-                      ],
-                  ],
-              ],
-              /* Specific to top-level menu */
-              'display_submenu' => 'General',
-              'icon' => 'dashicons-admin-generic',
-              'position' => 99,          
-          ],
-          /* Sub menus */
-          'advanced_settings' => [
-              'parent_slug' => 'wordpress_analytics',
-              'slug' => 'advanced_settings_menu',
-              'display' => 'Advanced Settings',
-              'display_menu' => 'Advanced',
-              'func_display' => 'wpan_display_advanced_menu_page',
-              'capability' => 'administrator',
-              'sections' => [
-                  'advanced_settings' => [
-                      'id' => 'advanced_settings',
-                      'name' => 'advanced_settings_section',
-                      'display' => 'Advanced settings',
-                      'page' => 'wpan_advanced_settings_page',
-                      'group' => 'wpan_advanced_settings_option_group',
-                      'visible' => true,
-                      'db_key' => 'wpan:advanced_settings',
-                      'func_register' => 'wpan_register_advanced_settings_fields',
-                      'func_display' => 'wpan_display_advanced_settings_section',
-                      'display_section_title' => false,
-                      'fields' => [
-                          'network_mode' => '0',
-                          'create_tracker' => '1',
-                          'tracker_name' => 'ga',
-                          'cross_domain_support' => '0',
-                          'enhanced_link_attribution' => '0',
-                          'debug' => '0',
-                      ],
-                  ],
-                  'custom_code' => [
-                      'id' => 'custom_code',
-                      'name' => 'custom_code_section',
-                      'display' => 'Custom code',
-                      'page' => 'wpan_custom_code_page',
-                      'group' => 'wpan_custom_code_option_group',
-                      'visible' => true,
-                      'db_key' => 'wpan:custom_code',
-                      'func_register' => 'wpan_register_custom_code_fields',
-                      'func_display' => 'wpan_display_custom_code_section',
-                      'fields' => [
-                          'custom_code' => '',
-                      ],
-                  ],
-              ],
-          ],
-      ],
-  ];
 
+  // ==================================================================================
+  // =                            Load settings from file                             =
+  // ==================================================================================
+  
+  $settings_file_content = file_get_contents( WPAN_PLUGIN_DIR . "settings/settings.json" );
+  $wpan_menu_structure = json_decode( $settings_file_content, true );
 
 
   // ==================================================================================
@@ -224,7 +68,6 @@
   // ==================================================================================
 
   add_action('admin_init', 'wpan_initialise_settings');
-
 
 
   // ==================================================================================

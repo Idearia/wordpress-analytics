@@ -24,10 +24,15 @@
   define( "WPAN_PLUGIN_URL", plugin_dir_url(__FILE__) );
 
   /* Include utility functions */
-  require_once ( WPAN_PLUGIN_DIR . 'functions.php' );
+  require_once( WPAN_PLUGIN_DIR . 'functions.php' );
+
+  /* Include the settings library */
+  require_once ( WPAN_PLUGIN_DIR . 'settings/settings_library.php' );
 
   /* Build settings page */
-  require_once ( WPAN_PLUGIN_DIR . 'settings/settings.php' );
+  if ( is_admin() ) {
+    require_once( WPAN_PLUGIN_DIR . 'settings/settings.php' );
+  }
 
   /* @todo Boilerplate copied from a proper plugin (SG_cachepress), to personalize later */
   // // Load text Domain
@@ -85,5 +90,3 @@
       require_once ( WPAN_PLUGIN_DIR . 'form_tracking.php' );
 
   }
-
-?>
