@@ -27,42 +27,129 @@
 
 
   // ==================================================================================
+  // =                            Load the menu structure                             =
+  // ==================================================================================
+
+  /**
+   * Load the plugin's structure from the config file.
+   *
+   * Parse the config file's content into a global array. This array will be used
+   * by other functions in the library to build the settings pages and as a blueprint
+   * to retrieve the plugin's options from the database via wpan_get_options().
+   */
+  function wpan_load_menu_structure ( $filepath ) {
+
+    /* If the structure does not exist, load if from the config file */
+    if ( ! array_key_exists( 'wpan_menu_structure', $GLOBALS ) ) {
+
+      /* Load the Yaml library in order to parse the config file */
+      wpan_load_yaml_library();
+
+      /* Load the config file's content into memory */
+      $settings_file_content = file_get_contents( $filepath );
+      if ( false === $settings_file_content ) {
+        wpan_debug_wp( 'Could not load config file for WordPress Analytics; file: ' . $filepath );
+        $GLOBALS['wpan_menu_structure'] = [];
+        return;
+      }
+
+      /* Parse the config file's content into a global array. This array will be used
+      to build the settings pages and as a blueprint to retrieve the plugin's options
+      from the database. */
+
+      $extension = pathinfo( $filepath, PATHINFO_EXTENSION );
+
+      /* If config file is JSON... */
+      if ( 'json' == $extension ) {
+        $GLOBALS['wpan_menu_structure'] = json_decode( $settings_file_content, true );
+      }
+      /* If config file is YAML... */
+      else if ( 'yaml' == $extension || 'yml' == $extension ) {
+        if ( defined( "WPAN_YAML_LOADED" ) ) {
+          $GLOBALS['wpan_menu_structure'] = Symfony\Component\Yaml\Yaml::parse( $settings_file_content );
+        }
+        else {
+          wpan_debug( "Yaml library not loaded, cannot open config file " . $filepath, true );
+          return;
+        }
+      }
+      /* If config file is not recognized... */
+      else {
+        wpan_debug( "Extension $extension not recognized, cannot open config file " . $filepath, true );
+        return;
+      }
+
+      /* If we got here, the config file was correctly loaded */
+      wpan_debug( "Successfully loaded the plugin's menu structure from file" );
+      
+      /* Debug: print to debug.log the plugin structure */
+      // wpan_debug( $GLOBALS['wpan_menu_structure'], true );
+
+    }
+    
+  }
+
+
+
+  // ==================================================================================
   // =                              Access the options                                =
   // ==================================================================================
 
   /**
-   * Return all options for the plugin.
+   * Return all plugin options stored in the database.
    *
-   * The options are retrieved from the database. If the database does not contain
-   * them yet, the returned array will be empty.
+   * The options are retrieved from the database. If the database does not
+   * contain them yet, the returned array will be empty.
+   *
    */
-
   function wpan_get_options () {
 
+    /* Load the plugin's structure if it's not available */
+    if ( ! array_key_exists( 'wpan_menu_structure', $GLOBALS ) ) {
+      wpan_load_menu_structure( WPAN_CONFIG_FILE );
+    }
+
+    /* Make the plugin's structure available in the current scope */
     global $wpan_menu_structure;
 
     $options = [];
 
-    foreach ( $wpan_menu_structure['menus'] as $menu ) {
+    if ( $wpan_menu_structure ) {
 
-      foreach ( $menu['sections'] as $section ) {
+      foreach ( $wpan_menu_structure['menus'] as $menu ) {
 
-        /* In network mode, settings are read from the main blog's database */
-        if ( is_multisite() && wpan_is_network_mode() ) {
-          $section_options = get_blog_option ( wpan_get_main_blog_id(), $section['db_key'] );
+        /* The plugin's options are divided in sections. Each section corresponds to
+        a serialized entry in the database */
+        foreach ( $menu['sections'] as $section ) {
+
+          /* In network mode, settings are read from the main blog's database */
+          if ( is_multisite() && wpan_is_network_mode() ) {
+            $section_options = get_blog_option ( wpan_get_main_blog_id(), $section['db_key'] );
+          }
+
+          /* In normal mode, the settings are read from each blog's database */
+          else {
+            $section_options = get_option ( $section['db_key'] );
+          }
+
+          if ($section_options)
+            $options = array_merge ( $options, $section_options );
+
         }
-
-        /* In normal mode, the settings are read from each blog's database */
-        else {
-          $section_options = get_option ( $section['db_key'] );
-        }
-
-        if ($section_options)
-          $options = array_merge ( $options, $section_options );
 
       }
-
+      
     }
+
+    /* If the plugin settings are not available, then there's
+    something wrong and we tell the user via WordPress0 debug.log */
+    // else {
+    //
+    //   wpan_debug_wp( __FILE__.':'.__LINE__.': Could not load WordPress Analytics settings' );
+    //
+    //   $options = [];
+    //
+    // }
 
     return $options;
 

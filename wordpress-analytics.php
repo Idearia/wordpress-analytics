@@ -22,6 +22,12 @@
   /* Define plugin directory & URL */
   define( "WPAN_PLUGIN_DIR", plugin_dir_path(__FILE__) );
   define( "WPAN_PLUGIN_URL", plugin_dir_url(__FILE__) );
+  
+  /* Define plugin's config file */
+  define( "WPAN_CONFIG_FILE", WPAN_PLUGIN_DIR . "/settings/settings.yaml" );
+
+  /* Autoload Composer packages => Symfony's Yaml */
+  require __DIR__ . '/vendor/autoload.php';
 
   /* Include utility functions */
   require_once( WPAN_PLUGIN_DIR . 'functions.php' );
@@ -34,22 +40,13 @@
     require_once( WPAN_PLUGIN_DIR . 'settings/settings.php' );
   }
 
-  /* @todo Boilerplate copied from a proper plugin (SG_cachepress), to personalize later */
-  // // Load text Domain
-  // add_action( 'plugins_loaded', 'sgcachepress_load_textdomain' );
-  // function sgcachepress_load_textdomain() {
-  //   load_plugin_textdomain( 'sg-cachepress', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
-  // }
-  //
-  // // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
-  // register_activation_hook( __FILE__, array( 'SG_CachePress', 'activate' ) );
-  // register_deactivation_hook( __FILE__, array( 'SG_CachePress', 'deactivate' ) );
-  // add_action( 'plugins_loaded','sg_cachepress_start' );
-  // add_action( 'admin_init', array('SG_CachePress','admin_init_cachepress') );
-  // add_action( 'init', 'disable_other_caching_plugins' );
-
   /* Extract plugin options from the database */
   $options = wpan_get_options ();
+
+  /* Debug: print to debug.log the options we just fetched */
+  // wpan_debug( "Fetched the following plugin's options:", true );
+  // wpan_debug( $options, true );
+  
 
   /* Stop unless we have a valid tracking ID */
   if ( isset ( $options ['tracking_uid'] ) && $options ['tracking_uid'] ) {
@@ -90,3 +87,18 @@
       require_once ( WPAN_PLUGIN_DIR . 'form_tracking.php' );
 
   }
+
+
+  /* @todo Boilerplate copied from a proper plugin (SG_cachepress), to personalize later */
+  // // Load text Domain
+  // add_action( 'plugins_loaded', 'sgcachepress_load_textdomain' );
+  // function sgcachepress_load_textdomain() {
+  //   load_plugin_textdomain( 'sg-cachepress', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
+  // }
+  //
+  // // Register hooks that are fired when the plugin is activated, deactivated, and uninstalled, respectively.
+  // register_activation_hook( __FILE__, array( 'SG_CachePress', 'activate' ) );
+  // register_deactivation_hook( __FILE__, array( 'SG_CachePress', 'deactivate' ) );
+  // add_action( 'plugins_loaded','sg_cachepress_start' );
+  // add_action( 'admin_init', array('SG_CachePress','admin_init_cachepress') );
+  // add_action( 'init', 'disable_other_caching_plugins' );

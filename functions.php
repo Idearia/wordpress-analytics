@@ -60,98 +60,174 @@
    * we use a lightweight PHP client from Racecore (https://github.com/ins0/google-
    * measurement-php-client) which we will refer to as ga-mp.
    */  
-  
   function wpan_load_measurement_protocol_client () {
-    
-    define( "WPAN_GAMP_DIR", WPAN_PLUGIN_DIR . 'vendor/ga-mp/src/' );
-    define( "WPAN_GAMP_URL", WPAN_PLUGIN_URL . 'vendor/ga-mp/src/' );
-    $autoload_file = WPAN_GAMP_DIR . 'Racecore/GATracking/Autoloader.php';
 
-    if ( file_exists( $autoload_file ) ) {
+    if ( ! defined( 'WPAN_GAMP_LOADED' ) ) {
 
-      try {
+      define( "WPAN_GAMP_DIR", WPAN_PLUGIN_DIR . 'vendor/ins0/google-measurement-php-client/src/' );
+      define( "WPAN_GAMP_URL", WPAN_PLUGIN_URL . 'vendor/ins0/google-measurement-php-client/src/' );
+      $autoload_file = WPAN_GAMP_DIR . 'Racecore/GATracking/Autoloader.php';
 
-        require_once $autoload_file;
-        Racecore\GATracking\Autoloader::register( WPAN_GAMP_DIR );
-        define ("WPAN_GAMP_LOADED", true);
-        wpan_debug( "Measurement protocol client loaded." );
-        return true;
+      if ( file_exists( $autoload_file ) ) {
+
+        try {
+
+          require_once $autoload_file;
+          Racecore\GATracking\Autoloader::register( WPAN_GAMP_DIR );
+          define ("WPAN_GAMP_LOADED", true);
+          wpan_debug( "Measurement protocol client loaded." );
+          return true;
         
-      } catch (Exception $e) {
+        } catch (Exception $e) {
 
-        wpan_debug( "Could not load measurement protocol client; error message:" );
-        wpan_debug( $e->getMessage() );
+          wpan_debug( "Could not load measurement protocol client; error message:" );
+          wpan_debug( $e->getMessage() );
         
+        }
+      
       }
+      else {
       
-    }
-    else {
+        wpan_debug( "Could not load measurement protocol client; file $autoload_file could not be found." );
       
-      wpan_debug( "Could not load measurement protocol client; file $autoload_file could not be found." );
-      
+      }
+
     }
 
   }
 
 
   /**
-   * Define directories where the syntax highglighting library can be found.
+   * Check that the syntax highlighting library CodeMirror is installed,
+   * and define the constants WPAN_CODEMIRROR_DIR and WPAN_CODEMIRROR_URL.
    *
    * In order to provide syntax highlighting in HTML text areas, we use
    * the CodeMirror Javascript library (https://codemirror.net/).
    */  
-  
   function wpan_load_syntax_highlighting () {
+
+    if ( ! defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) ) {
     
-    define( "WPAN_CODEMIRROR_DIR", WPAN_PLUGIN_DIR . 'vendor/codemirror/' );
-    define( "WPAN_CODEMIRROR_URL", WPAN_PLUGIN_URL . 'vendor/codemirror/' );
+      define( "WPAN_CODEMIRROR_DIR", WPAN_PLUGIN_DIR . 'vendor/codemirror/' );
+      define( "WPAN_CODEMIRROR_URL", WPAN_PLUGIN_URL . 'vendor/codemirror/' );
 
-    if ( file_exists( WPAN_CODEMIRROR_DIR ) ) {
+      if ( file_exists( WPAN_CODEMIRROR_DIR ) ) {
 
-      define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED", true );
-      wpan_debug( "Syntax highlighting library loaded." );
-      return true;
+        define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED", true );
+        wpan_debug( "Syntax highlighting library loaded." );
+        return true;
 
+      }
+      else {
+      
+        wpan_debug( "Could not find syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
+      
+      }
+      
     }
-    else {
+
+  }
+  
+  /**
+   * Check that Symfony's Yaml library is installed,
+   * and define the constant WPAN_YAML_DIR.
+   *
+   * Yaml is used to read the plugin's options, and this function
+   * is used to load Yaml. This means that here you cannot use
+   * functions that call wpan_get_options(), lest you get a
+   * recursive error.
+   */  
+  
+  function wpan_load_yaml_library () {
+    
+    if ( ! defined( 'WPAN_YAML_LOADED' ) ) {
+    
+      define( "WPAN_YAML_DIR", WPAN_PLUGIN_DIR . 'vendor/symfony/yaml/' );
+      define( "WPAN_YAML_URL", WPAN_PLUGIN_URL . 'vendor/symfony/yaml/' );
+
+      if ( file_exists( WPAN_YAML_DIR ) ) {
+
+        define( "WPAN_YAML_LOADED", true );
+        return true;
+
+      }
+      else {
+
+        wpan_debug_wp( __FILE__.':'.__LINE__.': Could not find Yaml library; folder ' . WPAN_YAML_DIR . ' could not be found.' );
       
-      wpan_debug( "Could not load syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
-      
+      }
+    
     }
 
   }
   
 
   /**
-   * Debug function: write to debug.log in plugin directory.
+   * Debug function: write to WordPress level debug log (usually in
+   * wp-content/debug.log) and to debug.log in the plugin's directory.
+   *
+   * The plugin's own debug.log file will be written if the plugin's
+   * debug option is active, or if the 'force' argument is set to true.
+   *
+   * WordPress' debug log will be written if WP_DEBUG and WP_DEBUG_LOG are
+   * both set to true (usually in wp-config.php) and if either the plugin's
+   * debug option is active or the 'force' argument is set to true.
    */
   function wpan_debug ( $log, $force=false ) {
 
-    $options = wpan_get_options ();
-    $debug = isset ( $options['debug'] ) ? $options['debug'] : $force;
+    /* Location of plugin's debug file */
+    $plugin_debug_file = WPAN_PLUGIN_DIR . 'debug.log';
 
-    if ( $debug && defined( 'WPAN_PLUGIN_DIR' ) ) {
-    
-      $debug_file = WPAN_PLUGIN_DIR . 'debug.log';
+    /* If the $force argument is true, print the debug message regardless
+    of the value of the global debug flag */
+    if ( $force ) {
+      $write = true;
+    }
+    else {
+      /* Use the plugin's debug flag to determine whether to write or not */
+      $options = wpan_get_options ();
+      $write = isset ( $options['debug'] ) ? $options['debug'] : false;
+    }
 
+    if ( $write && defined( 'WPAN_PLUGIN_DIR' ) ) {
+
+      /* Prepend file & line information to each line */
       $pre = preg_replace('/.*?public_html/', '', __FILE__) . ':' . __LINE__ . ': ';
-
+    
+      /* Line to be logged */
       if ( is_array( $log ) || is_object( $log ) ) {
-
-         file_put_contents( $debug_file, $pre . print_r( $log, true ) . PHP_EOL, FILE_APPEND );
-
+        $line = $pre . print_r( $log, true );
       } else {
-
-         file_put_contents( $debug_file, $pre . $log . PHP_EOL, FILE_APPEND );
-
+        $line = $pre . $log;
       }
+
+      /* Write the line to the plugin's debug log */
+      file_put_contents( $plugin_debug_file, $line . PHP_EOL, FILE_APPEND );
+
+      /* Write the line to WordPress' debug log */
+      error_log( $line );
+
     }
 
   }
 
+  
+  /** 
+   * Write to WordPress debug.log file; courtesy of Elegant Themes.
+   */
+  function wpan_debug_wp ( $log ) {
+    
+    if ( is_array( $log ) || is_object( $log ) ) {
+       error_log( print_r( $log, true ) );
+    } else {
+       error_log( $log );
+    }
+    
+  }
+
 
   /**
-   * Return the blog ID of the main blog of the newtork (usually 1)
+   * Return the blog ID of the main blog of the network (usually 1)
    */
   function wpan_get_main_blog_id () {
     

@@ -13,57 +13,6 @@
 
 
   // ==================================================================================
-  // =                              Settings structure                                =
-  // ==================================================================================
-
-  /**
-   * Structure of the settings page; add menu pages, sections and fields
-   * here.
-   *
-   * The structure is stored in a hierarchical array where each entry is a menu
-   * item in the left sidebar of the Wordpress admin section. Each menu item
-   * comes with its page, which is further subdivided in sections, each with
-   * its tab. The sections contain the fields, that is, the options that the
-   * user will set.
-   * 
-   * You can add entries to this array to include new menu pages, sections
-   * and option fields.
-   * 
-   * For each menu page that you add to the $wpan_menu_structure array,
-   * you also need to write a wpan_display_<menu_id>_menu_page() function
-   * to display the menu page.
-   *   
-   * For each section that you add to the $wpan_menu_structure array,
-   * you also need to write two functions in a new file:
-   *   1) wpan_register_<section_name>() to populate the section with settings,
-   *   2) wpan_display_<section_name>() to render the section in HTML.
-   * 
-   *   Similarly, for each field that you add to $wpan_menu_structure,
-   * remember to:
-   *   1) add the field to the function wpan_register_<section_name>(),
-   *   2) implement the function wpan_display_<field_name>() to render the field,
-   *   3) sanitize the user input for the field in wpan_sanitize_options(), unless
-   *      it is a checkbox.
-   * 
-   * A top-level menu in our structure looks just like a submenu with these extra
-   * fields:
-   * 
-   *   'display_submenu' => Title shown in the menu sidebar
-   *   'icon' => Icon to use for the 'dashicons-admin-generic',
-   *   'position' => 99,          
-   * 
-   */
-
-
-  // ==================================================================================
-  // =                            Load settings from file                             =
-  // ==================================================================================
-  
-  $settings_file_content = file_get_contents( WPAN_PLUGIN_DIR . "settings/settings.json" );
-  $wpan_menu_structure = json_decode( $settings_file_content, true );
-
-
-  // ==================================================================================
   // =                               Register settings                                =
   // ==================================================================================
 
@@ -74,9 +23,8 @@
   // =                                 Add menu pages                                 =
   // ==================================================================================  
 
-  /* Extract the options from the database. Must be after the declaration
-  of $wpan_menu_structure. */
-  $options = wpan_get_options ();
+  /* Extract the options from the database */
+  $options = wpan_get_options();
   
   /* In network mode the plugin's settings are controlled only by the network
   super admninstrator. This means that the settings menu is visible only at
