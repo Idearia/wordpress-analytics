@@ -1,0 +1,18 @@
+{
+    "name": "coccoinomane/wordpress-analytics",
+    "type": "wordpress-plugin",
+    "description": "Let Google Analytics communicate with Wordpress and track user activity beyond pageviews",
+    "keywords": [],
+    "homepage": "https://github.com/coccoinomane/wordpress-analytics",
+    "license": "GPL3",
+    "authors": [
+        {
+            "name": "Guido Pettinari",
+            "email": "guido.pettinari@idearia.it"
+        }
+    ],
+    "require": {
+        "symfony/yaml": ">0.0",
+        "ins0/google-measurement-php-client": ">0.0"
+    }
+}
