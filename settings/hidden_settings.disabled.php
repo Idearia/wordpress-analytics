@@ -23,7 +23,6 @@
         'desc'         => $desc,
         'section'      => $section,
         'value'        => $displayed_values[ $name ],
-        'label_for'    => $name,
       ]
     );
 

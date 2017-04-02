@@ -24,7 +24,6 @@
         'value'        => $displayed_values[ $name ],
         'size'         => 30,
         'maxlength'    => WPAN_MAX_REGEX_LENGTH,
-        'label_for'    => $name,
       ]
     );
 
@@ -46,7 +45,6 @@
         'value'        => $displayed_values[ $name ],
         'size'         => 30,
         'maxlength'    => WPAN_MAX_REGEX_LENGTH,
-        'label_for'    => $name,
       ]
     );
 
@@ -66,7 +64,6 @@
         'desc'         => $desc,
         'section'      => $section,
         'value'        => $displayed_values[ $name ],
-        'label_for'    => $name,
       ]
     );
 

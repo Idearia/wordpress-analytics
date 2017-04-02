@@ -26,7 +26,6 @@
         'rows'         => 15,
         'cols'         => 120,
         'placeholder'  => 'Code written here will be injected in the head of the document. Remeber the <?php tag to write PHP code.',
-        'label_for'    => $name,
       ]
     );
 

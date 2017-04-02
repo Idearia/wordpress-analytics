@@ -1,20 +1,26 @@
 ---
 menus:
-    # Main menu
+    # Main menu and first sub-menu.
     wordpress_analytics:
         parent_slug: ''
         slug: wordpress_analytics
-        display: Wordpress Analytics Settings
-        display_menu: Wordpress Analytics
+        display: Wordpress Analytics Settings # title on the page
+        display_menu: Wordpress Analytics # title in the admin sidebar
         capability: administrator
         display_submenu: General # Name displayed for the first sub-menu
         position: 99
-        type: tabbed
+        # icon: dashicons-admin-generic # optional
+        # type: tabbed # optional
         sections:
             general_settings:
                 id: general_settings
                 display: General settings
-                display_section_title: true
+                # display_section_title: true # optional
+                # visible: true # optional
+                # db_key: wpan:general_settings # optional
+                # name: wpan_general_settings_section # optional
+                # page: wpan_general_settings_page # optional
+                # group: wpan_general_settings_option_group # optional
                 fields:
                     tracking_uid:
                         id: tracking_uid
@@ -66,38 +72,4 @@ menus:
                             Group pageviews in Google Analytics using the <a href="https://support.google.com/analytics/answer/2853423">Content
                             Grouping</a> feature.
                         default: '0'
-                        type: checkbox
-    # Second sub-menu
-    advanced_settings:
-        parent_slug: wordpress_analytics
-        slug: advanced_settings
-        display: Advanced Settings
-        display_menu: Advanced
-        capability: administrator
-        sections:
-            advanced_settings:
-                id: advanced_settings
-                display: Advanced settings
-                display_section_title: true
-                fields:
-                    network_mode:
-                        id: network_mode
-                        title: Network Mode
-                        desc: >
-                            Manage plugin options only at the network level, preventing site admins to change them.
-                            IMPORTANT:: Until I find a way to use the Settings API to set options in the network admin (ex.
-                            using http://wordpress.stackexchange.com/a/72503/86662), the plugin options will be set and read
-                            from the main blog admin page rather than the network admin page.
-                        default: ''
-                        type: checkbox
-                    create_tracker:
-                        id: create_tracker
-                        title: Create GA tacker?
-                        desc: >
-                            By default WordPress analytics will create a GA tracker named 'ga' that will be used to send
-                            both events and pageviews to Google Analytics. If you uncheck this box, the plugin will
-                            only send the events, without creating neither the tracker nor the pageview. If you do so,
-                            make sure that a tracker is created (either manually or by another plugin) before WordPress
-                            Analytics is loaded, and that a pageview is sent after that.
-                        default: ''
                         type: checkbox

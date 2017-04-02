@@ -62,38 +62,33 @@
     add_action('admin_menu', 'wpan_add_menu_pages');
     
   }
-
-
-
+  
+  
   // ==================================================================================
-  // =                                Display menus                                   =
+  // =                            Fields customizations                               =
   // ==================================================================================
 
   /**
-   * Display the page for the Wordpress Analytics general menu
+   * Determine which options/fields are showed in the settings pages.
    */
+  function wpan_filter_fields( $display_field, $field_id ) {
 
-  function wpan_display_general_menu_page () {
-    
-    global $wpan_menu_structure;
-    
-    wpan_display_tabbed_menu_page ( $wpan_menu_structure['menus']['wordpress_analytics'] );
-    
+    switch ( $field_id ) {
+
+      /* Show the Network Mode setting only for multisite installations and
+      only in the main site */
+      case 'network_mode':
+        if ( ! ( is_multisite() && wpan_is_main_blog() ) )
+          return false;
+        break;
+
+      default:
+        return true;
+        break;
+
+    }
   }
-
-
-  /**
-   * Display the page for the Wordpress Analytics advanced menu
-   */
-
-  function wpan_display_advanced_menu_page () {
-    
-    global $wpan_menu_structure;
-    
-    wpan_display_tabbed_menu_page ( $wpan_menu_structure['menus']['advanced_settings'] );
-    
-  }
-
+  add_filter( 'wpan_display_field', 'wpan_filter_fields', 10, 2 );
 
 
   // ==================================================================================
@@ -262,3 +257,5 @@
     return $output;
     
   } // wpan_sanitize_options
+
+

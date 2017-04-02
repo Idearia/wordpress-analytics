@@ -22,7 +22,6 @@
         'desc'         => $desc,
         'section'      => $section,
         'value'        => $displayed_values[ $name ],
-        'label_for'    => $name,
         'min'          => 1,
         'max'          => 10000,
       ]
@@ -44,7 +43,6 @@
         'desc'         => $desc,
         'section'      => $section,
         'value'        => $displayed_values[ $name ],
-        'label_for'    => $name,
         'min'          => 1,
         'max'          => 10000,
       ]
