@@ -68,7 +68,7 @@
  * messes up with estimated size of the window and of the content.
  * 
  * Created by Guido W. Pettinari on 23.12.2015.
- * Part of Wordpress Analytics:
+ * Part of WordPress Analytics:
  * https://github.com/coccoinomane/wordpress_analytics
  * Based on a script by Justin Cutroni.
  */
@@ -247,7 +247,7 @@ jQuery(document).ready(function($) {
       /* Variable that will contain the content */
       var content;
 
-      /* Selector for a Wordpress post */
+      /* Selector for a WordPress post */
       var postSelector = $('article[id^="post-"], article.single-post, #blogread');
 
       /* Selector for a Schema.org recipe */

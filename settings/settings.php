@@ -1,13 +1,13 @@
 <?php
 
   /**
-   * Build the settings page for the Wordpress Analytics plugin,
+   * Build the settings page for the WordPress Analytics plugin,
    * using the settings library in settings.php.
    *
    * This file is read only if is_admin() is true.
    * 
    * Created by Guido W. Pettinari on 28.01.2016.
-   * Part of Wordpress Analytics:
+   * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */  
 
@@ -137,7 +137,7 @@
             case 'group_index_wordpress':
               if ( $value < 0 ) {
                 $error_code = 'negative-group-index-wordpress';
-                $error_message = 'Wordpress group index must be positive';
+                $error_message = 'WordPress group index must be positive';
                 $error_type = 'error';
               }
               break;
@@ -257,5 +257,3 @@
     return $output;
     
   } // wpan_sanitize_options
-
-

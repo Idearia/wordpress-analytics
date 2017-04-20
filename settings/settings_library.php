@@ -1,7 +1,7 @@
 <?php
 
   /**
-   * Library to build a plugin settings page using Wordpress
+   * Library to build a plugin settings page using WordPress
    * Settings API, with tabs support.
    *
    * I've never tested the library with a theme, but it should
@@ -21,7 +21,7 @@
    *   http://wordpress.stackexchange.com/a/100137/86662
    *
    * Created by Guido W. Pettinari on 28.01.2016.
-   * Part of Wordpress Analytics:
+   * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
@@ -216,9 +216,18 @@
 
     global $wpan_menu_structure;
 
+    if ( ! isset( $wpan_menu_structure['menus'] ) )
+      return;
+
     foreach ( $wpan_menu_structure['menus'] as $menu ) {
 
+      if ( ! isset( $menu['sections'] ) )
+        return;
+
       foreach ( $menu['sections'] as $section ) {
+
+        if ( ! isset( $section['fields'] ) )
+          return;
 
         /* Register settings for the current section. This does two things:
         1) Add the database key to a whitelist of options that we are allowed to modify
@@ -293,27 +302,38 @@
    *     from other sections
    */
   function wpan_add_section( $section, $menu, $displayed_values  ) {
-    
+
     /* Allow the user to skip the section */
     $display_section = apply_filters( 'wpan_display_section', true, $section['id'] );
     if ( ! $display_section ) {
       return;
     }
-    
-    // print_r( $section );
-    
-    /* By default, we do not add text to sections: they are just lists of options,
-    and options have independent HTML rendering. */
-    $display_function = '__return_true';
+
+    /* By default, a section is a description plus a list of option fields.
+    We allow the user to add more stuff by means of an action. Note that
+    options are rendered separately. */
+    $display_function = function () use ( $section, $menu ) {
+
+      if ( isset( $section['desc'] ) ) {
+        echo $section['desc'];
+      }
+
+      /* The action must be named as wpan_display_<section_name>_section, ex.
+      wpan_display_general_settings_section(). The custom function does not need to
+      display the setting fields, which are rendered independently using
+      wpan_display_xxx_input() functions. */
+      do_action( 'wpan_display_' . $section['id'] . '_section', $section, $menu );
+
+    };
 
     /* If the user has defined a custom template, we use it instead. The
     custom function must be in the format wpan_display_<section_name>_section, ex.
     wpan_display_general_settings_section. The custom function does not need to
     display the setting fields, which are rendered independently using 
     wpan_display_xxx_input() functions. */
-    if ( function_exists( 'wpan_display_' . $section['id'] . '_section' ) ) {
-      $display_function = 'wpan_display_' . $section['id'] . '_section';
-    }
+    // if ( function_exists( 'wpan_display_' . $section['id'] . '_section' ) ) {
+    //   $display_function = 'wpan_display_' . $section['id'] . '_section';
+    // }
 
     /* Should we show the section's title? */
     $show_section_title = isset( $section['display_section_title'] ) && $section['display_section_title'];
@@ -325,8 +345,9 @@
       $display_function,
       $section['page']
     );
-    
+
   }
+
 
   /**
    * Add a field to a given section using the add_settings_field
@@ -614,6 +635,60 @@
   }
 
 
+
+  // ==================================================================================
+  // =                               Section templates                                =
+  // ==================================================================================
+
+  /**
+   * Load the syntax highlighting library for the "Custom code" section.
+   **/
+
+  add_action( 'wpan_display_custom_code_section', 'wpan_load_syntax_highlighting', 10, 2 );
+
+  function wpan_load_syntax_highlighting ( $section, $menu ) {
+
+    if ( ! defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) ) {
+
+      define( "WPAN_CODEMIRROR_DIR", WPAN_PLUGIN_DIR . 'vendor/codemirror/' );
+      define( "WPAN_CODEMIRROR_URL", WPAN_PLUGIN_URL . 'vendor/codemirror/' );
+
+      if ( ! file_exists( WPAN_CODEMIRROR_DIR ) ) {
+
+        wpan_debug( "Could not find syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
+
+        return false;
+      
+      }
+      
+      /* Load from the CodeMirror library all the scripts needed to
+      have PHP syntax highlighting */
+      ?>
+
+<link rel="stylesheet" href=<?php echo WPAN_CODEMIRROR_URL.'lib/codemirror.css'; ?>>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'lib/codemirror.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'addon/edit/matchbrackets.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/htmlmixed/htmlmixed.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/xml/xml.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/javascript/javascript.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/css/css.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/clike/clike.js'; ?>></script>
+<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/php/php.js'; ?>></script>
+
+      <?php
+     
+      define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED", true );
+      
+      wpan_debug( "Syntax highlighting library loaded." );
+ 
+    }
+
+    return true;
+
+  }
+
+
+
   // ==================================================================================
   // =                             Input field templates                              =
   // ==================================================================================
@@ -643,9 +718,8 @@
    */
   function wpan_display_number_input ( $args ) {
 
-    /* Print description
-    TODO: should use a question mark popup */
-    // echo '<p>' . $args['desc'] . '</p>';
+    /* Print description */
+    echo '<p>' . $args['desc'] . '</p>';
 
     /* Create a text input */
     printf(
@@ -653,8 +727,8 @@
         esc_attr( $args['db_key'] ),
         esc_attr( $args['name'] ),
         esc_attr( $args['value'] ),
-        esc_attr( $args['min'] ),
-        esc_attr( $args['max'] )
+        esc_attr( $args['attributes']['min'] ),
+        esc_attr( $args['attributes']['max'] )
     );
   }
 
@@ -683,9 +757,8 @@
    */
   function wpan_display_textarea_input ( $args ) {
 
-    /* Print description
-    TODO: should use a question mark popup */
-    // echo '<p>' . $args['desc'] . '</p>';
+    /* Print description */
+    echo '<p>' . $args['desc'] . '</p>';
 
     /* Create a textarea input */
     printf(
@@ -712,32 +785,32 @@
    */
   function wpan_display_code_input ( $args ) {
 
-    /* Print description
-    TODO: should use a question mark popup */
-    // echo '<p>' . $args['desc'] . '</p>';
+    /* Print description */
+    echo '<p>' . $args['desc'] . '</p>';
 
     /* Show a simple textarea input */
     printf(
-        '<textarea id=custom_code name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
+        '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
         esc_attr( $args['db_key'] ),
         esc_attr( $args['name'] ),
         htmlspecialchars( $args['value'] ), /* Escape HTML special characters (',",&,<,>) */
-        esc_attr( $args['rows'] ),
-        esc_attr( $args['cols'] ),
-        esc_attr( $args['placeholder'] )
+        esc_attr( $args['attributes']['rows'] ),
+        esc_attr( $args['attributes']['cols'] ),
+        esc_attr( $args['attributes']['placeholder'] )
     );
 
     if ( WPAN_SYNTAX_HIGHLIGHTING_LOADED ) {
 
     ?>
 
-  <script>
-  var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('custom_code'), {
-      mode:  "php",
-      smartIndent: true,
-      lineNumbers: true,
-  });
-  </script>
+<script>
+var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('custom_code'), {
+    mode:  "php",
+    smartIndent: true,
+    lineNumbers: true,
+});
+// myCodeMirror.setSize(500, 300);
+</script>
 
     <?php
 

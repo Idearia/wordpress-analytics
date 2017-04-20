@@ -15,7 +15,7 @@
  *   <a href="tel:+3906123456">06123456</a>.
  *
  * Created by Guido W. Pettinari on 02.03.2016.
- * Part of Wordpress Analytics:
+ * Part of WordPress Analytics:
  * https://github.com/coccoinomane/wordpress_analytics
  */
 

@@ -2,10 +2,10 @@
 
   /**
    * Collection of useful variables and utility functions for the
-   * Wordpress Analytics plugin.
+   * WordPress Analytics plugin.
    *
    * Created by Guido W. Pettinari on 27.02.2016.
-   * Part of Wordpress Analytics:
+   * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
@@ -97,37 +97,6 @@
   }
 
 
-  /**
-   * Check that the syntax highlighting library CodeMirror is installed,
-   * and define the constants WPAN_CODEMIRROR_DIR and WPAN_CODEMIRROR_URL.
-   *
-   * In order to provide syntax highlighting in HTML text areas, we use
-   * the CodeMirror Javascript library (https://codemirror.net/).
-   */  
-  function wpan_load_syntax_highlighting () {
-
-    if ( ! defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) ) {
-    
-      define( "WPAN_CODEMIRROR_DIR", WPAN_PLUGIN_DIR . 'vendor/codemirror/' );
-      define( "WPAN_CODEMIRROR_URL", WPAN_PLUGIN_URL . 'vendor/codemirror/' );
-
-      if ( file_exists( WPAN_CODEMIRROR_DIR ) ) {
-
-        define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED", true );
-        wpan_debug( "Syntax highlighting library loaded." );
-        return true;
-
-      }
-      else {
-      
-        wpan_debug( "Could not find syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
-      
-      }
-      
-    }
-
-  }
-  
   /**
    * Check that Symfony's Yaml library is installed,
    * and define the constant WPAN_YAML_DIR.

@@ -4,8 +4,8 @@ menus:
     wordpress_analytics:
         parent_slug: ''
         slug: wordpress_analytics
-        display: Wordpress Analytics Settings
-        display_menu: Wordpress Analytics
+        display: WordPress Analytics Settings
+        display_menu: WordPress Analytics
         func_display: wpan_display_general_menu_page
         capability: administrator
         display_submenu: General # Name displayed for the first sub-menu

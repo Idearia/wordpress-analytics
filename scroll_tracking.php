@@ -2,13 +2,13 @@
 
   /**
    * PHP wrapper of a slightly modified version of the scroll tracking
-   * javascript by Justin Cutroni, suitable for use in Wordpress.
+   * javascript by Justin Cutroni, suitable for use in WordPress.
    *
    * The javascript needs to be called scroll_tracking.js and to reside
    * in the URI specified in the named constant ANALYTICS_URI.
    * 
    * Created by Guido W. Pettinari on 23.12.2015.
-   * Part of Wordpress Analytics:
+   * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */
 

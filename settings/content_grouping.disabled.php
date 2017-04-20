@@ -7,8 +7,8 @@
   function wpan_register_content_grouping_fields( $section, $displayed_values ) {
 
     $name = 'group_index_wordpress';
-    $title = 'Group index for Wordpress category';
-    $desc = 'Send the Wordpress category to this group index in Google Analytics';
+    $title = 'Group index for WordPress category';
+    $desc = 'Send the WordPress category to this group index in Google Analytics';
     add_settings_field(
       $name,
       $title,

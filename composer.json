@@ -1,7 +1,7 @@
 {
     "name": "coccoinomane/wordpress-analytics",
     "type": "wordpress-plugin",
-    "description": "Let Google Analytics communicate with Wordpress and track user activity beyond pageviews",
+    "description": "Let Google Analytics communicate with WordPress and track user activity beyond pageviews",
     "keywords": [],
     "homepage": "https://github.com/coccoinomane/wordpress-analytics",
     "license": "GPL3",

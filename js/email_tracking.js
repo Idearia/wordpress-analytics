@@ -7,7 +7,7 @@
  *   <a href="mailto:info@apple.com">Whatever text there is.</a>
  *
  * Created by Guido W. Pettinari on 09.11.2016.
- * Part of Wordpress Analytics:
+ * Part of WordPress Analytics:
  * https://github.com/coccoinomane/wordpress_analytics
  */
 

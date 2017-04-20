@@ -8,7 +8,7 @@
    * head of all pages.
    *
    * Created by Guido W. Pettinari on 23.12.2015.
-   * Part of Wordpress Analytics:
+   * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */
 
@@ -27,7 +27,7 @@
     $enhanced_link_attribution = isset ( $options['enhanced_link_attribution'] ) && $options['enhanced_link_attribution'];
     $cross_domain_support = isset ( $options['cross_domain_support'] ) && $options['cross_domain_support'];
 
-    echo PHP_EOL . PHP_EOL . "<!-- BEGIN: Tracking code inserted by Wordpress Analytics " . WPAN_VERSION . " - " . WPAN_URL . "-->" . PHP_EOL;
+    echo PHP_EOL . PHP_EOL . "<!-- BEGIN: Tracking code inserted by WordPress Analytics " . WPAN_VERSION . " - " . WPAN_URL . "-->" . PHP_EOL;
 
     /* Execute the script only if the tracking ID exists */
     if (!$tracking_uid) {
@@ -111,7 +111,7 @@
 
     } // if $tracking_uid
     
-    echo "<!-- END: Tracking code inserted by Wordpress Analytics " . WPAN_VERSION . " - " . WPAN_URL . "-->" . PHP_EOL . PHP_EOL;
+    echo "<!-- END: Tracking code inserted by WordPress Analytics " . WPAN_VERSION . " - " . WPAN_URL . "-->" . PHP_EOL . PHP_EOL;
     
   } // end of function
   

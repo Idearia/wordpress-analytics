@@ -2,10 +2,10 @@
 
   /**
    * PHP wrapper for the call tracking Javascript, suitable for use in
-   * Wordpress.
+   * WordPress.
    *
    * Created by Guido W. Pettinari on 02.03.2016.
-   * Part of Wordpress Analytics:
+   * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */
 

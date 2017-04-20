@@ -5,7 +5,7 @@
    * Protocol.
    *
    * Created by Guido W. Pettinari on 04.08.2016.
-   * Part of Wordpress Analytics:
+   * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
    */
 

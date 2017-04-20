@@ -4,8 +4,8 @@ menus:
     wordpress_analytics:
         parent_slug: ''
         slug: wordpress_analytics
-        display: Wordpress Analytics Settings
-        display_menu: Wordpress Analytics
+        display: WordPress Analytics Settings
+        display_menu: WordPress Analytics
         capability: administrator
         display_submenu: General # Name displayed for the first sub-menu
         position: 99
@@ -32,14 +32,14 @@ menus:
                         title: Enable scroll tracking?
                         desc: >
                             Send events to Google Analytics based on the user scrolling activity on each page.
-                        default: '0'
+                        default: ''
                         type: checkbox
                     call_tracking:
                         id: call_tracking
                         title: Enable call tracking?
                         desc: >
                             Send an event to Google Analytics every time a user clicks on a phone number.
-                        default: '0'
+                        default: ''
                         type: checkbox
                     form_tracking:
                         id: form_tracking
@@ -50,14 +50,14 @@ menus:
                             measurement protocol with anonymized IPs; this means that the IP associated to the hit
                             will be, for example, 77.123.456.000 instead of 77.123.456.789, and that ad blockers
                             won't block the event.'
-                        default: '0'
+                        default: ''
                         type: checkbox
                     email_tracking:
                         id: email_tracking
                         title: Enable email tracking?
                         desc: >
                             Send an event to Google Analytics every time a user clicks on an email address.
-                        default: '0'
+                        default: ''
                         type: checkbox
                     content_grouping:
                         id: content_grouping
@@ -65,7 +65,120 @@ menus:
                         desc: >
                             Group pageviews in Google Analytics using the <a href="https://support.google.com/analytics/answer/2853423">Content
                             Grouping</a> feature.
-                        default: '0'
+                        default: ''
+                        type: checkbox
+            content_grouping:
+                id: content_grouping
+                display: Content grouping
+                display_section_title: true
+                desc: >
+                    <p>Settings for the content grouping functionality</p>
+                fields:
+                    group_index_wordpress:
+                        id: group_index_wordpress
+                        title: Group index for WordPress category
+                        desc: >
+                            Send the WordPress category to this group index in Google Analytics
+                        default: ''
+                        type: number
+                        attributes:
+                            min: 1
+                            max: 1000
+                    group_index_woocommerce:
+                        id: group_index_woocommerce
+                        title: Group index for Woocommerce product category
+                        desc: >
+                            Send the Woocommerce product category to this group index in Google Analytics
+                        default: ''
+                        type: number
+                        attributes:
+                            min: 1
+                            max: 1000
+                    group_index_blog:
+                        id: group_index_blog
+                        title: Group index for blog post category
+                        desc: >
+                            Send the blog post category to this group index in Google Analytics
+                        default: ''
+                        type: number
+                        attributes:
+                            min: 1
+                            max: 1000
+            scroll_tracking:
+                id: scroll_tracking
+                display: Scroll tracking
+                display_section_title: true
+                desc: >
+                     <p>Settings for the scroll tracking functionality.</p>
+                     <p>Parameters set here will be ignored if you have Javascript caching enabled.</p>
+                fields:
+                    pixel_threshold:
+                        id: pixel_threshold
+                        title: Pixels threshold for engagement
+                        desc: >
+                            Pixels the user needs to scroll before we consider him/her engaged.
+                        default: 300
+                        type: number
+                        attributes:
+                            min: 1
+                            max: 10000
+                    time_threshold:
+                        id: time_threshold
+                        title: Seconds required to read content
+                        desc: >
+                            Time in seconds the user needs to spend on the content before we consider it read
+                        default: 60
+                        type: number
+                        attributes:
+                            min: 1
+                            max: 10000
+            call_tracking:
+                id: call_tracking
+                display: Call tracking
+                display_section_title: true
+                desc: >
+                    <p>Settings for the call tracking functionality.</p>
+                    <p>Parameters set here will be ignored if you have Javascript caching enabled.</p>
+                fields:
+                    phone_regex_include_pattern:
+                        id: phone_regex_include_pattern
+                        title: Phone pattern (include)
+                        desc: >
+                            Consider only phone numbers that match this pattern; leave blank to catch all clicks to 'tel:' links.
+                        default: ''
+                        type: text
+                        attributes:
+                            size: 30
+                            maxlength: 200
+                    phone_regex_exclude_pattern:
+                        id: phone_regex_exclude_pattern
+                        title: Phone pattern (exclude)
+                        desc: >
+                            Do not consider phone numbers that match this regex pattern; leave blank to catch all clicks to 'tel:' links.
+                        default: ''
+                        type: text
+                        attributes:
+                            size: 30
+                            maxlength: 200
+                    detect_phone_numbers:
+                        id: detect_phone_numbers
+                        title: Detect phone numbers automatically
+                        desc: >
+                            If set, automatically convert the pattern 'TEL: +39 06 123456' into a phone number link. Useful if you can't
+                            input HTML in pages, ex. in a Visual Composer module.
+                        default: '1'
+                        type: checkbox
+            hidden_settings:
+                id: hidden_settings
+                display: Hidden settings
+                fields:
+                    enable_json_folder:
+                        id: enable_json_folder
+                        title: Look for JSON meta boxes
+                        desc: >
+                            Include the meta boxes found in the 'acf' subfolder of the plugin folder; these must be in the 
+                            <a href="http://www.advancedcustomfields.com/resources/local-json/">ACF JSON Format</a>.
+                        default: ''
                         type: checkbox
     # Second sub-menu
     advanced_settings:
@@ -99,5 +212,59 @@ menus:
                             only send the events, without creating neither the tracker nor the pageview. If you do so,
                             make sure that a tracker is created (either manually or by another plugin) before WordPress
                             Analytics is loaded, and that a pageview is sent after that.
+                        default: '1'
+                        type: checkbox
+                    tracker_name:
+                        id: tracker_name
+                        title: Name of the GA tracker to use
+                        desc: >
+                            By default we use 'ga' for the tracker name; change it to integrate with other
+                            Analytics plugins. For example, to use the plugin 'WooCommerce Google Analytics Pro'
+                            together with WordPress Analytics, set __gaTracker in this field, and uncheck the
+                            'Create Tracker' option.
+                        default: ga
+                        type: text
+                        attributes:
+                            maxlength: 50
+                    enhanced_link_attribution:
+                        id: enhanced_link_attribution
+                        title: Enhanced Link Attribution
+                        desc: >
+                            Enable <a href="https://support.google.com/analytics/answer/2558867">Enhanced Link Attribution</a>. 
+                            Remember to enable the option in the property settings inside Google Analytics as well.
+                        default: '1'
+                        type: checkbox
+                    cross_domain_support:
+                        id: cross_domain_support
+                        title: Cross Domain Support
+                        desc: >
+                            Enable support for cross-domain tracking as described in <a href="https://developers.google.com/analytics/devguides/collection/analyticsjs/linker#bi-directional_cross-domain_tracking">
+                            in Google's documentation</a>? This feature just loads the linker plugin; if you also need
+                            to call the 'autoLink' function, use the 'Custom Code' feature in the Advanced Settings.
                         default: ''
                         type: checkbox
+                    debug:
+                        id: debug
+                        title: Debug mode
+                        desc: >
+                            Log the plugin's activity to file. Two files will be written":" debug.log in the plugin's folder and debug.log
+                            in the wp-content folder. Furthermore, javascript-related activity will be shown in the browser's console.
+                        default: ''
+                        type: checkbox
+            custom_code:
+                id: custom_code
+                display: Custom code
+                display_section_title: true
+                fields:
+                    custom_code:
+                        id: custom_code
+                        title: Custom code
+                        desc: >
+                            Any code you write here will be included in all pages of your website just before the pageview is sent.
+                            Remember to include the PHP opening & closing tags.
+                        default: ''
+                        type: code
+                        attributes:
+                            rows: 15
+                            cols: 120
+                            placeholder: Code written here will be injected in the head of the document. Remember the <?php tag to write PHP code.
