@@ -292,7 +292,7 @@
 
 
   /**
-   * Add a section to a given menu page using the add_settings_section
+   * Add a section to a given menu page using the add_settings_section()
    * function from the Settings API.
    *
    * Takes as arguments:
@@ -304,31 +304,33 @@
   function wpan_add_section( $section, $menu, $displayed_values  ) {
 
     /* Allow the user to skip the section */
-    $display_section = apply_filters( 'wpan_display_section', true, $section['id'] );
-    if ( ! $display_section ) {
+    $display_section = ! apply_filters( 'wpan_filter_skip_' . $section['id'] . '_section', false );
+    if ( ! $display_section )
       return;
-    }
 
-    /* Function that will echo the section. The setting fields are not echoed
-    via this function. */
+    /* Function that will print the section. The setting fields are not printed
+    via this function. This function is called by add_settings_section() and takes
+    as argument an array with three elements: id, title, callback. */
     $display_function = function ( $args ) use ( $section, $menu ) {
 
       /* Show the section's description */
       if ( isset( $section['desc'] ) ) {
-        echo $section['desc'];
+        echo "<p>" . $section['desc'] . "</p>";
       }
+
+      $action_name = 'wpan_action_display_' . $section['id'] . '_section';
+      $custom_function_name = 'wpan_custom_display_' . $section['id'] . '_section';
 
       /* By default, a section is a description plus a list of option fields.
       We allow the user to add more stuff by means of an action. The action must
-      be named as wpan_display_<section_name>_section, ex. 'wpan_display_general_settings_section'.
+      be named as wpan_action_display_<section_name>_section, ex. 'wpan_action_display_general_settings_section'.
       The action does not need to display the setting fields, which are added
-      automatically and rendered using the wpan_display_xxx_input() functions. */
-      do_action( 'wpan_display_' . $section['id'] . '_section', $section, $menu, $args );
+      automatically and rendered using the wpan_display_xxx_field() functions. */
+      do_action( $action_name, $section, $menu, $args );
 
-      /* Use a template instead of an action */
-      // if ( function_exists( 'wpan_display_' . $section['id'] . '_section' ) ) {
-      //   call_user_func( 'wpan_display_' . $section['id'] . '_section';
-      // }
+      /* Allow the user to use a template function too */
+      if ( function_exists( $custom_function_name ) )
+        call_user_func( $custom_function_name, $section, $menu );
 
     };
 
@@ -359,33 +361,50 @@
   function wpan_add_field( $field, $section, $displayed_values  ) {
 
     /* Allow the user to skip the field */
-    $display_field = apply_filters( 'wpan_display_field', true, $field['id'] );
-    if ( ! $display_field ) {
+    $display_field = ! apply_filters( 'wpan_filter_skip_' . $field['id'] . '_field', false );
+    if ( ! $display_field )
       return;
-    }
 
-    /* By default, we display the field in the settings page use the standard
-    templates in the settings library */
-    $display_function = 'wpan_display_' . $field['type'] . '_input';
+    /* Function that will print the field. This function is called via add_settings_field()
+    and takes as argument whatever is given as last argument to add_settings_field(). We 
+    choose this to be an array with the following elements:
+    - db_key: database key where the value of the input field will be stored.
+        The database key is serialized, so the value must be saved as db_key[value].
+    - name: id of the field
+    - desc: long description of the option controlled by the field
+    - value: value of the input field
+    - type: type of input field, ex. text, textarea, checkbox...
+    - attributes: HTML attributes for the input field; no need to escape them
+    - section: the section array containing the field
+    - option_vals: the current values of all fields, including those in other sections */
+    $display_function = function ( $args ) use ( $field, $section ) {
 
-    /* If the user has defined a custom template, we use it instead. The
-    custom function must be in the format wpan_display_<field_name>_field, ex.
-    wpan_display_call_tracking_field. It takes only one argument, an array with the 
-    following keys: 
-      - db_key: database key where the value of the input field will be stored.
-          The database key is serialized, so the value must be saved as db_key[value].
-      - name: id of the field
-      - desc: long description of the option controlled by the field
-      - value: value of the input field
-      - type: type of input field, ex. text, textarea, checkbox...
-      - attributes: HTML attributes for the input field; no need to escape them
-      - section: the section array containing the field
-      - option_vals: the current values of all fields, including those in other sections
-    */
-    if ( function_exists( 'wpan_display_' . $field['id'] . '_field' ) ) {
-      $display_function = 'wpan_display_' . $field['id'] . '_field';
-    }
-  
+      /* Show the field description */
+      if ( isset( $field['desc'] ) ) {
+        echo "<p>" . $field['desc'] . "</p>";
+      }
+
+      $action_name = 'wpan_action_display_' . $field['id'] . '_field';
+      $default_function_name = 'wpan_display_' . $field['type'] . '_field';
+      $custom_function_name = 'wpan_custom_display_' . $field['id'] . '_field';
+
+      /* By default, a field is just a title, a description and an input field.
+      We allow the user to add more stuff by means of an action. The action must
+      be named as wpan_display_<section_name>_section, ex. 'wpan_display_general_settings_section'. */
+      do_action( $action_name, $args, $section );
+
+      /* If the user has defined a custom template function, use it */
+      if ( function_exists( $custom_function_name ) ) {
+        call_user_func( $custom_function_name, $args );
+      }
+      /* Otherwise use the default templates for the type of the field */
+      else {
+        call_user_func( $default_function_name, $args );
+      }
+
+    };
+
+
     /* Prepare the HTML attributes */
     $attributes = isset ( $field['attributes'] ) ? array_map( 'esc_attr', $field['attributes'] ) : [];
 
@@ -421,7 +440,7 @@
   /**
    * Add the plugin's menu pages to the WordPress backend.
    *
-   * This function should be called as a callback for the admin_menu action.
+   * This function should be called as a callback for the 'admin_menu' action.
    */
   function wpan_add_menu_pages() {
 
@@ -429,21 +448,25 @@
 
     foreach ( $wpan_menu_structure['menus'] as $menu ) {
 
-      /* Function that will echo the menu page */
+      /* Function that will print the menu page; this function is called by add_menu_page()
+      and add_submenu_page() and it does not take arguments. */
       $display_function = function () use ( $menu ) {
+        
+        $action_name = 'wpan_action_display_' . $menu['slug'] . '_menu_page';
+        $default_function_name = 'wpan_display_' . $menu['type'] . '_menu_page';
+        $custom_function_name = 'wpan_custom_display_' . $menu['slug'] . '_menu_page';
 
         /* By default, a menu contains a list of sections. We allow the user to add more
-        stuff by means of an action. The action must be named as wpan_display_<menu_slug>_menu_page,
-        ex. 'wpan_display_wordpress_analytics_menu_page. */
-        do_action( 'wpan_display_' . $menu['slug'] . '_menu_page', $menu );
+        stuff by means of an action. The action must be named as wpan_action_display_<menu_slug>_menu_page,
+        ex. 'wpan_action_display_wordpress_analytics_menu_page. */
+        do_action( $action_name, $menu );
 
-        /* Use a template instead of an action */
-        // if ( function_exists( 'wpan_display_' . $menu['slug'] . '_menu_page' ) ) {
-        //   call_user_func( 'wpan_display_' . $menu['slug'] . '_menu_page';
-        // }
-
-        /* Show the setting sections */
-        call_user_func( 'wpan_display_' . $menu['type'] . '_menu_page', $menu );
+        /* If the user has defined a custom template function, use it */
+        if ( function_exists( $custom_function_name ) )
+          call_user_func( $custom_function_name, $menu );
+        /* Otherwise use the one of the default templates */
+        else
+          call_user_func( $default_function_name, $menu );
 
       };
 
@@ -649,7 +672,7 @@
    * Load the syntax highlighting library for the "Custom code" section.
    **/
 
-  add_action( 'wpan_display_custom_code_section', 'wpan_load_syntax_highlighting', 10, 2 );
+  add_action( 'wpan_action_display_custom_code_section', 'wpan_load_syntax_highlighting', 10, 3 );
 
   function wpan_load_syntax_highlighting ( $section, $menu, $args ) {
 
@@ -701,10 +724,7 @@
   /**
    * Display a single-line input field (<input type="text">).
    */
-  function wpan_display_text_input ( $args ) {
-
-    /* Print description */
-    echo '<p>' . $args['desc'] . '</p>';
+  function wpan_display_text_field ( $args ) {
 
     /* Create a text input */
     printf(
@@ -721,10 +741,7 @@
   /**
    * Display a number input field (<input type="number">).
    */
-  function wpan_display_number_input ( $args ) {
-
-    /* Print description */
-    echo '<p>' . $args['desc'] . '</p>';
+  function wpan_display_number_field ( $args ) {
 
     /* Create a text input */
     printf(
@@ -741,10 +758,7 @@
   /**
    * Display a checkbox input field (<input type="checkbox">).
    */
-  function wpan_display_checkbox_input ( $args ) {
-
-    /* Print description */
-    echo '<p>' . $args['desc'] . '</p>';
+  function wpan_display_checkbox_field ( $args ) {
 
     /* Create a checkbox input */
     $checked = checked('1', $args['value'], false);
@@ -760,10 +774,7 @@
   /**
    * Display a multi-line input field (<textarea>).
    */
-  function wpan_display_textarea_input ( $args ) {
-
-    /* Print description */
-    echo '<p>' . $args['desc'] . '</p>';
+  function wpan_display_textarea_field ( $args ) {
 
     /* Create a textarea input */
     printf(
@@ -788,10 +799,7 @@
    *
    * CodeMirror can be found at https://codemirror.net.
    */
-  function wpan_display_code_input ( $args ) {
-
-    /* Print description */
-    echo '<p>' . $args['desc'] . '</p>';
+  function wpan_display_code_field ( $args ) {
 
     /* Show a simple textarea input */
     printf(
