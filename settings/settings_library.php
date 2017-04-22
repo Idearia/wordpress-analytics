@@ -309,31 +309,28 @@
       return;
     }
 
-    /* By default, a section is a description plus a list of option fields.
-    We allow the user to add more stuff by means of an action. Note that
-    options are rendered separately. */
-    $display_function = function () use ( $section, $menu ) {
+    /* Function that will echo the section. The setting fields are not echoed
+    via this function. */
+    $display_function = function ( $args ) use ( $section, $menu ) {
 
+      /* Show the section's description */
       if ( isset( $section['desc'] ) ) {
         echo $section['desc'];
       }
 
-      /* The action must be named as wpan_display_<section_name>_section, ex.
-      wpan_display_general_settings_section(). The custom function does not need to
-      display the setting fields, which are rendered independently using
-      wpan_display_xxx_input() functions. */
-      do_action( 'wpan_display_' . $section['id'] . '_section', $section, $menu );
+      /* By default, a section is a description plus a list of option fields.
+      We allow the user to add more stuff by means of an action. The action must
+      be named as wpan_display_<section_name>_section, ex. 'wpan_display_general_settings_section'.
+      The action does not need to display the setting fields, which are added
+      automatically and rendered using the wpan_display_xxx_input() functions. */
+      do_action( 'wpan_display_' . $section['id'] . '_section', $section, $menu, $args );
+
+      /* Use a template instead of an action */
+      // if ( function_exists( 'wpan_display_' . $section['id'] . '_section' ) ) {
+      //   call_user_func( 'wpan_display_' . $section['id'] . '_section';
+      // }
 
     };
-
-    /* If the user has defined a custom template, we use it instead. The
-    custom function must be in the format wpan_display_<section_name>_section, ex.
-    wpan_display_general_settings_section. The custom function does not need to
-    display the setting fields, which are rendered independently using 
-    wpan_display_xxx_input() functions. */
-    // if ( function_exists( 'wpan_display_' . $section['id'] . '_section' ) ) {
-    //   $display_function = 'wpan_display_' . $section['id'] . '_section';
-    // }
 
     /* Should we show the section's title? */
     $show_section_title = isset( $section['display_section_title'] ) && $section['display_section_title'];
@@ -432,17 +429,24 @@
 
     foreach ( $wpan_menu_structure['menus'] as $menu ) {
 
-      /* By default, we display the menu page using the standard
-      template in the settings library. As of now, we only have one,
-      the tabbed template */
-      $display_function = 'wpan_display_' . $menu['type'] . '_menu_page';
+      /* Function that will echo the menu page */
+      $display_function = function () use ( $menu ) {
 
-      /* If the user has defined a custom template, we use it instead. The
-      custom function must be in the format wpan_display_<menu_name>_menu_page,
-      ex. wpan_display_general_settings_section. */
-      if ( function_exists( 'wpan_display_' . $menu['slug'] . '_menu_page' ) ) {
-        $display_function = 'wpan_display_' . $menu['slug'] . '_menu_page';
-      }
+        /* By default, a menu contains a list of sections. We allow the user to add more
+        stuff by means of an action. The action must be named as wpan_display_<menu_slug>_menu_page,
+        ex. 'wpan_display_wordpress_analytics_menu_page. */
+        do_action( 'wpan_display_' . $menu['slug'] . '_menu_page', $menu );
+
+        /* Use a template instead of an action */
+        // if ( function_exists( 'wpan_display_' . $menu['slug'] . '_menu_page' ) ) {
+        //   call_user_func( 'wpan_display_' . $menu['slug'] . '_menu_page';
+        // }
+
+        /* Show the setting sections */
+        call_user_func( 'wpan_display_' . $menu['type'] . '_menu_page', $menu );
+
+      };
+
 
       /* If the menu page belongs to an existing menu, then add it to that menu */
       if ( $menu['parent_slug'] ) {
@@ -503,17 +507,7 @@
    * the menu in is inferred based on the current screen ID.
    */
 
-  function wpan_display_tabbed_menu_page( $menu='' ) {
-
-    /* Get the slug of the active menu. This is a workaround we need to use when this
-    function is called as the callback function for add_menu_page(), because the
-    Settings API in this case does not allow arguments for the callback function. */
-    if ( '' == $menu ) {
-      $screen = get_current_screen();
-      $menu_id = preg_replace( '/.*_page_/', '', $screen->id );
-      global $wpan_menu_structure;
-      $menu = $wpan_menu_structure['menus'][ $menu_id ];
-    }
+  function wpan_display_tabbed_menu_page( $menu ) {
 
     /* Each section shall have its own tab */
     $tabs = $menu['sections'];
@@ -539,7 +533,13 @@
 
     <div class="wrap">
 
-        <h2><?php print $GLOBALS['title']; ?></h2>
+        <?php /* Show menu page title */ ?>
+        <h2 class='wpan_menu_title'> <?php echo $GLOBALS['title']; ?></h2>
+
+        <?php /* Show menu page description */ ?>
+        <?php if ( isset( $menu['desc'] ) ): ?>
+        <p class='wpan_menu_description'><?php   echo $menu['desc']; ?></p>
+        <?php endif; ?>
 
         <?php /* Don't show the navigator if there's only one tab */ ?>
         <?php if ( count ($tabs ) > 1 ): ?>
@@ -609,7 +609,13 @@
 
     <div class="wrap">
 
-      <h2><?php print $GLOBALS['title']; ?></h2>
+        <?php /* Show menu page title */ ?>
+        <h2 class='wpan_menu_title'> <?php echo $GLOBALS['title']; ?></h2>
+
+        <?php /* Show menu page description */ ?>
+        <?php if ( isset( $menu['desc'] ) ): ?>
+        <p class='wpan_menu_description'><?php   echo $menu['desc']; ?></p>
+        <?php endif; ?>
 
       <form action="options.php" method="POST">
 
@@ -635,7 +641,6 @@
   }
 
 
-
   // ==================================================================================
   // =                               Section templates                                =
   // ==================================================================================
@@ -646,7 +651,7 @@
 
   add_action( 'wpan_display_custom_code_section', 'wpan_load_syntax_highlighting', 10, 2 );
 
-  function wpan_load_syntax_highlighting ( $section, $menu ) {
+  function wpan_load_syntax_highlighting ( $section, $menu, $args ) {
 
     if ( ! defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) ) {
 
