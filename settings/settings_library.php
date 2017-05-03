@@ -264,14 +264,16 @@
         $displayed_values = get_option( $section['db_key'] );
         foreach ( $defaults as $key => $value ) {
           if ( ! isset( $displayed_values[ $key ] ) ) {
-            $displayed_values[ $key ] = $defaults[ $key ]; 
+            $displayed_values[ $key ] = '';
           }
         }
 
         /* Debug option values and displayed values */
-        // wpan_debug ("FIELDS = " . print_r($section['fields'],true));
-        // wpan_debug ("DB = " . print_r(get_option( $section['db_key'] ),true));
-        // wpan_debug ("DISPLAYED VALUES = " . print_r($displayed_values,true));
+        // if ( $section['id'] == 'advanced_settings' ) {
+        //   wpan_debug ("FIELDS = " . print_r( $section['fields'], true ) );
+        //   wpan_debug ("DB = " . print_r( get_option( $section['db_key'] ), true) );
+        //   wpan_debug ("DISPLAYED VALUES = " . print_r( $displayed_values, true ) );
+        // }
 
         /* Add the current to the menu page */
         wpan_add_section( $section, $menu, $displayed_values );

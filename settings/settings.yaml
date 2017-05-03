@@ -171,6 +171,7 @@ menus:
             hidden_settings:
                 id: hidden_settings
                 display: Hidden settings
+                visible: false
                 fields:
                     enable_json_folder:
                         id: enable_json_folder
