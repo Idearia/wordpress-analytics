@@ -219,9 +219,9 @@ menus:
                         title: Name of the GA tracker to use
                         desc: >
                             By default we use 'ga' for the tracker name; change it to integrate with other
-                            Analytics plugins. For example, to use the plugin 'WooCommerce Google Analytics Pro'
-                            together with WordPress Analytics, set __gaTracker in this field, and uncheck the
-                            'Create Tracker' option.
+                            Analytics plugins. For example, to use WordPress Analytics together with plugins
+                            such as 'WooCommerce Google Analytics Pro' and MonsterInsights, set this field
+                            to __gaTracker and uncheck the 'Create Tracker' option.
                         default: ga
                         type: text
                         attributes:
@@ -247,7 +247,7 @@ menus:
                         id: debug
                         title: Debug mode
                         desc: >
-                            Log the plugin's activity to file. Two files will be written":" debug.log in the plugin's folder and debug.log
+                            Log the plugin's activity to file. Two files will be written: debug.log in the plugin's folder and debug.log
                             in the wp-content folder. Furthermore, javascript-related activity will be shown in the browser's console.
                         default: ''
                         type: checkbox
