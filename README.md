@@ -1,5 +1,5 @@
 ## DESCRIPTION
-Install *Wordpress Analytics* on your website to track user activity beyond simple pageviews, and to allow efficient communication between Wordpress and Google Analytics.
+Install *Wordpress Analytics* on your website to track user activity beyond simple pageviews, and to allow efficient communication between Wordpress, Google Analytics and Facebook Ads.
 
 So far *Wordpress Analytics* supports the following features:
 
