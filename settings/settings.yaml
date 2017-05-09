@@ -10,6 +10,10 @@ menus:
         display_submenu: General # Name displayed for the first sub-menu
         position: 99
         type: tabbed
+        desc: >
+            WordPress Analytics settings. For the most recent version of the plugin, please visit
+            the plugin's <a href="https://github.com/coccoinomane/wordpress-analytics">Github page</a>.
+            For support, feel free to open an issue on Github.
         sections:
             general_settings:
                 id: general_settings

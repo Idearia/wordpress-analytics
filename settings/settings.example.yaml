@@ -11,6 +11,7 @@ menus:
         position: 99
         # icon: dashicons-admin-generic # optional
         # type: tabbed # optional
+        # desc: Menu page description # optional
         sections:
             general_settings:
                 id: general_settings
