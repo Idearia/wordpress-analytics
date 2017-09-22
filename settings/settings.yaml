@@ -140,7 +140,7 @@ menus:
                         id: custom_dimension_scroll_tracking
                         title: "Store user reading behavior in custom dimension:"
                         desc: >
-                            Set to zero to disable the feature, otherwise specify the ID of the custom dimension
+                            Set to zero or leave empty to disable the feature, otherwise specify the ID of the custom dimension
                             as a positive integer. The user reading behavior is either 'Reader' or 'Scanner' based on
                             whether they spent more or less time than the threshold to scroll until the end on the content.
                             The custom dimension is not set for users who didn't scroll until the end of the content.
@@ -216,7 +216,7 @@ menus:
                         title: Network Mode
                         desc: >
                             Manage plugin options only at the network level, preventing site admins to change them.
-                            IMPORTANT:: Until I find a way to use the Settings API to set options in the network admin (ex.
+                            IMPORTANT: Until I find a way to use the Settings API to set options in the network admin (ex.
                             using http://wordpress.stackexchange.com/a/72503/86662), the plugin options will be set and read
                             from the main blog admin page rather than the network admin page.
                         default: ''
