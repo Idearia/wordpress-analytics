@@ -115,6 +115,11 @@ jQuery(document).ready(function($) {
       if (timeThreshold === undefined)
         timeThreshold = 60;
 
+      /* Seconds required to read the content */
+      var customDimension = this_js_script.attr('customDimension');
+      if (customDimension === undefined)
+        customDimension = false;
+
       /* How often to track user location in ms */
       var callBackTime = 100;
 
@@ -440,15 +445,30 @@ jQuery(document).ready(function($) {
           flag him/her as a scanner. Otherwise, flag him/her as a Reader, and
           fire a ContentRead event. */
           if (timeToContentEnd < timeThreshold) {
-            gaTracker('set', 'dimension1', 'Scanner');
+
             if (debugMode)
               console.log(' -> End of content section ('+timeToContentEnd+'s), you are a scanner :-(');
+
+            /* Set custom dimension to 'Scanner' */
+            if (customDimension && customDimension>0) {
+              gaTracker('set', 'dimension' + customDimension, 'Scanner');
+              if (debugMode)
+                console.log(' -> Set custom dimension ' + customDimension + ' to \'Scanner\'');
+            }
           }
           else {
-            gaTracker('set', 'dimension1', 'Reader');
+
+            /* Fire a ContentRead event */
             gaTracker('send', 'event', 'Reading', 'ContentRead', pagePath, timeToContentEnd);
             if (debugMode)
               console.log(' -> End of content section ('+timeToContentEnd+'s), you are a reader :-)');
+
+            /* Set custom dimension to 'Reader' */
+            if (customDimension && customDimension>0) {
+              gaTracker('set', 'dimension' + customDimension, 'Reader');
+              if (debugMode)
+                console.log(' -> Set custom dimension ' + customDimension + ' to \'Reader\'');
+            }
           }
 
           /* In both cases, tell GA that the user reached the bottom of the content */

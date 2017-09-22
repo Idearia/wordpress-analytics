@@ -19,6 +19,7 @@
     $ga_tracker = isset ( $options ['tracker_name'] ) ? $options ['tracker_name'] : '';
     $pixel_threshold = isset ( $options['pixel_threshold'] ) ? $options['pixel_threshold'] : '';
     $time_threshold = isset ( $options['time_threshold'] ) ? $options['time_threshold'] : '';
+    $custom_dimension_scroll_tracking = isset ( $options['custom_dimension_scroll_tracking'] ) ? $options['custom_dimension_scroll_tracking'] : '';
     $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
 
     /* Script path & url */
@@ -41,6 +42,7 @@
           . "gaTracker='$ga_tracker' "
           . "timeThreshold='$time_threshold' "
           . "pixelThreshold='$pixel_threshold' "
+          . "customDimension='$custom_dimension_scroll_tracking' "
           . "debug='$debug' "
           . "defer='defer'"
           . "> "

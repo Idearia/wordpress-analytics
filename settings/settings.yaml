@@ -136,6 +136,19 @@ menus:
                         attributes:
                             min: 1
                             max: 10000
+                    custom_dimension_scroll_tracking:
+                        id: custom_dimension_scroll_tracking
+                        title: "Store user reading behavior in custom dimension:"
+                        desc: >
+                            Set to zero to disable the feature, otherwise specify the ID of the custom dimension
+                            as a positive integer. The user reading behavior is either 'Reader' or 'Scanner' based on
+                            whether they spent more or less time than the threshold to scroll until the end on the content.
+                            The custom dimension is not set for users who didn't scroll until the end of the content.
+                        default: 0
+                        type: number
+                        attributes:
+                            min: 0
+                            max: 1000
             call_tracking:
                 id: call_tracking
                 display: Call tracking

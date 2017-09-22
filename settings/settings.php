@@ -174,8 +174,15 @@
               }
               break;
 
-            case 'phone_exclude_regex_pattern':
+            case 'custom_dimension_scroll_tracking':
+              if ( ! ( is_numeric( $value ) && $value >= 0 ) ) {
+                $error_code = 'custom-dimension-not-an-integer';
+                $error_message = 'The custom dimension must be a positive integer';
+                $error_type = 'error';
+              }
+              break;
 
+            case 'phone_exclude_regex_pattern':
             case 'phone_include_regex_pattern':
               if ( $value && preg_match("/$value/", null) === false ) {
                 /* If the regex is not legit, find out what the error message is */
