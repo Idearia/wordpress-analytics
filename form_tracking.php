@@ -18,12 +18,26 @@
       if ( wpan_load_measurement_protocol_client () ) {
 
         /* Send data to GA only after form validation & submission */
-        add_action( 'gform_after_submission', 'wpan_send_form_tracking_event', 10, 4 );
+        add_action( 'gform_after_submission', 'wpan_send_form_tracking_event_wrapper', 10, 4 );
         
       }
 
     }
 
+    /**
+     * Wrapper to handle errors
+     */
+    function wpan_send_form_tracking_event_wrapper( $entry, $form ) {
+      try {
+        wpan_send_form_tracking_event( $entry, $form );
+      } catch (\Throwable $e) {
+        error_log( "Errore in WordPress Analytics Form Tracking: " . $e->getMessage());
+      }
+    }
+
+    /**
+     * Send an event to GA with details about the submission
+     */
     function wpan_send_form_tracking_event( $entry, $form ) {
 
       global $post;
