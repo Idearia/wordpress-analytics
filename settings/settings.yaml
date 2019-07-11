@@ -136,19 +136,6 @@ menus:
                         attributes:
                             min: 1
                             max: 10000
-                    custom_dimension_scroll_tracking:
-                        id: custom_dimension_scroll_tracking
-                        title: "Store user reading behavior in custom dimension:"
-                        desc: >
-                            Set to zero or leave empty to disable the feature, otherwise specify the ID of the custom dimension
-                            as a positive integer. The user reading behavior is either 'Reader' or 'Scanner' based on
-                            whether they spent more or less time than the threshold to scroll until the end on the content.
-                            The custom dimension is not set for users who didn't scroll until the end of the content.
-                        default: 0
-                        type: number
-                        attributes:
-                            min: 0
-                            max: 1000
             call_tracking:
                 id: call_tracking
                 display: Call tracking
@@ -216,14 +203,14 @@ menus:
                         title: Network Mode
                         desc: >
                             Manage plugin options only at the network level, preventing site admins to change them.
-                            IMPORTANT: Until I find a way to use the Settings API to set options in the network admin (ex.
+                            IMPORTANT:: Until I find a way to use the Settings API to set options in the network admin (ex.
                             using http://wordpress.stackexchange.com/a/72503/86662), the plugin options will be set and read
                             from the main blog admin page rather than the network admin page.
                         default: ''
                         type: checkbox
                     create_tracker:
                         id: create_tracker
-                        title: Create GA tacker?
+                        title: Create GA tracker?
                         desc: >
                             By default WordPress analytics will create a GA tracker named 'ga' that will be used to send
                             both events and pageviews to Google Analytics. If you uncheck this box, the plugin will
@@ -244,6 +231,14 @@ menus:
                         type: text
                         attributes:
                             maxlength: 50
+                    send_page_view:
+                        id: send_page_view
+                        title: Send pageview to GA?
+                        desc: >
+                            Should we send a pageview hit to Google Analytics? Turn it off if you are using
+                            Google Tag Manager to send pageviews.
+                        default: '1'
+                        type: checkbox
                     enhanced_link_attribution:
                         id: enhanced_link_attribution
                         title: Enhanced Link Attribution

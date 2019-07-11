@@ -18,6 +18,7 @@
     $options = wpan_get_options ();
     $tracking_uid = isset ( $options ['tracking_uid'] ) ? $options ['tracking_uid'] : '';
     $create_tracker = isset ( $options ['create_tracker'] ) ? $options ['create_tracker'] : '';
+    $send_page_view = isset ( $options ['send_page_view'] ) ? $options ['send_page_view'] : '';
     $ga_tracker = isset ( $options ['tracker_name'] ) ? $options ['tracker_name'] : '';
     $content_grouping = is_single() && isset ( $options ['content_grouping'] ) && $options ['content_grouping'];
     $scroll_tracking = is_single() && isset ( $options ['scroll_tracking'] ) && $options ['scroll_tracking'];
@@ -105,7 +106,7 @@
       /* Send a pageview hit to the GA servers, and transmit any information
       that was set above in the tracker. This line should be at the end
       of the script. */
-      if ($create_tracker) {
+      if ($send_page_view) {
         echo "<script> $ga_tracker('send', 'pageview'); </script>\n";
       }
 
