@@ -272,6 +272,8 @@ menus:
                             the feature. Please note that the email will be sent regardless of the value of the 'debug' flag.
                         default: ''
                         type: text
+                        attributes:
+                            maxlength: 200
             custom_code:
                 id: custom_code
                 display: Custom code
