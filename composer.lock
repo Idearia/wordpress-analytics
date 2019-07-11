@@ -4,8 +4,180 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b44106aa17cf648d8f5cae37cbc9a48a",
+    "content-hash": "329d79469d8416212e069d6871d152bf",
     "packages": [
+        {
+            "name": "ins0/google-measurement-php-client",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ins0/google-measurement-php-client.git",
+                "reference": "415cabca0c6d83cd0bd6a8ed6fb695b35f892018"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ins0/google-measurement-php-client/zipball/415cabca0c6d83cd0bd6a8ed6fb695b35f892018",
+                "reference": "415cabca0c6d83cd0bd6a8ed6fb695b35f892018",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpmd/phpmd": "~2.1",
+                "phpunit/phpunit": "4.0.*",
+                "squizlabs/php_codesniffer": "~2.0.0@RC"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Racecore\\GATracking": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Marco Rieger",
+                    "email": "rieger@racecore.de"
+                }
+            ],
+            "description": "Server-Side PHP Client to communicate to Google Analytics over the Google Measurement Protocol",
+            "homepage": "http://www.racecore.de/",
+            "keywords": [
+                "analytics",
+                "client",
+                "google",
+                "measurement"
+            ],
+            "time": "2017-01-18T10:41:47+00:00"
+        },
+        {
+            "name": "symfony/polyfill-ctype",
+            "version": "v1.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-ctype.git",
+                "reference": "82ebae02209c21113908c229e9883c419720738a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/82ebae02209c21113908c229e9883c419720738a",
+                "reference": "82ebae02209c21113908c229e9883c419720738a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "suggest": {
+                "ext-ctype": "For best performance"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.11-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Ctype\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                },
+                {
+                    "name": "Gert de Pagter",
+                    "email": "BackEndTea@gmail.com"
+                }
+            ],
+            "description": "Symfony polyfill for ctype functions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "ctype",
+                "polyfill",
+                "portable"
+            ],
+            "time": "2019-02-06T07:57:58+00:00"
+        },
+        {
+            "name": "symfony/yaml",
+            "version": "v4.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/yaml.git",
+                "reference": "c60ecf5ba842324433b46f58dc7afc4487dbab99"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/c60ecf5ba842324433b46f58dc7afc4487dbab99",
+                "reference": "c60ecf5ba842324433b46f58dc7afc4487dbab99",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/polyfill-ctype": "~1.8"
+            },
+            "conflict": {
+                "symfony/console": "<3.4"
+            },
+            "require-dev": {
+                "symfony/console": "~3.4|~4.0"
+            },
+            "suggest": {
+                "symfony/console": "For validating YAML files using the lint command"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\Yaml\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Yaml Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-04-06T14:04:46+00:00"
+        }
+    ],
+    "packages-dev": [
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
             "version": "v0.5.0",
@@ -74,17 +246,17 @@
         },
         {
             "name": "idearia/wordpress-phpcs-xml",
-            "version": "v2.3",
+            "version": "v2.4",
             "source": {
                 "type": "git",
                 "url": "git@github.com:Idearia/wordpress-phpcs-xml.git",
-                "reference": "cec01fc79db63236ac6edd5036f596f12dd70221"
+                "reference": "617a7b566ea0a9a5856040468b61d66eba7ff12a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://composer.idearia.it/dist/idearia/wordpress-phpcs-xml/idearia-wordpress-phpcs-xml-cec01fc79db63236ac6edd5036f596f12dd70221-zip-6d4dcd.zip",
-                "reference": "cec01fc79db63236ac6edd5036f596f12dd70221",
-                "shasum": "1884311c7755fbf804f2ba34953eb5bafd7f1abf"
+                "url": "https://composer.idearia.it/dist/idearia/wordpress-phpcs-xml/idearia-wordpress-phpcs-xml-617a7b566ea0a9a5856040468b61d66eba7ff12a-zip-694b80.zip",
+                "reference": "617a7b566ea0a9a5856040468b61d66eba7ff12a",
+                "shasum": "5bbee8b16dff54da896410c65d2059ba40cebbc4"
             },
             "require": {
                 "php": ">=5.4",
@@ -104,60 +276,7 @@
                 "phpcs",
                 "wordpress"
             ],
-            "time": "2019-03-27T12:45:58+00:00"
-        },
-        {
-            "name": "ins0/google-measurement-php-client",
-            "version": "v2.2.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ins0/google-measurement-php-client.git",
-                "reference": "415cabca0c6d83cd0bd6a8ed6fb695b35f892018"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ins0/google-measurement-php-client/zipball/415cabca0c6d83cd0bd6a8ed6fb695b35f892018",
-                "reference": "415cabca0c6d83cd0bd6a8ed6fb695b35f892018",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "require-dev": {
-                "phpmd/phpmd": "~2.1",
-                "phpunit/phpunit": "4.0.*",
-                "squizlabs/php_codesniffer": "~2.0.0@RC"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Racecore\\GATracking": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Rieger",
-                    "email": "rieger@racecore.de"
-                }
-            ],
-            "description": "Server-Side PHP Client to communicate to Google Analytics over the Google Measurement Protocol",
-            "homepage": "http://www.racecore.de/",
-            "keywords": [
-                "analytics",
-                "client",
-                "google",
-                "measurement"
-            ],
-            "time": "2017-01-18T10:41:47+00:00"
+            "time": "2019-07-11T17:37:19+00:00"
         },
         {
             "name": "phpstan/phpdoc-parser",
@@ -346,123 +465,6 @@
             "time": "2019-04-10T23:49:02+00:00"
         },
         {
-            "name": "symfony/polyfill-ctype",
-            "version": "v1.11.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "82ebae02209c21113908c229e9883c419720738a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/82ebae02209c21113908c229e9883c419720738a",
-                "reference": "82ebae02209c21113908c229e9883c419720738a",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "suggest": {
-                "ext-ctype": "For best performance"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.11-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Polyfill\\Ctype\\": ""
-                },
-                "files": [
-                    "bootstrap.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                },
-                {
-                    "name": "Gert de Pagter",
-                    "email": "BackEndTea@gmail.com"
-                }
-            ],
-            "description": "Symfony polyfill for ctype functions",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "compatibility",
-                "ctype",
-                "polyfill",
-                "portable"
-            ],
-            "time": "2019-02-06T07:57:58+00:00"
-        },
-        {
-            "name": "symfony/yaml",
-            "version": "v4.3.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/yaml.git",
-                "reference": "c60ecf5ba842324433b46f58dc7afc4487dbab99"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/c60ecf5ba842324433b46f58dc7afc4487dbab99",
-                "reference": "c60ecf5ba842324433b46f58dc7afc4487dbab99",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1.3",
-                "symfony/polyfill-ctype": "~1.8"
-            },
-            "conflict": {
-                "symfony/console": "<3.4"
-            },
-            "require-dev": {
-                "symfony/console": "~3.4|~4.0"
-            },
-            "suggest": {
-                "symfony/console": "For validating YAML files using the lint command"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "4.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Yaml\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Symfony Yaml Component",
-            "homepage": "https://symfony.com",
-            "time": "2019-04-06T14:04:46+00:00"
-        },
-        {
             "name": "wp-coding-standards/wpcs",
             "version": "2.1.1",
             "source": {
@@ -508,7 +510,6 @@
             "time": "2019-05-21T02:50:00+00:00"
         }
     ],
-    "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],
