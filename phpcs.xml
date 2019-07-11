@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="WordPress Idearia">
     <rule ref="IdeariaWordPressPluginCodingStandard">
+        <exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>
     </rule>
 </ruleset>
