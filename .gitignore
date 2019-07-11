@@ -19,3 +19,6 @@ wpan_debug.txt
 *.log
 *.log.*
 *.sig
+
+# Composer fodelr
+vendor/*
