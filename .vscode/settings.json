@@ -1,3 +1,6 @@
 {
-    "phpSniffer.executablesFolder": "vendor/bin/"
+    "phpSniffer.executablesFolder": "vendor/bin/",
+    "intelephense.formatProvider.enable": false,
+    "php.format.enable": false,
+    "intelephense.format.enable": false
 }
