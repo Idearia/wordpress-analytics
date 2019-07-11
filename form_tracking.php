@@ -33,7 +33,9 @@ if ( class_exists( 'GFCommon' ) ) {
 		try {
 			wpan_send_form_tracking_event( $entry, $form );
 		} catch ( \Throwable $e ) {
-			error_log( 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage() );
+			$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
+			wpan_notify_email( $msg );
+			error_log( $msg );
 		}
 	}
 
