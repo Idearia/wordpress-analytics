@@ -11,8 +11,18 @@
             "email": "guido.pettinari@idearia.it"
         }
     ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://composer.idearia.it"
+        }
+    ],
     "require": {
         "symfony/yaml": ">0.0",
         "ins0/google-measurement-php-client": ">0.0"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+        "idearia/wordpress-phpcs-xml": "^2.3"
     }
 }
