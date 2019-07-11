@@ -264,6 +264,14 @@ menus:
                             in the wp-content folder. Furthermore, javascript-related activity will be shown in the browser's console.
                         default: ''
                         type: checkbox
+                    debug_email:
+                        id: debug_email
+                        title: Debug email
+                        desc: >
+                            This email address will be notified whenever the plugin generates a serious error; leave empty to disable
+                            the feature. Please note that the email will be sent regardless of the value of the 'debug' flag.
+                        default: ''
+                        type: text
             custom_code:
                 id: custom_code
                 display: Custom code

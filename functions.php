@@ -193,6 +193,30 @@ function wpan_debug_wp( $log ) {
 
 }
 
+/**
+ * Notify the debug email of something that happened on the website
+ *
+ * @param String $message
+ */
+function wpan_notify_email( $message ) {
+
+	// Get destination email address
+	$options     = wpan_get_options();
+	$debug_email = isset( $options['debug_email'] ) ? $options['debug_email'] : false;
+
+	// Validate email address
+	if ( ! $debug_email || ! filter_var( $debug_email, FILTER_VALIDATE_EMAIL ) ) {
+		return false;
+	}
+
+	// Email subject
+	$subject = 'Error in WordPress Analytics on ' . get_site_url();
+
+	// Send email
+	$sent = wp_mail( $debug_email, $subject, $message );
+
+	return $sent;
+}
 
 /**
  * Return the blog ID of the main blog of the network (usually 1)
