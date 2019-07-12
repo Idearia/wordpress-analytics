@@ -14,27 +14,21 @@ if ( class_exists( 'GFCommon' ) ) {
 
 	/* Load the server-side library to send hits to Google Analytics */
 	if ( ! defined( 'WPAN_GAMP_LOADED' ) ) {
-
 		if ( wpan_load_measurement_protocol_client() ) {
-
-			/* Send data to GA only after form validation & submission */
-			add_action( 'gform_after_submission', 'wpan_send_form_tracking_event_wrapper', 10, 4 );
-
-			/* For PayPal payments, send an additional event */
-			add_action( 'gform_post_payment_status', 'wpan_send_payment_tracking_event_wrapper', 10, 8 );
-
+			add_action( 'gform_after_submission', 'wpan_send_form_submitted', 10, 4 );
+			add_action( 'gform_post_payment_status', 'wpan_send_payment_done', 10, 8 );
 		}
 	}
 
 	/**
-	 * Wrapper of wpan_send_form_tracking_event to handle errors
+	 * Tell GA the form has been sumbitted
 	 *
 	 * @param Array $entry
 	 * @param Array $form
 	 */
-	function wpan_send_form_tracking_event_wrapper( $entry, $form ) {
+	function wpan_send_form_submitted( $entry, $form ) {
 		try {
-			wpan_send_form_tracking_event( $entry, $form );
+			wpan_send_tracking_event( $entry, $form );
 		} catch ( \Throwable $e ) {
 			$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
 			wpan_notify_email( $msg );
@@ -43,30 +37,38 @@ if ( class_exists( 'GFCommon' ) ) {
 	}
 
 	/**
-	 * Wrapper of wpan_send_payment_tracking_event to handle errors
+	 * Tell GA that the payment has gone through (if any)
 	 *
-	 * @param Array $entry
-	 * @param Array $form
+	 * @param Array  $feed
+	 * @param Array  $entry
+	 * @param String $status
+	 * @param String $transaction_id
 	 */
-	function wpan_send_payment_tracking_event_wrapper( $entry, $form ) {
-		try {
-			wpan_send_form_tracking_event( $entry, $form );
-		} catch ( \Throwable $e ) {
-			$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
-			wpan_notify_email( $msg );
-			error_log( $msg );
+	function wpan_send_payment_done( $feed, $entry, $status, $transaction_id ) {
+		if ( $status === 'Completed' || $status === 'Paid' ) {
+			try {
+				$form         = GFAPI::get_form( $entry['form_id'] );
+				$event_action = 'form-payment:' . $form['title'];
+				wpan_send_tracking_event( $entry, $form, $event_action );
+			} catch ( \Throwable $e ) {
+				$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
+				wpan_notify_email( $msg );
+				error_log( $msg );
+			}
 		}
 	}
 
 	/**
 	 * Send an event to GA with details about the submission
 	 *
-	 * @param Array $entry
-	 * @param Array $form
-	 * @param Array $event_action Value to pass to GA for the event action
+	 * @param Array  $entry
+	 * @param Array  $form
+	 * @param String $event_action Value to pass to GA for the event action
 	 * field; leave empty to use form:<Form title>.
+	 * @param String $event_label Value to pass to GA for the event label
+	 * field; leave empty to use the path of the page with the form.
 	 */
-	function wpan_send_form_tracking_event( $entry, $form, $event_action = null ) {
+	function wpan_send_tracking_event( $entry, $form, $event_action = null, $event_label = null ) {
 
 		global $post;
 
@@ -109,7 +111,7 @@ if ( class_exists( 'GFCommon' ) ) {
 		$event->setAsNonInteractionHit( false );
 		$event->setEventCategory( 'Contact' );
 		$event->setEventAction( $event_action ?? 'form:' . $form['title'] );
-		$event->setEventLabel( $document_path );
+		$event->setEventLabel( $event_label ?? $document_path );
 		$event->setDocumentPath( $document_path );
 		$event->setDocumentLocation( $document_location );
 		$event->setDocumentTitle( $document_title );
@@ -131,10 +133,10 @@ if ( class_exists( 'GFCommon' ) ) {
 			wpan_debug( $event ? $event : 'Event empty because of filter' );
 			wpan_debug( 'Received the following respons from Google Analytics (ASYNC, so it might be empty): ' );
 			wpan_debug( $response );
-			// wpan_debug( "This is the form that triggered the event:" );
-			// wpan_debug( $form );
 			// wpan_debug( "This is the entry of the form in Gravity Forms:" );
 			// wpan_debug( $entry );
+			// wpan_debug( "This is the form in Gravity Forms:" );
+			// wpan_debug( $form );
 		}
 
 	}
