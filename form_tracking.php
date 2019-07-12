@@ -20,11 +20,14 @@ if ( class_exists( 'GFCommon' ) ) {
 			/* Send data to GA only after form validation & submission */
 			add_action( 'gform_after_submission', 'wpan_send_form_tracking_event_wrapper', 10, 4 );
 
+			/* For PayPal payments, send an additional event */
+			add_action( 'gform_post_payment_status', 'wpan_send_payment_tracking_event_wrapper', 10, 8 );
+
 		}
 	}
 
 	/**
-	 * Wrapper to handle errors
+	 * Wrapper of wpan_send_form_tracking_event to handle errors
 	 *
 	 * @param Array $entry
 	 * @param Array $form
@@ -40,12 +43,30 @@ if ( class_exists( 'GFCommon' ) ) {
 	}
 
 	/**
-	 * Send an event to GA with details about the submission
+	 * Wrapper of wpan_send_payment_tracking_event to handle errors
 	 *
 	 * @param Array $entry
 	 * @param Array $form
 	 */
-	function wpan_send_form_tracking_event( $entry, $form ) {
+	function wpan_send_payment_tracking_event_wrapper( $entry, $form ) {
+		try {
+			wpan_send_form_tracking_event( $entry, $form );
+		} catch ( \Throwable $e ) {
+			$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
+			wpan_notify_email( $msg );
+			error_log( $msg );
+		}
+	}
+
+	/**
+	 * Send an event to GA with details about the submission
+	 *
+	 * @param Array $entry
+	 * @param Array $form
+	 * @param Array $event_action Value to pass to GA for the event action
+	 * field; leave empty to use form:<Form title>.
+	 */
+	function wpan_send_form_tracking_event( $entry, $form, $event_action = null ) {
 
 		global $post;
 
@@ -57,7 +78,6 @@ if ( class_exists( 'GFCommon' ) ) {
 		$options      = wpan_get_options();
 		$tracking_uid = isset( $options ['tracking_uid'] ) ? $options ['tracking_uid'] : '';
 		$debug        = isset( $options['debug'] ) ? $options['debug'] : '';
-		$form_title   = $form['title'];
 
 		// I have taken the following four lines of code from
 		// https://github.com/theiconic/php-ga-measurement-protocol
@@ -88,7 +108,7 @@ if ( class_exists( 'GFCommon' ) ) {
 		$event = $gatracking->createTracking( 'Event' );
 		$event->setAsNonInteractionHit( false );
 		$event->setEventCategory( 'Contact' );
-		$event->setEventAction( 'form:' . $form_title );
+		$event->setEventAction( $event_action ?? 'form:' . $form['title'] );
 		$event->setEventLabel( $document_path );
 		$event->setDocumentPath( $document_path );
 		$event->setDocumentLocation( $document_location );
