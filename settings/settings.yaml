@@ -49,11 +49,15 @@ menus:
                         id: form_tracking
                         title: Enable form tracking?
                         desc: >
-                            Send an event to Google Analytics every time a user submits a form. For now it works
-                            only for forms made with the Gravity Forms plugin. The events are sent using the 
-                            measurement protocol with anonymized IPs; this means that the IP associated to the hit
-                            will be, for example, 77.123.456.000 instead of 77.123.456.789, and that ad blockers
-                            won't block the event.'
+                            Send an event to Google Analytics every time a user submits a form; for now the feature
+                            works only for forms made with the Gravity Forms plugin.
+                            The event has the action field seet to 'form:' followed by the form title.
+                            The event label is the path of the post which contains the form.
+                            If the form is a payment form, the event label will also include the transaction ID
+                            and transaction amount.
+                            The events are sent using the measurement protocol with anonymized IPs; this means that
+                            the IP associated to the hit will be, for example, 77.123.456.000 instead of 77.123.456.789,
+                            and that ad blockers won't block the event.'
                         default: ''
                         type: checkbox
                     email_tracking:
@@ -179,22 +183,13 @@ menus:
                 desc: >
                     <p>Settings for the form tracking functionality.</p>
                 fields:
-                    send_form_submission_event:
-                        id: send_form_submission_event
-                        title: Send event after form submission?
+                    wait_for_form_payment:
+                        id: wait_for_form_payment
+                        title: Wait for payment confirmation
                         desc: >
-                            Send an event to Google Analytics every time an entry of a Gravity Form is submitted.
-                            The event action will be 'form:' followed by the form title.
-                        default: '1'
-                        type: checkbox
-                    send_form_payment_event:
-                        id: send_form_payment_event
-                        title: Send event after form payment?
-                        desc: >
-                            Send an event to Google Analytics every time a the payment status of a Gravity
-                            Form entry changes to Paid or Completed.
-                            The event action will be 'form-payment:' followed by the form title, the transaction
-                            id and the payment amount.
+                            When enabled, the form submission event will be sent to GA only after a successful payment.
+                            If you disable this option, the event will be sent immediately after form submission,
+                            without waiting for payment confirmation.
                         default: '1'
                         type: checkbox
             hidden_settings:

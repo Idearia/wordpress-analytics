@@ -15,13 +15,8 @@ if ( class_exists( 'GFCommon' ) ) {
 	/* Load the server-side library to send hits to Google Analytics */
 	if ( ! defined( 'WPAN_GAMP_LOADED' ) ) {
 		if ( wpan_load_measurement_protocol_client() ) {
-			$options = wpan_get_options();
-			if ( isset( $options ['send_form_submission_event'] ) && $options ['send_form_submission_event'] ) {
-				add_action( 'gform_after_submission', 'wpan_send_form_submitted', 10, 4 );
-			}
-			if ( isset( $options ['send_form_payment_event'] ) && $options ['send_form_payment_event'] ) {
-				add_action( 'gform_paypal_fulfillment', 'wpan_send_payment_done', 10, 4 );
-			}
+			add_action( 'gform_after_submission', 'wpan_send_form_submitted', 10, 4 );
+			add_action( 'gform_paypal_fulfillment', 'wpan_send_payment_done', 10, 4 );
 		}
 	}
 
@@ -32,6 +27,21 @@ if ( class_exists( 'GFCommon' ) ) {
 	 * @param Array $form
 	 */
 	function wpan_send_form_submitted( $entry, $form ) {
+
+		$options = wpan_get_options();
+		$is_payment_form = isset( $entry[ 'payment_status' ] ) && $entry[ 'payment_status' ]; // payment forms start with 'processing' as payment status
+		$wait_for_payment = isset( $options ['wait_for_form_payment'] ) && $options ['wait_for_form_payment'];
+
+		// If the form is a payment form, and the user chose to wait for
+		// payment confirmation, do not send the event yet
+		if ( $is_payment_form && $wait_for_payment ) {
+			wpan_debug( 'Will wait for payment confirmation before sending form submission event' );
+			wpan_debug( 'is_payment_form = ' . $is_payment_form );
+			wpan_debug( 'wait_for_payment = ' . $wait_for_payment );
+			return;
+		}
+
+		// Send the form submission event to GA
 		try {
 			wpan_send_tracking_event( $entry, $form );
 		} catch ( \Throwable $e ) {
@@ -53,11 +63,22 @@ if ( class_exists( 'GFCommon' ) ) {
 	 * @param Float  $amount
 	 */
 	function wpan_send_payment_done( $entry, $feed, $transaction_id, $amount ) {
+
+		$options = wpan_get_options();
+		$wait_for_payment = isset( $options ['wait_for_form_payment'] ) && $options ['wait_for_form_payment'];
+
+		// If the user chose not to wait for payment confirmation, the
+		// event was already sent => do nothing
+		if ( ! $wait_for_payment ) {
+			return;
+		}
+
+		// Send the form submission event to GA, appending the transaction
+		// ID & amount to the event label
 		try {
 			$form         = GFAPI::get_form( $entry['form_id'] );
-			$event_action = 'form-payment:' . $form['title'];
 			$event_label  = str_replace( '//', '/', wp_parse_url( $entry['source_url'], PHP_URL_PATH ) . '/transaction-id/' . ( $transaction_id ? $transaction_id : 'null' ) . '/amount/' . ( $amount ? $amount : 'null' ) );
-			wpan_send_tracking_event( $entry, $form, $event_action, $event_label );
+			wpan_send_tracking_event( $entry, $form, null, $event_label );
 		} catch ( \Throwable $e ) {
 			$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
 			wpan_notify_email( $msg );
