@@ -193,7 +193,8 @@ menus:
                         desc: >
                             Send an event to Google Analytics every time a the payment status of a Gravity
                             Form entry changes to Paid or Completed.
-                            The event action will be 'form-payment:' followed by the form title.
+                            The event action will be 'form-payment:' followed by the form title, the transaction
+                            id and the payment amount.
                         default: '1'
                         type: checkbox
             hidden_settings:
