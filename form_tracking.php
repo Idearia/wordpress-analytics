@@ -54,7 +54,8 @@ if ( class_exists( 'GFCommon' ) ) {
 			try {
 				$form         = GFAPI::get_form( $entry['form_id'] );
 				$event_action = 'form-payment:' . $form['title'];
-				wpan_send_tracking_event( $entry, $form, $event_action );
+				$event_label  = str_replace( '//', '/', wp_parse_url( $entry['source_url'], PHP_URL_PATH ) . '/transaction-id/' . $transaction_id );
+				wpan_send_tracking_event( $entry, $form, $event_action, $event_label );
 			} catch ( \Throwable $e ) {
 				$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
 				wpan_notify_email( $msg );
