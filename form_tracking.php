@@ -20,7 +20,7 @@ if ( class_exists( 'GFCommon' ) ) {
 				add_action( 'gform_after_submission', 'wpan_send_form_submitted', 10, 4 );
 			}
 			if ( isset( $options ['send_form_payment_event'] ) && $options ['send_form_payment_event'] ) {
-				add_action( 'gform_post_payment_status', 'wpan_send_payment_done', 10, 8 );
+				add_action( 'gform_paypal_fulfillment', 'wpan_send_payment_done', 10, 4 );
 			}
 		}
 	}
@@ -42,25 +42,26 @@ if ( class_exists( 'GFCommon' ) ) {
 	}
 
 	/**
-	 * Tell GA that the payment has gone through (if any)
+	 * Tell GA that the payment (if any) has gone through.
 	 *
-	 * @param Array  $feed
+	 * The event label will include the form URL, the transaction
+	 * ID and transaction amount.
+	 *
 	 * @param Array  $entry
-	 * @param String $status
+	 * @param Array  $feed
 	 * @param String $transaction_id
+	 * @param Float  $amount
 	 */
-	function wpan_send_payment_done( $feed, $entry, $status, $transaction_id ) {
-		if ( $status === 'Completed' || $status === 'Paid' ) {
-			try {
-				$form         = GFAPI::get_form( $entry['form_id'] );
-				$event_action = 'form-payment:' . $form['title'];
-				$event_label  = str_replace( '//', '/', wp_parse_url( $entry['source_url'], PHP_URL_PATH ) . '/transaction-id/' . $transaction_id );
-				wpan_send_tracking_event( $entry, $form, $event_action, $event_label );
-			} catch ( \Throwable $e ) {
-				$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
-				wpan_notify_email( $msg );
-				error_log( $msg );
-			}
+	function wpan_send_payment_done( $entry, $feed, $transaction_id, $amount ) {
+		try {
+			$form         = GFAPI::get_form( $entry['form_id'] );
+			$event_action = 'form-payment:' . $form['title'];
+			$event_label  = str_replace( '//', '/', wp_parse_url( $entry['source_url'], PHP_URL_PATH ) . '/transaction-id/' . ( $transaction_id ? $transaction_id : 'null' ) . '/amount/' . ( $amount ? $amount : 'null' ) );
+			wpan_send_tracking_event( $entry, $form, $event_action, $event_label );
+		} catch ( \Throwable $e ) {
+			$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
+			wpan_notify_email( $msg );
+			error_log( $msg );
 		}
 	}
 
