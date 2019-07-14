@@ -16,7 +16,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 // Define plugin version
-define( 'WPAN_VERSION', 'v1.4' );
+define( 'WPAN_VERSION', 'v1.5' );
 define( 'WPAN_URL', 'https://github.com/coccoinomane/wordpress_analytics' );
 
 // Define plugin directory & URL
