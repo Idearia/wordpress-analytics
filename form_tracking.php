@@ -15,8 +15,13 @@ if ( class_exists( 'GFCommon' ) ) {
 	/* Load the server-side library to send hits to Google Analytics */
 	if ( ! defined( 'WPAN_GAMP_LOADED' ) ) {
 		if ( wpan_load_measurement_protocol_client() ) {
-			add_action( 'gform_after_submission', 'wpan_send_form_submitted', 10, 4 );
-			add_action( 'gform_post_payment_status', 'wpan_send_payment_done', 10, 8 );
+			$options = wpan_get_options();
+			if ( isset( $options ['send_form_submission_event'] ) && $options ['send_form_submission_event'] ) {
+				add_action( 'gform_after_submission', 'wpan_send_form_submitted', 10, 4 );
+			}
+			if ( isset( $options ['send_form_payment_event'] ) && $options ['send_form_payment_event'] ) {
+				add_action( 'gform_post_payment_status', 'wpan_send_payment_done', 10, 8 );
+			}
 		}
 	}
 

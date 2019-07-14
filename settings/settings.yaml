@@ -172,6 +172,30 @@ menus:
                             input HTML in pages, ex. in a Visual Composer module.
                         default: '1'
                         type: checkbox
+            form_tracking:
+                id: form_tracking
+                display: Form tracking
+                display_section_title: true
+                desc: >
+                    <p>Settings for the form tracking functionality.</p>
+                fields:
+                    send_form_submission_event:
+                        id: send_form_submission_event
+                        title: Send event after form submission?
+                        desc: >
+                            Send an event to Google Analytics every time an entry of a Gravity Form is submitted.
+                            The event action will be 'form:' followed by the form title.
+                        default: '1'
+                        type: checkbox
+                    send_form_payment_event:
+                        id: send_form_payment_event
+                        title: Send event after form payment?
+                        desc: >
+                            Send an event to Google Analytics every time a the payment status of a Gravity
+                            Form entry changes to Paid or Completed.
+                            The event action will be 'form-payment:' followed by the form title.
+                        default: '1'
+                        type: checkbox
             hidden_settings:
                 id: hidden_settings
                 display: Hidden settings
