@@ -16,7 +16,7 @@ The next feature to be implemented will be:
 
 
 ## INSTALL
-Download the plugin using the "[Download ZIP](https://github.com/coccoinomane/wordpress_analytics/archive/master.zip)" button in [Github], and install it directly in WordPress using the "Add new plugin" menu item in the backend.
+Download the latest release and install it directly in WordPress using the "Add new plugin" menu item in the backend.
 
 Check the [development branch](https://github.com/coccoinomane/wordpress_analytics/tree/develop) for the latest features!
 
