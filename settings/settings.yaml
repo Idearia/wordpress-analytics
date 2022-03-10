@@ -265,7 +265,7 @@ menus:
                         desc: >
                             Enable <a href="https://support.google.com/analytics/answer/2558867">Enhanced Link Attribution</a>. 
                             Remember to enable the option in the property settings inside Google Analytics as well.
-                        default: '1'
+                        default: ''
                         type: checkbox
                     cross_domain_support:
                         id: cross_domain_support
