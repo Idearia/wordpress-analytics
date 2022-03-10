@@ -4,7 +4,7 @@
  * Plugin Name: WordPress Analytics
  * Plugin URI: https://github.com/coccoinomane/wordpress_analytics
  * Description: Let Google Analytics communicate with WordPress and track user activity beyond pageviews
- * Version: alpha_v8
+ * Version: 1.7.1
  * Author: Guido W. Pettinari
  * Author URI: http://www.guidowalterpettinari.eu
  * License: GPL3
