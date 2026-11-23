@@ -814,7 +814,7 @@
         esc_attr( $args['attributes']['placeholder'] )
     );
 
-    if ( WPAN_SYNTAX_HIGHLIGHTING_LOADED ) {
+    if ( defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) && WPAN_SYNTAX_HIGHLIGHTING_LOADED ) {
 
     ?>
 

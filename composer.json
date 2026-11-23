@@ -14,11 +14,12 @@
     "repositories": [
         {
             "type": "composer",
-            "url": "https://composer.idearia.it"
+            "url": "https://composer.idearia.it",
+            "only": ["idearia/*"]
         }
     ],
     "require": {
-        "symfony/yaml": ">0.0",
+        "symfony/yaml": "^5.4.56",
         "ins0/google-measurement-php-client": ">0.0"
     },
     "require-dev": {

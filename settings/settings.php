@@ -184,7 +184,7 @@
 
             case 'phone_exclude_regex_pattern':
             case 'phone_include_regex_pattern':
-              if ( $value && preg_match("/$value/", null) === false ) {
+              if ( $value && preg_match("/$value/", '') === false ) {
                 /* If the regex is not legit, find out what the error message is */
                 $regex_error_msg = '';
                 foreach ( get_defined_constants(true)['pcre'] as $k => $v ) {
