@@ -1,16 +1,9 @@
 <?php
 
 /**
- * Track form submissions in Google Analytics 4 from the server, using
- * the Measurement Protocol.
+ * Track Gravity Forms submissions in Google Analytics 4 from the server, with
+ * the Measurement Protocol: ad blockers cannot stop it.
  *
- * The event is sent by the web server with wp_remote_post(), not by the
- * browser of the visitor: ad blockers cannot stop it. No external library
- * is needed.
- *
- * For now the feature works for forms made with the Gravity Forms plugin.
- *
- * Created by Guido W. Pettinari on 04.08.2016.
  * Part of WordPress Analytics:
  * https://github.com/coccoinomane/wordpress_analytics
  */
@@ -24,17 +17,9 @@ add_action( 'gform_paypal_fulfillment', 'wpan_send_payment_done', 10, 4 );
 
 
 /**
- * Return the Measurement Protocol API secret of the Google Analytics 4
- * property, or an empty string if there is none.
- *
- * The constant WPAN_GA4_API_SECRET (ex. in wp-config.php) takes precedence
- * over the value set in the plugin options.
- *
- * @param array|null $options Plugin options; leave empty to read them from the database.
- * @return string
+ * API secret of the GA4 property; the WPAN_GA4_API_SECRET constant takes precedence over the plugin option.
  */
 function wpan_get_api_secret( $options = null ) {
-
 	if ( defined( 'WPAN_GA4_API_SECRET' ) && WPAN_GA4_API_SECRET ) {
 		return trim( (string) WPAN_GA4_API_SECRET );
 	}
@@ -44,40 +29,25 @@ function wpan_get_api_secret( $options = null ) {
 	}
 
 	return trim( (string) wpan_option( $options, 'api_secret' ) );
-
 }
 
 
 /**
- * Extract the Google Analytics client ID from the value of the _ga cookie
- * (ex. GA1.1.1234567890.1700000000 => 1234567890.1700000000).
- *
- * @param mixed $cookie Value of the _ga cookie.
- * @return string The client ID, or an empty string if the cookie is not valid.
+ * Client ID from the _ga cookie (GA1.1.123.456 => 123.456), or an empty string.
  */
 function wpan_ga4_client_id_from_cookie( $cookie ) {
-
 	if ( is_string( $cookie ) && preg_match( '/^GA\d+\.\d+\.(\d+\.\d+)$/', $cookie, $matches ) ) {
 		return $matches[1];
 	}
 
 	return '';
-
 }
 
 
 /**
- * Extract the Google Analytics 4 session ID from the value of the
- * _ga_<container ID> cookie. Both formats in use are supported:
- *
- * - GS1.1.1700000000.5.1.1700000100.0.0.0   => 1700000000
- * - GS2.1.s1700000000$o5$g1$t1700000100$j60 => 1700000000
- *
- * @param mixed $cookie Value of the _ga_<container ID> cookie.
- * @return string The session ID, or an empty string if the cookie is not valid.
+ * Session ID from the _ga_<ID> cookie, in the GS1 or GS2 format, or an empty string.
  */
 function wpan_ga4_session_id_from_cookie( $cookie ) {
-
 	if ( ! is_string( $cookie ) ) {
 		return '';
 	}
@@ -91,26 +61,14 @@ function wpan_ga4_session_id_from_cookie( $cookie ) {
 	}
 
 	return '';
-
 }
 
 
 /**
- * Tell who the visitor is, according to the Google Analytics cookies sent
- * by the browser, so that the event is attributed to the same user, session
- * and traffic source as the pageviews.
- *
- * Without cookies (ex. the visitor refused them) the event is sent anyway,
- * with a random client ID: the form is counted, but its traffic source is
- * not known.
- *
- * @param string $measurement_id GA4 measurement ID (G-XXXXXXXXXX).
- * @param array  $cookies        Cookies sent by the browser, usually $_COOKIE.
- * @return array With the 'client_id' and 'session_id' elements; the latter
- * might be empty.
+ * Client and session ID of the visitor, read from the Google Analytics cookies.
+ * Without cookies the client ID is random: the form is counted, with no traffic source.
  */
 function wpan_ga4_visitor( $measurement_id, $cookies ) {
-
 	$client_id = wpan_ga4_client_id_from_cookie( isset( $cookies['_ga'] ) ? $cookies['_ga'] : null );
 	if ( ! $client_id ) {
 		$client_id = mt_rand( 100000000, 2147483647 ) . '.' . time();
@@ -123,29 +81,15 @@ function wpan_ga4_visitor( $measurement_id, $cookies ) {
 		'client_id'  => $client_id,
 		'session_id' => $session_id,
 	];
-
 }
 
 
 /**
- * Send an event to Google Analytics 4 from the server, using the
- * Measurement Protocol.
- *
- * By default the request does not wait for the answer of Google, so that
- * the visitor is not slowed down. Please note that Google does not tell
- * whether the measurement ID and the API secret are right: an event sent
- * with a wrong API secret is silently discarded.
- *
- * @param array  $event    Event, with the 'name' and 'params' elements.
- * @param array  $visitor  Visitor, as returned by wpan_ga4_visitor().
- * @param bool   $blocking Whether to wait for the answer of Google.
- * @param bool   $validate If true, the event is sent to the validation
- * server of Google, which checks its format and does not record it.
- * @return array|WP_Error|false The answer of wp_remote_post(), or false if
- * the measurement ID or the API secret are missing.
+ * Send an event (array with 'name' and 'params') to GA4 with the Measurement Protocol.
+ * Google does not tell if the ID or the secret are wrong: it discards the event silently.
+ * With $validate the event goes to the validation server, which does not record it.
  */
 function wpan_ga4_send_event( $event, $visitor, $blocking = false, $validate = false ) {
-
 	$measurement_id = wpan_get_measurement_id();
 	$api_secret     = wpan_get_api_secret();
 
@@ -154,8 +98,7 @@ function wpan_ga4_send_event( $event, $visitor, $blocking = false, $validate = f
 		return false;
 	}
 
-	// The session ID attributes the event to the session of the visitor; the
-	// engagement time is needed for the user to show up in the reports
+	// Needed to attribute the event to the session and to show the user in reports
 	if ( ! empty( $visitor['session_id'] ) ) {
 		$event['params']['session_id'] = (string) $visitor['session_id'];
 	}
@@ -168,8 +111,7 @@ function wpan_ga4_send_event( $event, $visitor, $blocking = false, $validate = f
 		'events'    => [ $event ],
 	];
 
-	// Allow the user to change the endpoint, ex. to collect data in the EU
-	// with https://region1.google-analytics.com
+	// Ex. https://region1.google-analytics.com to collect data in the EU
 	$endpoint = apply_filters( 'wpan_filter_ga4_endpoint', 'https://www.google-analytics.com' );
 	$url      = rtrim( $endpoint, '/' ) . ( $validate ? '/debug' : '' ) . '/mp/collect'
 		. '?measurement_id=' . rawurlencode( $measurement_id )
@@ -184,18 +126,13 @@ function wpan_ga4_send_event( $event, $visitor, $blocking = false, $validate = f
 			'body'     => wp_json_encode( $payload ),
 		]
 	);
-
 }
 
 
 /**
- * Tell GA the form has been sumbitted
- *
- * @param array $entry
- * @param array $form
+ * Gravity Forms callback: a form has been submitted.
  */
 function wpan_send_form_submitted( $entry, $form ) {
-
 	$options = wpan_get_options();
 
 	if ( empty( $options['form_tracking'] ) ) {
@@ -207,24 +144,20 @@ function wpan_send_form_submitted( $entry, $form ) {
 		return;
 	}
 
-	// Remember who the visitor is: the payment confirmation, if any, will
-	// arrive later and without the cookies of the visitor
+	// The payment confirmation, if any, will arrive later and without cookies
 	$visitor = wpan_ga4_visitor( wpan_get_measurement_id( $options ), $_COOKIE );
 	if ( function_exists( 'gform_update_meta' ) && isset( $entry['id'] ) ) {
 		gform_update_meta( $entry['id'], 'wpan_ga4_visitor', $visitor );
 	}
 
-	$is_payment_form  = isset( $entry['payment_status'] ) && $entry['payment_status']; // payment forms start with 'processing' as payment status
+	$is_payment_form  = isset( $entry['payment_status'] ) && $entry['payment_status'];
 	$wait_for_payment = wpan_option( $options, 'wait_for_form_payment' );
 
-	// If the form is a payment form, and the user chose to wait for
-	// payment confirmation, do not send the event yet
 	if ( $is_payment_form && $wait_for_payment ) {
 		wpan_debug( 'Will wait for payment confirmation before sending form submission event' );
 		return;
 	}
 
-	// Send the form submission event to GA
 	try {
 		wpan_send_tracking_event( $entry, $form, $visitor );
 	} catch ( \Throwable $e ) {
@@ -234,28 +167,17 @@ function wpan_send_form_submitted( $entry, $form ) {
 
 
 /**
- * Tell GA that the payment (if any) has gone through.
- *
- * The event will include the transaction ID and the transaction amount.
- *
- * @param array  $entry
- * @param array  $feed
- * @param string $transaction_id
- * @param float  $amount
+ * Gravity Forms callback: the payment has gone through; adds transaction ID and amount.
  */
 function wpan_send_payment_done( $entry, $feed, $transaction_id, $amount ) {
-
 	$options          = wpan_get_options();
 	$wait_for_payment = wpan_option( $options, 'wait_for_form_payment' );
 
-	// If the user chose not to wait for payment confirmation, the
-	// event was already sent => do nothing
+	// Without waiting for payment the event was already sent
 	if ( empty( $options['form_tracking'] ) || ! $wait_for_payment ) {
 		return;
 	}
 
-	// Send the form submission event to GA, adding the transaction
-	// ID & amount to the event
 	try {
 		$form    = class_exists( 'GFAPI' ) ? GFAPI::get_form( $entry['form_id'] ) : [];
 		$visitor = function_exists( 'gform_get_meta' ) ? gform_get_meta( $entry['id'], 'wpan_ga4_visitor' ) : null;
@@ -275,10 +197,7 @@ function wpan_send_payment_done( $entry, $feed, $transaction_id, $amount ) {
 
 
 /**
- * Report an error occurred while sending a form tracking event, without
- * interrupting the submission of the form.
- *
- * @param Throwable $e
+ * Report an error without interrupting the submission of the form.
  */
 function wpan_report_form_tracking_error( $e ) {
 	$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
@@ -288,18 +207,11 @@ function wpan_report_form_tracking_error( $e ) {
 
 
 /**
- * Build the event to send to Google Analytics 4 for a form submission.
- *
- * @param array $entry        Gravity Forms entry.
- * @param array $form         Gravity Forms form.
- * @param array $extra_params Parameters to add to the event (ex. payment data).
- * @return array Event, with the 'name' and 'params' elements.
+ * Build the GA4 event for a form submission.
  */
 function wpan_ga4_build_form_event( $entry, $form, $extra_params = [] ) {
-
 	$source_url = isset( $entry['source_url'] ) ? (string) $entry['source_url'] : '';
-	// Page containing the form. Do not use $entry['post_id']: it is the post
-	// created by the form, if any, not the page of the form.
+	// Page of the form; $entry['post_id'] is instead the post created by the form
 	$post_id = ! empty( $entry['source_id'] ) ? (int) $entry['source_id'] : ( $source_url ? url_to_postid( $source_url ) : 0 );
 
 	$params = [
@@ -320,20 +232,13 @@ function wpan_ga4_build_form_event( $entry, $form, $extra_params = [] ) {
 		'name'   => WPAN_GA4_FORM_EVENT,
 		'params' => array_merge( $params, $extra_params ),
 	];
-
 }
 
 
 /**
- * Send an event to GA with details about the submission
- *
- * @param array $entry        Gravity Forms entry.
- * @param array $form         Gravity Forms form.
- * @param array $visitor      Visitor, as returned by wpan_ga4_visitor().
- * @param array $extra_params Parameters to add to the event (ex. payment data).
+ * Build, filter and send the event of a form submission.
  */
 function wpan_send_tracking_event( $entry, $form, $visitor, $extra_params = [] ) {
-
 	$msg = 'About to send form tracking event to Google Analytics 4...';
 	wpan_debug( $msg );
 	if ( class_exists( 'GFCommon' ) ) {
@@ -345,22 +250,19 @@ function wpan_send_tracking_event( $entry, $form, $visitor, $extra_params = [] )
 
 	$event = wpan_ga4_build_form_event( $entry, $form, $extra_params );
 
-	/* Allow the user to filter the event (an array with the 'name' and 'params'
-	elements); if false, the event will not be sent */
+	// A filter returning false stops the event
 	$event = apply_filters( 'wpan_filter_ga4_form_event', $event, $entry, $form );
 
 	$response = null;
 
 	if ( $event ) {
-
-		/* In debug mode, ask Google first whether the event is well formed */
+		// In debug mode, ask Google first whether the event is well formed
 		if ( $debug ) {
 			$validation = wpan_ga4_send_event( $event, $visitor, true, true );
 			wpan_debug( 'Answer of the Google Analytics 4 validation server:' );
 			wpan_debug( is_array( $validation ) ? wp_remote_retrieve_body( $validation ) : $validation );
 		}
 
-		/* Send event to GA severs */
 		$response = wpan_ga4_send_event( $event, $visitor, $debug );
 
 		if ( is_wp_error( $response ) ) {
@@ -368,26 +270,19 @@ function wpan_send_tracking_event( $entry, $form, $visitor, $extra_params = [] )
 		}
 	}
 
-	/* Allow the user to send more events for the same visitor, with
-	wpan_ga4_send_event() */
 	do_action( 'wpan_action_after_ga4_form_event', $event, $visitor, $entry, $form );
 
-	/* Debug */
 	if ( $debug ) {
 		wpan_debug( 'Sent the following event to Google Analytics 4:' );
 		wpan_debug( $event ? $event : 'Event empty because of filter' );
 	}
-
 }
 
 
 /**
- * Warn the administrators when form tracking cannot work.
- *
- * Should be called as a callback for the admin_notices action.
+ * Admin notices: form tracking enabled but not configured, or legacy hooks in use.
  */
 function wpan_form_tracking_admin_notices() {
-
 	if ( ! wpan_can_show_admin_notices() ) {
 		return;
 	}
@@ -403,8 +298,7 @@ function wpan_form_tracking_admin_notices() {
 		);
 	}
 
-	// Hooks of the Universal Analytics version: they received objects of a
-	// library that is not there anymore, so they are not called anymore
+	// Hooks of the Universal Analytics version, not called anymore
 	$legacy_hooks = [];
 	foreach ( [ 'wpan_filter_form_tracking_options', 'wpan_filter_form_tracking_event', 'wpan_action_post_send_form_tracking_event' ] as $hook ) {
 		if ( has_filter( $hook ) ) {
@@ -418,5 +312,4 @@ function wpan_form_tracking_admin_notices() {
 			esc_html( implode( ', ', $legacy_hooks ) )
 		);
 	}
-
 }
