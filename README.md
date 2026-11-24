@@ -42,6 +42,10 @@ If *Google Tag Manager for WordPress* is active and the plugin is set to load GA
 
 In the *Google Tag Manager* mode the scroll, phone and email events (`start_reading`, `phone_click`, `email_click`, ...) are pushed to the `dataLayer` as custom events with the same names and parameters: to see them in GA4, add to your GTM container a GA4 event tag fired by those custom events.
 
+In the same mode, on single posts and products the content group is pushed to the `dataLayer` at the very beginning of the `<head>`, before the container is loaded, with the keys `content_group`, `product_category` and `content_type`: to send them to GA4, read them in your GTM container with Data Layer Variables and add them as parameters of the GA4 tag. If GA4 is loaded by another plugin, without Google Tag Manager, the content group is not sent.
+
+If the custom code still calls the Universal Analytics tracker (ex. `ga('send', ...)`), those calls do nothing anymore: a notice in the admin tells you, until the code is rewritten or removed.
+
 Call and email tracking send the `phone_click` and `email_click` events (with the `link_url` and `page_path` parameters) when the Google tag is loaded by WordPress Analytics.
 
 Scroll tracking sends, on single posts, the events `article_loaded`, `start_reading` (parameter `time_to_scroll`), `content_bottom` (parameters `time_to_content_end` and `reading_behaviour`, either `Scanner` or `Reader`), `content_read` (only for readers) and `page_bottom` (parameter `total_time`); times are in seconds. To use the parameters in the GA4 reports, register them in the GA4 admin as custom metrics and, for `reading_behaviour`, as a custom dimension. Like call and email tracking, the events are sent when the Google tag is loaded by WordPress Analytics.

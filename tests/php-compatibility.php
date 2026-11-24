@@ -7,6 +7,10 @@
  */
 error_reporting(E_ALL);
 set_error_handler(function ($severity, $message, $file, $line) {
+    // Errors silenced on purpose with @ (ex. the check of a regex typed by the user)
+    if (!(error_reporting() & $severity)) {
+        return true;
+    }
     throw new ErrorException($message, 0, $severity, $file, $line);
 });
 
@@ -227,6 +231,7 @@ ob_start();
 wpan_ga4_admin_notices();
 $notice = ob_get_clean();
 check_same(true, has($notice, 'measurement ID is missing') && has($notice, 'https://example.test/sub/wp-admin/admin.php?page=wordpress_analytics'), 'Missing measurement ID notice');
+check_same(true, has($notice, 'still calls the Universal Analytics tracker (<code>ga(...)</code>)'), 'Legacy tracker in custom code notice');
 
 // WordPress Analytics loads GA4: Google tag, then custom code, then config.
 $ga4_options = [
@@ -245,6 +250,8 @@ check_same('', ob_get_clean(), 'No notice when GA4 is configured');
 $spaced = $legacy_options;
 $spaced['wpan:custom_code']['custom_code'] = "<script>ga ('set', 'x', 1);</script>";
 check_same(true, has(render_head($spaced), "window['ga'] = window['ga'] || function(){};"), 'Legacy tracker stub with a space before the parenthesis');
+$spaced['wpan:custom_code']['custom_code'] = "<script>saga('x');</script>";
+check_same(false, has(render_head($spaced), "window['ga']"), 'No legacy stub for a function whose name only ends with the tracker name');
 
 // The pageview can be turned off, as with Universal Analytics.
 $no_pageview = $ga4_options;
@@ -271,6 +278,22 @@ $head = render_head($ga4_options);
 check_same(false, has($head, 'googletagmanager.com') || has($head, "gtag('js'") || has($head, "gtag('config'"), 'No Google tag in GTM mode');
 check_same(true, has($head, 'window.wpanSendEvent = function') && has($head, 'window.dataLayer.push(params);'), 'Events pushed to the dataLayer in GTM mode');
 check_same(true, has($head, 'js/call_tracking.js?ver=') && has($head, 'wpan-test'), 'Call tracking and custom code in GTM mode');
+
+// In GTM mode the content group goes in the dataLayer, on single posts only.
+function render_data_layer($options) {
+    global $wpan_test_options;
+    $wpan_test_options = $options;
+    ob_start();
+    wpan_content_grouping_data_layer();
+    return ob_get_clean();
+}
+check_same('', render_data_layer($ga4_options), 'No content group in the dataLayer outside single posts');
+$wpan_test_is_single = true;
+check_same('<script> window.dataLayer = window.dataLayer || []; window.dataLayer.push({"content_group":"News & \\"Co\\"","content_type":"guide"}); </script>' . "\n", render_data_layer($ga4_options), 'Content group in the dataLayer in GTM mode');
+$ga4_options['wpan:general_settings']['load_mode'] = 'gtag';
+check_same('', render_data_layer($ga4_options), 'No dataLayer push in gtag mode');
+$ga4_options['wpan:general_settings']['load_mode'] = 'gtm';
+$wpan_test_is_single = false;
 
 // No tag at all, no measurement ID: no notice.
 $head = render_head(['wpan:general_settings' => ['load_mode' => 'none']]);
@@ -449,9 +472,18 @@ check_same('fromConfig', wpan_get_api_secret(), 'API secret from wp-config.php')
 $wpan_test_options = [];
 $_COOKIE = [];
 
-// PHP 8.1+ must not receive null as preg_match() subject.
-$patterns = ['phone_include_regex_pattern' => '^39', 'phone_exclude_regex_pattern' => '^800'];
+// Phone regexes: valid ones are kept (slashes included), invalid ones rejected.
+$patterns = ['phone_regex_include_pattern' => '^tel:(39|0039)/?', 'phone_regex_exclude_pattern' => '^800'];
 check_same($patterns, wpan_sanitize_options($patterns), 'Regex settings');
+foreach ([['phone_regex_include_pattern' => '(39'], ['phone_regex_exclude_pattern' => str_repeat('1', 201)]] as $invalid) {
+    $rejected = false;
+    try {
+        wpan_sanitize_options($invalid);
+    } catch (RuntimeException $exception) {
+        $rejected = true;
+    }
+    check_same(true, $rejected, 'Invalid phone regex rejected');
+}
 
 // The custom code editor is a plain textarea, with the code escaped.
 ob_start();

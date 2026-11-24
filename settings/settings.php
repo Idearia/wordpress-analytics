@@ -167,9 +167,11 @@
               }
               break;
 
-            case 'phone_exclude_regex_pattern':
-            case 'phone_include_regex_pattern':
-              if ( $value && preg_match("/$value/", '') === false ) {
+            case 'phone_regex_exclude_pattern':
+            case 'phone_regex_include_pattern':
+              /* The delimiter is a character that cannot be typed in the field,
+              so that slashes in the pattern do not need to be escaped */
+              if ( $value && @preg_match( "\x01$value\x01", '' ) === false ) { // phpcs:ignore
                 /* If the regex is not legit, find out what the error message is */
                 $regex_error_msg = '';
                 foreach ( get_defined_constants(true)['pcre'] as $k => $v ) {
@@ -183,7 +185,7 @@
                 preg_match() has failed; see https://akrabat.com/preg_last_error-returns-no-
                 error-on-preg_match-failure/ for why this happens */
                 if ($regex_error_msg)
-                  $error_message . ': ' . $regex_error_msg;
+                  $error_message .= ': ' . $regex_error_msg;
                 $error_type = 'error';
               }
               elseif ( strlen ( $value ) > WPAN_MAX_REGEX_LENGTH ) {

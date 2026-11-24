@@ -107,8 +107,8 @@ function wpan_tracking_code() {
 		// tracker (ex. ga('set', ...)), which does not exist anymore: define it
 		// as an empty function, lest a Javascript error stops the rest of the
 		// user's script (ex. a Facebook Pixel in the same script tag)
-		$legacy_tracker = wpan_option( $options, 'tracker_name' ) ? $options['tracker_name'] : 'ga';
-		if ( preg_match( '/^[A-Za-z_$][A-Za-z0-9_$]*$/', $legacy_tracker ) && preg_match( '/' . preg_quote( $legacy_tracker, '/' ) . '\s*\(/', $options ['custom_code'] ) ) {
+		$legacy_tracker = wpan_custom_code_legacy_tracker( $options );
+		if ( $legacy_tracker ) {
 			echo "<script> window['$legacy_tracker'] = window['$legacy_tracker'] || function(){}; </script>\n"; // phpcs:ignore
 		}
 		echo wpan_php_eval( $options ['custom_code'] ); // phpcs:ignore
@@ -126,6 +126,32 @@ function wpan_tracking_code() {
 	}
 
 	echo '<!-- END: Tracking code inserted by WordPress Analytics ' . WPAN_VERSION . ' - ' . WPAN_URL . '-->' . PHP_EOL . PHP_EOL; // phpcs:ignore
+
+}
+
+
+/**
+ * Push the content group of the page to the dataLayer, for websites where
+ * Google Analytics 4 is loaded by Google Tag Manager.
+ *
+ * Hooked at the very beginning of the <head>, before the container snippet:
+ * the values must be in the dataLayer when the GA4 tag of the container fires.
+ * In the container, read them with Data Layer Variables (content_group,
+ * product_category, content_type) and add them to the GA4 tag.
+ */
+function wpan_content_grouping_data_layer() {
+
+	$options = wpan_get_options();
+
+	if ( 'gtm' !== wpan_get_load_mode( $options ) || ! is_single() || ! wpan_option( $options, 'content_grouping' ) ) {
+		return;
+	}
+
+	$params = wpan_content_grouping();
+
+	if ( $params ) {
+		echo '<script> window.dataLayer = window.dataLayer || []; window.dataLayer.push(' . wp_json_encode( $params ) . "); </script>\n"; // phpcs:ignore
+	}
 
 }
 

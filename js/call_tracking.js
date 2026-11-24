@@ -79,11 +79,11 @@ jQuery(document).ready(function($) {
       return telRegex.test(jQuery(this).text());
     });
 
-    /* Replace the HTML in the selected elements using the telephone regex */
-    if (telContainers.length > 0) {
-      var newHTML = telContainers.html().replace(telRegex, "<a href='tel:$1$2$3'>$2 $3</a>");
-      telContainers.html(newHTML);
-    }
+    /* Replace the HTML in each of the selected elements using the telephone regex */
+    telContainers.each(function() {
+      var newHTML = jQuery(this).html().replace(telRegex, "<a href='tel:$1$2$3'>$2 $3</a>");
+      jQuery(this).html(newHTML);
+    });
 
   }
 
@@ -116,7 +116,7 @@ jQuery(document).ready(function($) {
       if (phoneNumber.search(includeRegex) < 0) {
         if (debugMode)
           console.log(' -> User provided inclusion pattern (' + regexIncludePattern + ') not matched, ignoring click');
-        return false;
+        return;
       }
     }
 
@@ -126,7 +126,7 @@ jQuery(document).ready(function($) {
       if (phoneNumber.search(excludeRegex) >= 0) {
         if (debugMode)
           console.log(' -> User provided exclusion pattern (' + regexExcludePattern + ') matched, ignoring click');
-        return false;
+        return;
       }
     }
 

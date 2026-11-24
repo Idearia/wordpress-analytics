@@ -70,6 +70,12 @@ require_once WPAN_PLUGIN_DIR . 'tracking_code.php';
 // being configured: custom code and phone number links must always work.
 add_action( 'wp_head', 'wpan_tracking_code', PHP_INT_MAX );
 
+// With Google Tag Manager, the content group goes in the dataLayer before the
+// container is loaded
+if ( wpan_option( $options, 'content_grouping' ) ) {
+	add_action( 'wp_head', 'wpan_content_grouping_data_layer', 0 );
+}
+
 
 // ========================
 // = Server-side tracking =

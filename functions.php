@@ -255,6 +255,20 @@ function wpan_option( $options, $key, $default = '' ) {
 }
 
 /**
+ * Name of the Universal Analytics tracker (ex. 'ga') if the custom code still
+ * calls it, otherwise an empty string. Those calls do nothing anymore.
+ */
+function wpan_custom_code_legacy_tracker( $options ) {
+	$tracker = wpan_option( $options, 'tracker_name' ) ? $options['tracker_name'] : 'ga';
+
+	if ( preg_match( '/^[A-Za-z_$][A-Za-z0-9_$]*$/', $tracker ) && preg_match( '/(?<![A-Za-z0-9_$])' . preg_quote( $tracker, '/' ) . '\s*\(/', (string) wpan_option( $options, 'custom_code' ) ) ) {
+		return $tracker;
+	}
+
+	return '';
+}
+
+/**
  * Whether the current user should see the notices of the plugin: only
  * administrators and, in network mode, only on the main blog, because the
  * settings cannot be changed from the other blogs.
@@ -293,6 +307,16 @@ function wpan_ga4_admin_notices() {
 	}
 
 	// Google Tag Manager for WordPress (GTM4WP) usually loads GA4 by itself
+	$legacy_tracker = wpan_custom_code_legacy_tracker( $options );
+	if ( $legacy_tracker ) {
+		printf(
+			'<div class="notice notice-warning"><p><strong>WordPress Analytics:</strong> the custom code still calls the Universal Analytics tracker (<code>%s(...)</code>). '
+			. 'Those calls do nothing anymore: <a href="%s">rewrite them for Google Analytics 4</a> (ex. with <code>gtag(...)</code>) or remove them.</p></div>',
+			esc_html( $legacy_tracker ),
+			esc_url( admin_url( 'admin.php?page=advanced_settings' ) )
+		);
+	}
+
 	if ( 'gtag' === $load_mode && $measurement_id && defined( 'GTM4WP_VERSION' ) ) {
 		printf(
 			'<div class="notice notice-warning"><p><strong>WordPress Analytics:</strong> Google Tag Manager for WordPress is active on this website. '
