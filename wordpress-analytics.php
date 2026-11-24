@@ -90,8 +90,12 @@ add_action( 'wp_head', 'wpan_tracking_code', PHP_INT_MAX );
 // = Server-side tracking =
 // ========================
 
-// Load Gravity Forms tracking. For now it still relies on the Universal
-// Analytics measurement protocol, hence on a legacy tracking ID.
-if ( isset( $options ['form_tracking'] ) && $options ['form_tracking'] && ! empty( $options ['tracking_uid'] ) ) {
-	require_once WPAN_PLUGIN_DIR . 'form_tracking.php';
+// Load Gravity Forms tracking, sent to Google Analytics 4 with the
+// measurement protocol. The file is always loaded because the settings page
+// needs it; the events are sent only if form tracking is enabled.
+require_once WPAN_PLUGIN_DIR . 'form_tracking.php';
+
+if ( is_admin() ) {
+	add_action( 'admin_post_wpan_ga4_test_event', 'wpan_ga4_handle_test_event' );
+	add_action( 'admin_notices', 'wpan_form_tracking_admin_notices' );
 }

@@ -18,9 +18,6 @@
             "only": ["idearia/*"]
         }
     ],
-    "require": {
-        "ins0/google-measurement-php-client": ">0.0"
-    },
     "require-dev": {
         "dealerdirect/phpcodesniffer-composer-installer": ">=0.7",
         "idearia/wordpress-phpcs-xml": "^2.3"
