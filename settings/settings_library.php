@@ -128,16 +128,22 @@
       if ( 'json' == $extension ) {
         $GLOBALS['wpan_menu_structure'] = json_decode( $settings_file_content, true );
       }
-      /* If config file is YAML load the external Yaml library and use it to parse
-      the config file */
+      /* If config file is YAML (legacy format), parse it with the plugin's own
+      minimal reader; if the file cannot be read that way, use the bundled JSON
+      config file instead */
       else if ( 'yaml' == $extension || 'yml' == $extension ) {
-        wpan_load_yaml_library();
-        if ( defined( "WPAN_YAML_LOADED" ) ) {
-          $GLOBALS['wpan_menu_structure'] = Symfony\Component\Yaml\Yaml::parse( $settings_file_content );
+        require_once WPAN_PLUGIN_DIR . 'settings/settings_yaml.php';
+        try {
+          $GLOBALS['wpan_menu_structure'] = wpan_parse_settings_yaml( $settings_file_content );
+          if ( ! isset( $GLOBALS['wpan_menu_structure']['menus'] ) || ! is_array( $GLOBALS['wpan_menu_structure']['menus'] ) ) {
+            throw new Exception( 'no menus found' );
+          }
         }
-        else {
-          wpan_debug_wp( "Yaml library not loaded, cannot open config file " . $filepath );
-          return;
+        catch ( Exception $e ) {
+          wpan_debug_wp( "Cannot read config file $filepath (" . $e->getMessage() . '), using ' . WPAN_DEFAULT_CONFIG_FILE . ' instead' );
+          /* Remember what happened, to warn the administrators (see wpan_config_fallback_notice) */
+          $GLOBALS['wpan_config_fallback'] = [ 'file' => $filepath, 'error' => $e->getMessage() ];
+          $GLOBALS['wpan_menu_structure'] = json_decode( file_get_contents( WPAN_DEFAULT_CONFIG_FILE ), true );
         }
       }
       /* If config file is not recognized... */
@@ -191,6 +197,29 @@
 
     }
     
+  }
+
+
+  /**
+   * Warn the administrators, on every admin page, that the website's settings.yaml
+   * could not be read and that the plugin's default settings structure is in use.
+   *
+   * Should be called as a callback for the admin_notices and network_admin_notices
+   * actions.
+   */
+  function wpan_config_fallback_notice () {
+
+    if ( empty( $GLOBALS['wpan_config_fallback'] ) || ! current_user_can( 'manage_options' ) )
+      return;
+
+    printf(
+      '<div class="notice notice-error"><p><strong>WordPress Analytics:</strong> the settings file <code>%s</code> could not be read (%s). '
+      . 'The plugin is using its default <code>settings.json</code> instead: any setting defined only in that file is being ignored. '
+      . 'Fix the file, or delete it to dismiss this notice.</p></div>',
+      esc_html( $GLOBALS['wpan_config_fallback']['file'] ),
+      esc_html( $GLOBALS['wpan_config_fallback']['error'] )
+    );
+
   }
 
 

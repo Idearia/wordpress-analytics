@@ -19,7 +19,6 @@
         }
     ],
     "require": {
-        "symfony/yaml": "^5.4.56",
         "ins0/google-measurement-php-client": ">0.0"
     },
     "require-dev": {

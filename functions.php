@@ -95,37 +95,6 @@ function wpan_load_measurement_protocol_client() {
 
 
 /**
- * Check that Symfony's Yaml library is installed,
- * and define the constant WPAN_YAML_DIR.
- *
- * Yaml is used to read the plugin's options, and this function
- * is used to load Yaml. This means that here you cannot use
- * functions that call wpan_get_options(), lest you get a
- * recursive error.
- */
-function wpan_load_yaml_library() {
-
-	if ( ! defined( 'WPAN_YAML_LOADED' ) ) {
-
-		define( 'WPAN_YAML_DIR', WPAN_PLUGIN_DIR . 'vendor/symfony/yaml/' );
-		define( 'WPAN_YAML_URL', WPAN_PLUGIN_URL . 'vendor/symfony/yaml/' );
-
-		if ( file_exists( WPAN_YAML_DIR ) ) {
-
-			define( 'WPAN_YAML_LOADED', true );
-			return true;
-
-		} else {
-
-			wpan_debug_wp( __FILE__ . ':' . __LINE__ . ': Could not find Yaml library; folder ' . WPAN_YAML_DIR . ' could not be found.' );
-
-		}
-	}
-
-}
-
-
-/**
  * Debug function: write to WordPress level debug log (usually in
  * wp-content/debug.log) and to debug.log in the plugin's directory.
  *

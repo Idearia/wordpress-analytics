@@ -1,0 +1,66 @@
+{
+    "menus": {
+        "wordpress_analytics": {
+            "parent_slug": "",
+            "slug": "wordpress_analytics",
+            "display": "WordPress Analytics Settings",
+            "display_menu": "WordPress Analytics",
+            "capability": "administrator",
+            "display_submenu": "General",
+            "position": 99,
+            "sections": {
+                "general_settings": {
+                    "id": "general_settings",
+                    "display": "General settings",
+                    "fields": {
+                        "tracking_uid": {
+                            "id": "tracking_uid",
+                            "title": "Google Analytics tracking ID",
+                            "desc": "To what Google Analytics property should the hits be sent to? The ID is usually in the form UA-XXXXXX-Y. You can find the ID in the GA's admin, in the Tracking Info section of the Property column.\n",
+                            "default": "",
+                            "type": "text",
+                            "attributes": {
+                                "maxlength": 20
+                            }
+                        },
+                        "scroll_tracking": {
+                            "id": "scroll_tracking",
+                            "title": "Enable scroll tracking?",
+                            "desc": "Send events to Google Analytics based on the user scrolling activity on each page.\n",
+                            "default": "0",
+                            "type": "checkbox"
+                        },
+                        "call_tracking": {
+                            "id": "call_tracking",
+                            "title": "Enable call tracking?",
+                            "desc": "Send an event to Google Analytics every time a user clicks on a phone number.\n",
+                            "default": "0",
+                            "type": "checkbox"
+                        },
+                        "form_tracking": {
+                            "id": "form_tracking",
+                            "title": "Enable form tracking?",
+                            "desc": "Send an event to Google Analytics every time a user submits a form. For now it works only for forms made with the Gravity Forms plugin. The events are sent using the  measurement protocol with anonymized IPs; this means that the IP associated to the hit will be, for example, 77.123.456.000 instead of 77.123.456.789, and that ad blockers won't block the event.'\n",
+                            "default": "0",
+                            "type": "checkbox"
+                        },
+                        "email_tracking": {
+                            "id": "email_tracking",
+                            "title": "Enable email tracking?",
+                            "desc": "Send an event to Google Analytics every time a user clicks on an email address.\n",
+                            "default": "0",
+                            "type": "checkbox"
+                        },
+                        "content_grouping": {
+                            "id": "content_grouping",
+                            "title": "Enable content grouping?",
+                            "desc": "Group pageviews in Google Analytics using the <a href=\"https://support.google.com/analytics/answer/2853423\">Content Grouping</a> feature.\n",
+                            "default": "0",
+                            "type": "checkbox"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
