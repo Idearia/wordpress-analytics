@@ -18,9 +18,6 @@
 /** Name of the event sent to Google Analytics 4 when a form is submitted */
 define( 'WPAN_GA4_FORM_EVENT', 'generate_lead' );
 
-/** Name of the event sent with the "Send test event" link in the settings */
-define( 'WPAN_GA4_TEST_EVENT', 'wpan_test_event' );
-
 // The Gravity Forms actions are fired only if Gravity Forms is active
 add_action( 'gform_after_submission', 'wpan_send_form_submitted', 10, 2 );
 add_action( 'gform_paypal_fulfillment', 'wpan_send_payment_done', 10, 4 );
@@ -376,52 +373,7 @@ function wpan_send_tracking_event( $entry, $form, $visitor, $extra_params = [] )
 
 
 /**
- * Send a test event to Google Analytics 4 and go back to the settings page.
- *
- * Callback for the admin_post_wpan_ga4_test_event action, triggered by the
- * "Send test event" link in the settings page.
- */
-function wpan_ga4_handle_test_event() {
-
-	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( 'You are not allowed to do this.' );
-	}
-	check_admin_referer( 'wpan_ga4_test_event' );
-
-	$measurement_id = wpan_get_measurement_id();
-
-	if ( ! $measurement_id || ! wpan_get_api_secret() ) {
-		$result = [ 'error', 'the test event was not sent: enter both the measurement ID and the API secret, save, then try again.' ];
-	} else {
-		$event    = [
-			'name'   => WPAN_GA4_TEST_EVENT,
-			'params' => [ 'debug_mode' => 1 ],
-		];
-		$response = wpan_ga4_send_event( $event, wpan_ga4_visitor( $measurement_id, $_COOKIE ), true );
-		$code     = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
-		if ( is_wp_error( $response ) ) {
-			$result = [ 'error', 'the test event could not be sent: ' . $response->get_error_message() ];
-		} elseif ( $code < 200 || $code >= 300 ) {
-			$result = [ 'error', 'the test event was refused by Google (HTTP ' . $code . ').' ];
-		} else {
-			$result = [
-				'success',
-				'test event sent. Open Google Analytics 4, Reports > Realtime (or Admin > DebugView): within a minute you should see the event "' . WPAN_GA4_TEST_EVENT . '". '
-				. 'If it does not show up, the measurement ID or the API secret are wrong: Google accepts the request anyway and does not report the mistake.',
-			];
-		}
-	}
-
-	set_transient( 'wpan_ga4_test_event_result_' . get_current_user_id(), $result, 60 );
-	wp_safe_redirect( admin_url( 'admin.php?page=wordpress_analytics' ) );
-	exit;
-
-}
-
-
-/**
- * Show the outcome of the test event, and warn the administrators when form
- * tracking cannot work.
+ * Warn the administrators when form tracking cannot work.
  *
  * Should be called as a callback for the admin_notices action.
  */
@@ -429,18 +381,6 @@ function wpan_form_tracking_admin_notices() {
 
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
-	}
-
-	// Outcome of the "Send test event" link
-	$transient = 'wpan_ga4_test_event_result_' . get_current_user_id();
-	$result    = get_transient( $transient );
-	if ( is_array( $result ) ) {
-		delete_transient( $transient );
-		printf(
-			'<div class="notice notice-%s is-dismissible"><p><strong>WordPress Analytics:</strong> %s</p></div>',
-			esc_attr( $result[0] ),
-			esc_html( $result[1] )
-		);
 	}
 
 	// In network mode the settings can be changed only from the main blog
@@ -474,27 +414,5 @@ function wpan_form_tracking_admin_notices() {
 			esc_html( implode( ', ', $legacy_hooks ) )
 		);
 	}
-
-}
-
-
-/**
- * Display the API secret field in the settings page, with the link to send
- * a test event.
- *
- * @param array $args Arguments of the field, see wpan_add_field().
- */
-function wpan_custom_display_api_secret_field( $args ) {
-
-	if ( defined( 'WPAN_GA4_API_SECRET' ) && WPAN_GA4_API_SECRET ) {
-		echo '<p><em>The API secret is set by the <code>WPAN_GA4_API_SECRET</code> constant (ex. in wp-config.php), which takes precedence over this field.</em></p>';
-	}
-
-	wpan_display_text_field( $args );
-
-	printf(
-		' <a class="button" href="%s">Send test event</a><p class="description">Save the settings before sending the test event.</p>',
-		esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=wpan_ga4_test_event' ), 'wpan_ga4_test_event' ) )
-	);
 
 }

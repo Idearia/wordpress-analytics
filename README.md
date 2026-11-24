@@ -60,8 +60,8 @@ To turn it on:
 
 1. In Google Analytics go to *Admin > Data streams*, open the web stream, then *Measurement Protocol API secrets*, and create a secret.
 2. In the plugin settings paste it in **Measurement Protocol API secret**, right below the measurement ID, and check **Enable form tracking?**. The API secret is optional: it is needed only for form tracking. You can also define it in `wp-config.php` with `define( 'WPAN_GA4_API_SECRET', '...' );`, which takes precedence over the field.
-3. Save, then click **Send test event** next to the API secret and look for the event `wpan_test_event` in Google Analytics, under *Reports > Realtime* (or *Admin > DebugView*). **Google does not report a wrong measurement ID or API secret**: the request is accepted and the event silently discarded, so seeing the event in Google Analytics is the only real check.
-4. Submit a form and look for `generate_lead` in the same place; then mark `generate_lead` as a key event in *Admin > Events* if you want to count it as a conversion.
+3. Save, submit a form and look for the event `generate_lead` in Google Analytics, under *Reports > Realtime*. **Google does not report a wrong measurement ID or API secret**: the request is accepted and the event silently discarded, so seeing the event in Google Analytics is the only real check.
+4. Mark `generate_lead` as a key event in *Admin > Events* if you want to count it as a conversion.
 
 The event carries the parameters `form_id`, `form_title`, `page_location`, `page_path` and `page_title`. It is attributed to the visitor and to the session read from the Google Analytics cookies (`_ga` and `_ga_<ID>`), hence to the same traffic source as the pageviews; without cookies the form is counted anyway, with no traffic source. This works both when GA4 is loaded by WordPress Analytics and when it is loaded by Google Tag Manager.
 

@@ -49,11 +49,8 @@ function wp_remote_retrieve_body($response) { return $response['body']; }
 function wp_parse_url($url, $component = -1) { return parse_url($url, $component); }
 function url_to_postid($url) { return 7; }
 function get_the_title($post = 0) { return 7 === $post ? 'Contatti' : ''; }
-function get_transient($name) { return false; }
-function wp_nonce_url($url, $action) { return $url . '&_wpnonce=test'; }
 function gform_update_meta($entry_id, $key, $value) { $GLOBALS['wpan_test_meta'][$entry_id][$key] = $value; }
 function gform_get_meta($entry_id, $key) { return isset($GLOBALS['wpan_test_meta'][$entry_id][$key]) ? $GLOBALS['wpan_test_meta'][$entry_id][$key] : false; }
-function get_current_user_id() { return 1; }
 function is_wp_error($thing) { return false; }
 function esc_html($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
 function current_user_can($capability) { return 'manage_options' === $capability; }
@@ -438,13 +435,8 @@ wpan_form_tracking_admin_notices();
 check_same(true, has(ob_get_clean(), 'hooks that are not called anymore: <code>wpan_filter_form_tracking_event</code>'), 'Legacy hooks notice');
 $wpan_test_filters = [];
 
-// The API secret field has the link to send a test event; the constant in
-// wp-config.php takes precedence over the field.
-ob_start();
-wpan_custom_display_api_secret_field(['db_key' => 'wpan:general_settings', 'name' => 'api_secret', 'value' => 'sEcr3t_-', 'attributes' => ['maxlength' => 100, 'size' => 30]]);
-$html = ob_get_clean();
-check_same(true, has($html, 'name="wpan:general_settings[api_secret]"') && has($html, 'https://example.test/sub/wp-admin/admin-post.php?action=wpan_ga4_test_event&amp;_wpnonce=test'), 'API secret field with test link');
-check_same(false, has($html, 'WPAN_GA4_API_SECRET'), 'No constant note without constant');
+// The API secret is validated; the constant in wp-config.php takes precedence
+// over the field.
 check_same(['api_secret' => 'aB1_-'], wpan_sanitize_options(['api_secret' => ' aB1_- ']), 'API secret setting');
 $rejected = false;
 try {
