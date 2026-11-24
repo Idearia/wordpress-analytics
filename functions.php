@@ -51,50 +51,6 @@ function wpan_php_eval( $code ) {
 
 
 /**
- * Load the PHP client in order to send hits to Google Analytics
- * via the measurement protocol.
- *
- * In order to send hits to Google Analytics from the server, we employ Google's
- * measurement protocol (https://developers.google.com/analytics/devguides/
- * collection/protocol/v1/devguide). Rather than dealing with the raw library,
- * we use a lightweight PHP client from Racecore (https://github.com/ins0/google-
- * measurement-php-client) which we will refer to as ga-mp.
- */
-function wpan_load_measurement_protocol_client() {
-
-	if ( ! defined( 'WPAN_GAMP_LOADED' ) ) {
-
-		define( 'WPAN_GAMP_DIR', WPAN_PLUGIN_DIR . 'vendor/ins0/google-measurement-php-client/src/' );
-		define( 'WPAN_GAMP_URL', WPAN_PLUGIN_URL . 'vendor/ins0/google-measurement-php-client/src/' );
-		$autoload_file = WPAN_GAMP_DIR . 'Racecore/GATracking/Autoloader.php';
-
-		if ( file_exists( $autoload_file ) ) {
-
-			try {
-
-				require_once $autoload_file;
-				Racecore\GATracking\Autoloader::register( WPAN_GAMP_DIR );
-				define( 'WPAN_GAMP_LOADED', true );
-				wpan_debug( 'Measurement protocol client loaded.' );
-				return true;
-
-			} catch ( Exception $e ) {
-
-				wpan_debug( 'Could not load measurement protocol client; error message:' );
-				wpan_debug( $e->getMessage() );
-
-			}
-		} else {
-
-			wpan_debug( "Could not load measurement protocol client; file $autoload_file could not be found." );
-
-		}
-	}
-
-}
-
-
-/**
  * Debug function: write to WordPress level debug log (usually in
  * wp-content/debug.log) and to debug.log in the plugin's directory.
  *

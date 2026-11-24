@@ -26,6 +26,17 @@
                                 "maxlength": 20
                             }
                         },
+                        "api_secret": {
+                            "id": "api_secret",
+                            "title": "Measurement Protocol API secret (optional)",
+                            "desc": "Needed only to track Gravity Forms submissions: leave it empty if the website does not use them. Create it in the GA admin, under Data streams, in the details of the web stream, section 'Measurement Protocol API secrets'.\n",
+                            "default": "",
+                            "type": "text",
+                            "attributes": {
+                                "size": 30,
+                                "maxlength": 100
+                            }
+                        },
                         "load_mode": {
                             "id": "load_mode",
                             "title": "Who loads Google Analytics 4?",
@@ -55,7 +66,7 @@
                         "form_tracking": {
                             "id": "form_tracking",
                             "title": "Enable form tracking?",
-                            "desc": "Send an event to Google Analytics every time a user submits a form; for now the feature works only for forms made with the Gravity Forms plugin. The event has the action field seet to 'form:' followed by the form title. The event label is the path of the post which contains the form. If the form is a payment form, the event label will also include the transaction ID and transaction amount. The events are sent using the measurement protocol with anonymized IPs; this means that the IP associated to the hit will be, for example, 77.123.456.000 instead of 77.123.456.789, and that ad blockers won't block the event.'\n",
+                            "desc": "Send the event 'generate_lead' to Google Analytics 4 every time a user submits a form. For now it works only for forms made with the Gravity Forms plugin. The event carries the ID and the title of the form and the page which contains it; for a payment form, also the transaction ID and the amount. The event is sent by the server with the measurement protocol, so ad blockers won't block it; it needs the Measurement Protocol API secret above.\n",
                             "default": "",
                             "type": "checkbox"
                         },

@@ -134,6 +134,15 @@
               }
               break;
 
+            case 'api_secret':
+              $value = trim( $value );
+              if ( ! preg_match( '/^[A-Za-z0-9_-]+$/', $value ) ) {
+                $error_code = 'wrong-api-secret';
+                $error_message = 'The API secret can contain only letters, digits, hyphens and underscores';
+                $error_type = 'error';
+              }
+              break;
+
             case 'load_mode':
               if ( ! in_array( $value, [ 'gtag', 'gtm', 'none' ], true ) ) {
                 $error_code = 'wrong-load-mode';

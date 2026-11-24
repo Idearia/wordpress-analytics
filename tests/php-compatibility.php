@@ -29,7 +29,6 @@ function is_admin() { return true; }
 function is_multisite() { return false; }
 function is_single() { return !empty($GLOBALS['wpan_test_is_single']); }
 function get_the_ID() { return 1; }
-function is_wp_error($thing) { return false; }
 function get_the_category() { return [(object) ['category_parent' => 3, 'cat_name' => 'Child'], (object) ['category_parent' => 0, 'cat_name' => "News & \"Co\""]]; }
 function get_post_meta($id, $key, $single) { return 'guide'; }
 function get_option($name) {
@@ -42,6 +41,17 @@ function esc_attr($value) { return htmlspecialchars((string) $value, ENT_QUOTES,
 function esc_url($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
 function admin_url($path = '') { return 'https://example.test/sub/wp-admin/' . $path; }
 function wp_json_encode($value) { return json_encode($value); }
+function apply_filters($hook, $value) { return isset($GLOBALS['wpan_test_filters'][$hook]) ? call_user_func_array($GLOBALS['wpan_test_filters'][$hook], array_slice(func_get_args(), 1)) : $value; }
+function has_filter($hook) { return isset($GLOBALS['wpan_test_filters'][$hook]); }
+function do_action(...$args) { $GLOBALS['wpan_test_actions'][] = $args; }
+function wp_remote_post($url, $args) { $GLOBALS['wpan_test_requests'][] = [$url, $args]; return ['response' => ['code' => 204], 'body' => '{"validationMessages":[]}']; }
+function wp_remote_retrieve_body($response) { return $response['body']; }
+function wp_parse_url($url, $component = -1) { return parse_url($url, $component); }
+function url_to_postid($url) { return 7; }
+function get_the_title($post = 0) { return 7 === $post ? 'Contatti' : ''; }
+function gform_update_meta($entry_id, $key, $value) { $GLOBALS['wpan_test_meta'][$entry_id][$key] = $value; }
+function gform_get_meta($entry_id, $key) { return isset($GLOBALS['wpan_test_meta'][$entry_id][$key]) ? $GLOBALS['wpan_test_meta'][$entry_id][$key] : false; }
+function is_wp_error($thing) { return false; }
 function esc_html($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
 function current_user_can($capability) { return 'manage_options' === $capability; }
 function add_settings_error(...$args) {
@@ -138,7 +148,7 @@ wpan_load_menu_structure($legacy);
 $upgraded = $GLOBALS['wpan_menu_structure']['menus'];
 check_same('wpan:extra_section', $upgraded['advanced_settings']['sections']['extra_section']['db_key'], 'Custom YAML section');
 check_same(
-    ['measurement_id', 'load_mode', 'scroll_tracking', 'call_tracking', 'form_tracking', 'email_tracking', 'content_grouping'],
+    ['measurement_id', 'api_secret', 'load_mode', 'scroll_tracking', 'call_tracking', 'form_tracking', 'email_tracking', 'content_grouping'],
     array_keys($upgraded['wordpress_analytics']['sections']['general_settings']['fields']),
     'Legacy YAML general settings upgraded to GA4'
 );
@@ -294,6 +304,151 @@ foreach ([['measurement_id' => 'UA-000000-1'], ['measurement_id' => "G-1');alert
 ob_start();
 wpan_display_select_field(['db_key' => 'wpan:general_settings', 'name' => 'load_mode', 'value' => 'gtm', 'options' => ['gtag' => 'A', 'gtm' => 'B']]);
 check_same('<select name="wpan:general_settings[load_mode]" id="load_mode"><option value="gtag">A</option><option value="gtm" selected="selected">B</option></select>', ob_get_clean(), 'Select field');
+
+// ---------------------------------------------------------------------------
+// Form tracking: Gravity Forms submissions sent to GA4 from the server.
+// ---------------------------------------------------------------------------
+
+// Google Analytics cookies.
+check_same('1234567890.1700000000', wpan_ga4_client_id_from_cookie('GA1.1.1234567890.1700000000'), 'Client ID from _ga');
+check_same('1234567890.1700000000', wpan_ga4_client_id_from_cookie('GA1.2.1234567890.1700000000'), 'Client ID from _ga (subdomain)');
+foreach ([null, '', 'GA1.1.abc', '<script>'] as $cookie) {
+    check_same('', wpan_ga4_client_id_from_cookie($cookie), 'Invalid _ga cookie');
+}
+check_same('1700000000', wpan_ga4_session_id_from_cookie('GS1.1.1700000000.5.1.1700000100.0.0.0'), 'Session ID, GS1 format');
+check_same('1700000000', wpan_ga4_session_id_from_cookie('GS2.1.s1700000000$o5$g1$t1700000100$j60$l0$h0'), 'Session ID, GS2 format');
+check_same('1700000000', wpan_ga4_session_id_from_cookie('GS2.1.o5$s1700000000$g1'), 'Session ID, GS2 format, any order');
+foreach ([null, '', 'GS1.1', 'GS2.1.o5$g1', 'GS3.1.s1'] as $cookie) {
+    check_same('', wpan_ga4_session_id_from_cookie($cookie), 'Invalid session cookie');
+}
+$visitor = wpan_ga4_visitor('G-TEST123', ['_ga' => 'GA1.1.11.22', '_ga_TEST123' => 'GS1.1.33.1.1.44.0.0.0', '_ga_OTHER' => 'GS1.1.99.1.1.44.0.0.0']);
+check_same(['client_id' => '11.22', 'session_id' => '33'], $visitor, 'Visitor from cookies');
+$anonymous = wpan_ga4_visitor('G-TEST123', []);
+check_same(1, preg_match('/^\d+\.\d+$/', $anonymous['client_id']), 'Random client ID without cookies');
+check_same('', $anonymous['session_id'], 'No session ID without cookies');
+
+$form_options = [
+    'wpan:general_settings' => ['measurement_id' => 'G-TEST123', 'api_secret' => 'sEcr3t_-', 'form_tracking' => '1'],
+    'wpan:form_tracking' => ['wait_for_form_payment' => '1'],
+];
+$entry = ['id' => 5, 'form_id' => 3, 'post_id' => 99, 'source_url' => 'https://example.test/sub/contatti/?utm=1', 'currency' => 'EUR'];
+$form = ['id' => 3, 'title' => 'Richiesta "info" & preventivo'];
+$_COOKIE = ['_ga' => 'GA1.1.11.22', '_ga_TEST123' => 'GS2.1.s33$o1'];
+
+// Nothing is sent without the API secret, or when form tracking is off.
+$wpan_test_requests = [];
+$wpan_test_options = ['wpan:general_settings' => ['measurement_id' => 'G-TEST123', 'form_tracking' => '1']];
+wpan_send_form_submitted($entry, $form);
+check_same('', wpan_get_api_secret(), 'No API secret');
+check_same([], $wpan_test_requests, 'No request without API secret');
+ob_start();
+wpan_form_tracking_admin_notices();
+check_same(true, has(ob_get_clean(), 'form submissions are <strong>not</strong> being sent'), 'Missing API secret notice');
+$wpan_test_options = ['wpan:general_settings' => ['measurement_id' => 'G-TEST123', 'api_secret' => 'sEcr3t_-']];
+wpan_send_form_submitted($entry, $form);
+check_same([], $wpan_test_requests, 'No request when form tracking is off');
+ob_start();
+wpan_form_tracking_admin_notices();
+check_same('', ob_get_clean(), 'No notice when form tracking is off');
+
+// A submitted form is sent to GA4 with the measurement protocol.
+$wpan_test_options = $form_options;
+wpan_send_form_submitted($entry, $form);
+check_same(1, count($wpan_test_requests), 'One request per submission');
+list($url, $args) = $wpan_test_requests[0];
+check_same('https://www.google-analytics.com/mp/collect?measurement_id=G-TEST123&api_secret=sEcr3t_-', $url, 'Measurement protocol URL');
+check_same(false, $args['blocking'], 'The visitor does not wait for Google');
+check_same('application/json', $args['headers']['Content-Type'], 'JSON request');
+check_same(
+    [
+        'client_id' => '11.22',
+        'events' => [[
+            'name' => 'generate_lead',
+            'params' => [
+                'form_id' => '3',
+                'form_title' => 'Richiesta "info" & preventivo',
+                'page_location' => 'https://example.test/sub/contatti/?utm=1',
+                'page_path' => '/sub/contatti/',
+                'page_title' => 'Contatti',
+                'session_id' => '33',
+                'engagement_time_msec' => 1,
+            ],
+        ]],
+    ],
+    json_decode($args['body'], true),
+    'Form submission payload'
+);
+check_same(['client_id' => '11.22', 'session_id' => '33'], gform_get_meta(5, 'wpan_ga4_visitor'), 'Visitor stored with the entry');
+check_same('wpan_action_after_ga4_form_event', $wpan_test_actions[count($wpan_test_actions) - 1][0], 'Action after the event');
+ob_start();
+wpan_form_tracking_admin_notices();
+check_same('', ob_get_clean(), 'No notice when form tracking is configured');
+
+// Payment forms: the event waits for the payment, and is attributed to the
+// visitor who submitted the form even if the confirmation has no cookies.
+$wpan_test_requests = [];
+$paid_entry = $entry + ['payment_status' => 'Processing'];
+wpan_send_form_submitted($paid_entry, $form);
+check_same([], $wpan_test_requests, 'Payment form waits for the payment');
+$_COOKIE = [];
+class GFAPI { public static function get_form($id) { return ['id' => $id, 'title' => 'Pagamento']; } }
+wpan_send_payment_done($paid_entry, [], 'TX-1', '49.90');
+$payload = json_decode($wpan_test_requests[0][1]['body'], true);
+check_same('11.22', $payload['client_id'], 'Payment attributed to the visitor');
+check_same(['TX-1', 49.9, 'EUR', '33', 'Pagamento'], [$payload['events'][0]['params']['transaction_id'], $payload['events'][0]['params']['value'], $payload['events'][0]['params']['currency'], $payload['events'][0]['params']['session_id'], $payload['events'][0]['params']['form_title']], 'Payment data');
+$wpan_test_requests = [];
+$wpan_test_options['wpan:form_tracking'] = [];
+wpan_send_payment_done($paid_entry, [], 'TX-1', '49.90');
+check_same([], $wpan_test_requests, 'No second event when not waiting for the payment');
+wpan_send_form_submitted($paid_entry, $form);
+check_same(1, count($wpan_test_requests), 'Payment form sent at once when not waiting');
+
+// Developers can change or stop the event, and choose the endpoint.
+$wpan_test_requests = [];
+$wpan_test_filters['wpan_filter_ga4_endpoint'] = function ($endpoint) { return 'https://region1.google-analytics.com/'; };
+$wpan_test_filters['wpan_filter_ga4_form_event'] = function ($event, $entry, $form) { $event['name'] = 'contact'; $event['params']['form_title'] = strtoupper($form['title']); return $event; };
+wpan_send_form_submitted($entry, $form);
+check_same(0, strpos($wpan_test_requests[0][0], 'https://region1.google-analytics.com/mp/collect?'), 'Filtered endpoint');
+$payload = json_decode($wpan_test_requests[0][1]['body'], true);
+check_same(['contact', 'RICHIESTA "INFO" & PREVENTIVO'], [$payload['events'][0]['name'], $payload['events'][0]['params']['form_title']], 'Filtered event');
+$wpan_test_requests = [];
+$wpan_test_filters['wpan_filter_ga4_form_event'] = function () { return false; };
+wpan_send_form_submitted($entry, $form);
+check_same([], $wpan_test_requests, 'Event stopped by filter');
+$wpan_test_filters = [];
+
+// Debug mode: the event is validated first, then sent waiting for the answer.
+$wpan_test_options['wpan:advanced_settings'] = ['debug' => '1'];
+$debug_log = WPAN_PLUGIN_DIR . 'debug.log';
+ini_set('error_log', '/dev/null');
+wpan_send_form_submitted($entry, $form);
+ini_restore('error_log');
+unlink($debug_log);
+check_same(2, count($wpan_test_requests), 'Validation and event in debug mode');
+check_same(true, has($wpan_test_requests[0][0], '/debug/mp/collect?') && true === $wpan_test_requests[1][1]['blocking'], 'Validation server, blocking request');
+unset($wpan_test_options['wpan:advanced_settings']);
+
+// Hooks of the Universal Analytics version are reported to the administrators.
+$wpan_test_filters['wpan_filter_form_tracking_event'] = function ($event) { return $event; };
+ob_start();
+wpan_form_tracking_admin_notices();
+check_same(true, has(ob_get_clean(), 'hooks that are not called anymore: <code>wpan_filter_form_tracking_event</code>'), 'Legacy hooks notice');
+$wpan_test_filters = [];
+
+// The API secret is validated; the constant in wp-config.php takes precedence
+// over the field.
+check_same(['api_secret' => 'aB1_-'], wpan_sanitize_options(['api_secret' => ' aB1_- ']), 'API secret setting');
+$rejected = false;
+try {
+    wpan_sanitize_options(['api_secret' => 'a&b=c']);
+} catch (RuntimeException $exception) {
+    $rejected = true;
+}
+check_same(true, $rejected, 'Invalid API secret rejected');
+define('WPAN_GA4_API_SECRET', 'fromConfig');
+check_same('fromConfig', wpan_get_api_secret(), 'API secret from wp-config.php');
+$wpan_test_options = [];
+$_COOKIE = [];
 
 // PHP 8.1+ must not receive null as preg_match() subject.
 $patterns = ['phone_include_regex_pattern' => '^39', 'phone_exclude_regex_pattern' => '^800'];

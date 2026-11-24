@@ -227,7 +227,7 @@
       'group_index_woocommerce', 'group_index_blog',
       'custom_dimension_scroll_tracking',
     ];
-    $required_fields = [ 'measurement_id', 'load_mode' ];
+    $required_fields = [ 'measurement_id', 'api_secret', 'load_mode' ];
 
     /* Look for the required fields in the bundled structure */
     $missing_fields = [];
