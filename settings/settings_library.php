@@ -222,9 +222,9 @@
   function wpan_upgrade_legacy_menu_structure ( $structure, $bundled ) {
 
     $obsolete_fields = [
-      'tracking_uid', 'scroll_tracking', 'create_tracker', 'tracker_name', 'send_page_view',
+      'tracking_uid', 'create_tracker', 'tracker_name',
       'enhanced_link_attribution', 'cross_domain_support', 'group_index_wordpress',
-      'group_index_woocommerce', 'group_index_blog', 'pixel_threshold', 'time_threshold',
+      'group_index_woocommerce', 'group_index_blog',
       'custom_dimension_scroll_tracking',
     ];
     $required_fields = [ 'measurement_id', 'load_mode' ];

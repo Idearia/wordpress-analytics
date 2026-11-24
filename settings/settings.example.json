@@ -35,6 +35,13 @@
                                 "none": "Nobody (no Google tag)"
                             }
                         },
+                        "scroll_tracking": {
+                            "id": "scroll_tracking",
+                            "title": "Enable scroll tracking?",
+                            "desc": "Send events to Google Analytics based on the user scrolling activity on each page.\n",
+                            "default": "0",
+                            "type": "checkbox"
+                        },
                         "call_tracking": {
                             "id": "call_tracking",
                             "title": "Enable call tracking?",

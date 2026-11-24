@@ -138,16 +138,17 @@ wpan_load_menu_structure($legacy);
 $upgraded = $GLOBALS['wpan_menu_structure']['menus'];
 check_same('wpan:extra_section', $upgraded['advanced_settings']['sections']['extra_section']['db_key'], 'Custom YAML section');
 check_same(
-    ['measurement_id', 'load_mode', 'call_tracking', 'form_tracking', 'email_tracking', 'content_grouping'],
+    ['measurement_id', 'load_mode', 'scroll_tracking', 'call_tracking', 'form_tracking', 'email_tracking', 'content_grouping'],
     array_keys($upgraded['wordpress_analytics']['sections']['general_settings']['fields']),
     'Legacy YAML general settings upgraded to GA4'
 );
 check_same(
-    ['network_mode', 'debug', 'debug_email'],
+    ['network_mode', 'send_page_view', 'debug', 'debug_email'],
     array_keys($upgraded['advanced_settings']['sections']['advanced_settings']['fields']),
     'Legacy YAML advanced settings without UA fields'
 );
-check_same(false, isset($upgraded['wordpress_analytics']['sections']['scroll_tracking']), 'Legacy YAML empty section removed');
+check_same(false, isset($upgraded['wordpress_analytics']['sections']['content_grouping']), 'Legacy YAML empty section removed');
+check_same(['pixel_threshold', 'time_threshold'], array_keys($upgraded['wordpress_analytics']['sections']['scroll_tracking']['fields']), 'Legacy YAML scroll tracking kept');
 check_same(true, isset($upgraded['wordpress_analytics']['sections']['call_tracking']['fields']['detect_phone_numbers']), 'Legacy YAML other fields kept');
 // Once upgraded, the legacy file has the same fields as the bundled one
 $bundled = json_decode(file_get_contents($root . '/settings/settings.json'), true)['menus'];
@@ -191,6 +192,7 @@ function render_head($options) {
 }
 function has($haystack, $needle) { return strpos($haystack, $needle) !== false; }
 
+require_once $root . '/scroll_tracking.php';
 require_once $root . '/call_tracking.php';
 require_once $root . '/email_tracking.php';
 require_once $root . '/content_grouping.php';
@@ -222,6 +224,7 @@ check_same(true, has($notice, 'measurement ID is missing') && has($notice, 'http
 // WordPress Analytics loads GA4: Google tag, then custom code, then config.
 $ga4_options = [
     'wpan:general_settings' => ['measurement_id' => 'G-TEST123', 'load_mode' => 'gtag', 'call_tracking' => '1'],
+    'wpan:advanced_settings' => ['send_page_view' => '1'],
     'wpan:custom_code' => ['custom_code' => '<meta name="wpan-test" content="1">'],
 ];
 $head = render_head($ga4_options);
@@ -236,12 +239,22 @@ $spaced = $legacy_options;
 $spaced['wpan:custom_code']['custom_code'] = "<script>ga ('set', 'x', 1);</script>";
 check_same(true, has(render_head($spaced), "window['ga'] = window['ga'] || function(){};"), 'Legacy tracker stub with a space before the parenthesis');
 
+// The pageview can be turned off, as with Universal Analytics.
+$no_pageview = $ga4_options;
+unset($no_pageview['wpan:advanced_settings']['send_page_view']);
+check_same(true, has(render_head($no_pageview), 'gtag(\'config\', "G-TEST123", {"send_page_view":false});'), 'Pageview turned off');
+
 // Content grouping: category and content type are sent with the pageview.
 $wpan_test_is_single = true;
 $ga4_options['wpan:general_settings']['content_grouping'] = '1';
+$ga4_options['wpan:general_settings']['scroll_tracking'] = '1';
+$ga4_options['wpan:scroll_tracking'] = ['pixel_threshold' => 300, 'time_threshold' => 60];
 $head = render_head($ga4_options);
 check_same(true, has($head, 'gtag(\'config\', "G-TEST123", {"content_group":"News & \"Co\"","content_type":"guide"});'), 'Content group in config');
+check_same(true, has($head, "js/scroll_tracking.js?ver=") && has($head, "timeThreshold='60' pixelThreshold='300'"), 'Scroll tracking script on single posts');
+check_same(false, has($head, 'npmcdn') || has($head, 'gaTracker'), 'No external library, no UA tracker in scripts');
 $wpan_test_is_single = false;
+check_same(false, has(render_head($ga4_options), 'scroll_tracking.js'), 'No scroll tracking outside single posts');
 
 // GA4 is loaded by Google Tag Manager: no Google tag (no double pageviews),
 // everything else still there.

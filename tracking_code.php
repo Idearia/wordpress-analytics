@@ -21,9 +21,11 @@ function wpan_tracking_code() {
 	$measurement_id   = wpan_get_measurement_id( $options );
 	$load_mode        = wpan_get_load_mode( $options );
 	$content_grouping = is_single() && isset( $options ['content_grouping'] ) && $options ['content_grouping'];
+	$scroll_tracking  = is_single() && isset( $options ['scroll_tracking'] ) && $options ['scroll_tracking'];
 	$call_tracking    = isset( $options ['call_tracking'] ) && $options ['call_tracking'];
 	$email_tracking   = isset( $options ['email_tracking'] ) && $options ['email_tracking'];
 	$custom_code      = isset( $options ['custom_code'] ) && $options ['custom_code'];
+	$send_page_view   = isset( $options ['send_page_view'] ) && $options ['send_page_view'];
 	$load_gtag        = 'gtag' === $load_mode && $measurement_id;
 
 	echo PHP_EOL . PHP_EOL . '<!-- BEGIN: Tracking code inserted by WordPress Analytics ' . WPAN_VERSION . ' - ' . WPAN_URL . '-->' . PHP_EOL; // phpcs:ignore
@@ -43,6 +45,11 @@ function wpan_tracking_code() {
 		echo '<!-- Google tag not loaded: empty measurement ID -->' . PHP_EOL;
 	} elseif ( 'gtm' === $load_mode ) {
 		echo '<!-- Google tag not loaded: Google Analytics 4 is loaded by Google Tag Manager or by another plugin -->' . PHP_EOL;
+	}
+
+	// Scroll tracking script to track reading behaviour
+	if ( $scroll_tracking ) {
+		wpan_scroll_tracking();
 	}
 
 	// Call tracking script to track clicks on phone numbers, and to turn
@@ -69,11 +76,14 @@ function wpan_tracking_code() {
 		echo wpan_php_eval( $options ['custom_code'] ); // phpcs:ignore
 	}
 
-	// Configure the Google Analytics 4 property; this also sends the pageview,
-	// together with the content group of the page (if any). This should be at
-	// the end of the script.
+	// Configure the Google Analytics 4 property; this also sends the pageview
+	// (unless the user turned it off), together with the content group of the
+	// page (if any). This should be at the end of the script.
 	if ( $load_gtag ) {
 		$config = $content_grouping ? wpan_content_grouping() : [];
+		if ( ! $send_page_view ) {
+			$config['send_page_view'] = false;
+		}
 		echo '<script> gtag(\'config\', ' . wp_json_encode( $measurement_id ) . ( $config ? ', ' . wp_json_encode( $config ) : '' ) . "); </script>\n"; // phpcs:ignore
 	}
 

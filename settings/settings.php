@@ -142,6 +142,22 @@
               }
               break;
 
+            case 'pixel_threshold':
+              if ( $value < 0 ) {
+                $error_code = 'negative-pixel-threshold';
+                $error_message = 'The pixel threshold must be positive';
+                $error_type = 'error';
+              }
+              break;
+
+            case 'time_threshold':
+              if ( $value < 0 ) {
+                $error_code = 'negative-time-threshold';
+                $error_message = 'The time threshold must be positive';
+                $error_type = 'error';
+              }
+              break;
+
             case 'phone_exclude_regex_pattern':
             case 'phone_include_regex_pattern':
               if ( $value && preg_match("/$value/", '') === false ) {

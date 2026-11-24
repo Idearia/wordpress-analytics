@@ -4,6 +4,7 @@ Install *WordPress Analytics* on your website to track user activity beyond simp
 *WordPress Analytics* supports the following features:
 
 * **Google tag**: load Google Analytics 4 (gtag.js) and send pageviews, or leave that to Google Tag Manager.
+* **Scroll tracking**: track the scrolling actions performed by users (started reading, reached the end of the content, read it, reached the bottom of the page); this is an improved version of Justin Cutroni's [content tracking script].
 * **Content grouping**: send category information from WordPress to Google Analytics, with WooCommerce support.
 * **Call tracking**: track clicks on phone numbers throughout the website, with the possibility to include/exclude certain numbers based on regex, and turn phone numbers into links.
 * **Email tracking**: track clicks on email addresses throughout the website.
@@ -35,9 +36,13 @@ Until the measurement ID is entered, a notice in the admin reminds you of it. In
 | Google Tag Manager or another plugin | GA4 is already loaded by a GTM container (ex. via the *GTM4WP* plugin) or by another plugin | No Google tag, so that pageviews are **not counted twice** |
 | Nobody | You only want custom code and phone number links | No Google tag |
 
+If you want the plugin to load the Google tag without sending the pageview, uncheck *Send pageview to GA?* in the advanced settings (it is checked by default, and a website updated from the Universal Analytics version keeps the choice it had).
+
 If *Google Tag Manager for WordPress* is active and the plugin is set to load GA4 by itself, a notice in the admin warns you of the risk of double pageviews.
 
 Call and email tracking send the `phone_click` and `email_click` events (with the `link_url` and `page_path` parameters) when the Google tag is loaded by WordPress Analytics.
+
+Scroll tracking sends, on single posts, the events `article_loaded`, `start_reading` (parameter `time_to_scroll`), `content_bottom` (parameters `time_to_content_end` and `reading_behaviour`, either `Scanner` or `Reader`), `content_read` (only for readers) and `page_bottom` (parameter `total_time`); times are in seconds. To use the parameters in the GA4 reports, register them in the GA4 admin as custom metrics and, for `reading_behaviour`, as a custom dimension. Like call and email tracking, the events are sent when the Google tag is loaded by WordPress Analytics.
 
 ### What about settings.yaml?
 
@@ -53,10 +58,10 @@ Form tracking (Gravity Forms) is being ported to the Google Analytics 4 measurem
 
 ### Tests
 
-`tests/php-compatibility.php` checks the settings files, the YAML reader and the upgrade of a legacy `settings.yaml` (`tests/fixtures/`), the options loading, the full `<head>` output in every load mode (Google tag, call/email tracking, custom code, content grouping), the admin notices, the settings validation and the settings editor without CodeMirror. Warnings and deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are stubbed: this is not a full WordPress or Gravity Forms integration test.
+`tests/php-compatibility.php` checks the settings files, the YAML reader and the upgrade of a legacy `settings.yaml` (`tests/fixtures/`), the options loading, the full `<head>` output in every load mode (Google tag, call/email tracking, scroll tracking, custom code, content grouping), the admin notices, the settings validation and the settings editor without CodeMirror. Warnings and deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are stubbed: this is not a full WordPress or Gravity Forms integration test.
 
 ## CREDITS
-A huge thanks to Justin Cutroni for sharing with the community his great [content tracking script], on which the former scroll tracking feature was based!
+A huge thanks to Justin Cutroni for sharing with the community his great [content tracking script]!
 
 
 ## CONTRIBUTE

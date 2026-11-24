@@ -38,6 +38,13 @@
                                 "none": "Nobody (no Google tag)"
                             }
                         },
+                        "scroll_tracking": {
+                            "id": "scroll_tracking",
+                            "title": "Enable scroll tracking?",
+                            "desc": "Send events to Google Analytics based on the user scrolling activity on each page.\n",
+                            "default": "",
+                            "type": "checkbox"
+                        },
                         "call_tracking": {
                             "id": "call_tracking",
                             "title": "Enable call tracking?",
@@ -65,6 +72,36 @@
                             "desc": "Send the WordPress category of each post (or 'Prodotti' for WooCommerce products) to Google Analytics 4 as the <a href=\"https://support.google.com/analytics/answer/11523339\">content group</a> of the page. Works only when the Google tag is loaded by WordPress Analytics.\n",
                             "default": "",
                             "type": "checkbox"
+                        }
+                    }
+                },
+                "scroll_tracking": {
+                    "id": "scroll_tracking",
+                    "display": "Scroll tracking",
+                    "display_section_title": true,
+                    "desc": "<p>Settings for the scroll tracking functionality.</p> <p>Parameters set here will be ignored if you have Javascript caching enabled.</p>\n",
+                    "fields": {
+                        "pixel_threshold": {
+                            "id": "pixel_threshold",
+                            "title": "Pixels threshold for engagement",
+                            "desc": "Pixels the user needs to scroll before we consider him/her engaged.\n",
+                            "default": 300,
+                            "type": "number",
+                            "attributes": {
+                                "min": 1,
+                                "max": 10000
+                            }
+                        },
+                        "time_threshold": {
+                            "id": "time_threshold",
+                            "title": "Seconds required to read content",
+                            "desc": "Time in seconds the user needs to spend on the content before we consider it read\n",
+                            "default": 60,
+                            "type": "number",
+                            "attributes": {
+                                "min": 1,
+                                "max": 10000
+                            }
                         }
                     }
                 },
@@ -153,6 +190,13 @@
                             "title": "Network Mode",
                             "desc": "Manage plugin options only at the network level, preventing site admins to change them. IMPORTANT:: Until I find a way to use the Settings API to set options in the network admin (ex. using http://wordpress.stackexchange.com/a/72503/86662), the plugin options will be set and read from the main blog admin page rather than the network admin page.\n",
                             "default": "",
+                            "type": "checkbox"
+                        },
+                        "send_page_view": {
+                            "id": "send_page_view",
+                            "title": "Send pageview to GA?",
+                            "desc": "Should the Google tag printed by WordPress Analytics send a pageview to Google Analytics 4 when the page loads? Turn it off if the pageview is sent by something else, ex. by your own code. It has no effect if Google Analytics 4 is not loaded by WordPress Analytics.\n",
+                            "default": "1",
                             "type": "checkbox"
                         },
                         "debug": {
