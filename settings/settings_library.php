@@ -138,6 +138,12 @@
           if ( ! isset( $GLOBALS['wpan_menu_structure']['menus'] ) || ! is_array( $GLOBALS['wpan_menu_structure']['menus'] ) ) {
             throw new Exception( 'no menus found' );
           }
+          /* A legacy file describes the Universal Analytics settings: bring it up
+          to date with the fields needed by Google Analytics 4 */
+          $GLOBALS['wpan_menu_structure'] = wpan_upgrade_legacy_menu_structure(
+            $GLOBALS['wpan_menu_structure'],
+            json_decode( file_get_contents( WPAN_DEFAULT_CONFIG_FILE ), true )
+          );
         }
         catch ( Exception $e ) {
           wpan_debug_wp( "Cannot read config file $filepath (" . $e->getMessage() . '), using ' . WPAN_DEFAULT_CONFIG_FILE . ' instead' );
@@ -197,6 +203,73 @@
 
     }
     
+  }
+
+
+  /**
+   * Bring a settings structure written for Universal Analytics (a legacy
+   * settings.yaml left on the website) up to date with Google Analytics 4.
+   *
+   * The fields that only made sense for Universal Analytics are removed, together
+   * with the sections left empty, and the fields required by Google Analytics 4
+   * are copied from the bundled structure when missing. Anything else in the
+   * legacy structure is left as it is.
+   *
+   * @param array $structure Structure read from the legacy file.
+   * @param array $bundled   Structure of the bundled settings.json.
+   * @return array
+   */
+  function wpan_upgrade_legacy_menu_structure ( $structure, $bundled ) {
+
+    $obsolete_fields = [
+      'tracking_uid', 'scroll_tracking', 'create_tracker', 'tracker_name', 'send_page_view',
+      'enhanced_link_attribution', 'cross_domain_support', 'group_index_wordpress',
+      'group_index_woocommerce', 'group_index_blog', 'pixel_threshold', 'time_threshold',
+      'custom_dimension_scroll_tracking',
+    ];
+    $required_fields = [ 'measurement_id', 'load_mode' ];
+
+    /* Look for the required fields in the bundled structure */
+    $missing_fields = [];
+    foreach ( $bundled['menus'] as $menu ) {
+      foreach ( $menu['sections'] as $section ) {
+        foreach ( $section['fields'] as $key => $field ) {
+          if ( in_array( $key, $required_fields, true ) )
+            $missing_fields[ $key ] = $field;
+        }
+      }
+    }
+
+    /* Remove the obsolete fields, and take note of the required ones already there */
+    $first_section = null;
+    foreach ( $structure['menus'] as $menu_id => $menu ) {
+      if ( ! isset( $menu['sections'] ) || ! is_array( $menu['sections'] ) )
+        continue;
+      foreach ( $menu['sections'] as $section_id => $section ) {
+        if ( ! isset( $section['fields'] ) || ! is_array( $section['fields'] ) )
+          continue;
+        foreach ( array_keys( $section['fields'] ) as $key ) {
+          if ( in_array( $key, $obsolete_fields, true ) )
+            unset( $structure['menus'][ $menu_id ]['sections'][ $section_id ]['fields'][ $key ] );
+          unset( $missing_fields[ $key ] );
+        }
+        if ( ! $structure['menus'][ $menu_id ]['sections'][ $section_id ]['fields'] )
+          unset( $structure['menus'][ $menu_id ]['sections'][ $section_id ] );
+        else if ( null === $first_section || 'general_settings' === $section_id )
+          $first_section = [ $menu_id, $section_id ];
+      }
+    }
+
+    /* Add the missing fields on top of the general settings (or, if the website
+    has no such section, on top of the first section) */
+    if ( $missing_fields && $first_section ) {
+      list( $menu_id, $section_id ) = $first_section;
+      $structure['menus'][ $menu_id ]['sections'][ $section_id ]['fields'] =
+        $missing_fields + $structure['menus'][ $menu_id ]['sections'][ $section_id ]['fields'];
+    }
+
+    return $structure;
+
   }
 
 
@@ -454,6 +527,7 @@
         'value'        => $displayed_values[ $field['id'] ],
         'type'         => $field['type'], 
         'attributes'   => $attributes,
+        'options'      => isset( $field['options'] ) ? $field['options'] : [],
         /* Section-level variable */ 
         'section'      => $section,
         /* Global-level variable */ 
@@ -783,6 +857,29 @@
         esc_attr( $args['attributes']['min'] ),
         esc_attr( $args['attributes']['max'] )
     );
+  }
+
+
+  /**
+   * Display a drop-down menu (<select>); the choices are taken from the
+   * 'options' element of the field, as value => label pairs.
+   */
+  function wpan_display_select_field ( $args ) {
+
+    printf(
+        '<select name="%1$s[%2$s]" id="%2$s">',
+        esc_attr( $args['db_key'] ),
+        esc_attr( $args['name'] )
+    );
+    foreach ( $args['options'] as $value => $label ) {
+      printf(
+          '<option value="%1$s"%2$s>%3$s</option>',
+          esc_attr( $value ),
+          (string) $value === (string) $args['value'] ? ' selected="selected"' : '',
+          esc_html( $label )
+      );
+    }
+    echo '</select>';
   }
 
 

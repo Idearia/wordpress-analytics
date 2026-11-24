@@ -1,87 +1,59 @@
 <?php
 
   /**
-   * Send category information from WordPress to Google Analytics (GA).
+   * Send category information from WordPress to Google Analytics 4 (GA4).
    *
-   * The WordPress category is passed using the Content Grouping feature of
-   * GA, to the contentGroup1 group.
+   * GA4 has one predefined content group per page (the 'content_group'
+   * parameter); the function returns the parameters to add to the 'config'
+   * command of the Google tag, so that they are sent with the pageview:
    *
-   * If the function is_product() is defined, the script assumes the website
-   * has an ecommerce, and the product category will be transmitted from the
-   * 'product_cat' taxonomy to the contentGroup2 group.
-   * 
-   * This script should be placed just before the pageview is transmitted
-   * to GA, ie. before the ga ('send', 'pageview') in the standard tracking
-   * code, lest the grouping data is not transmitted to GA. You can either
-   * copy & paste the script there, or include it as a file with the PHP 
-   * function include() or the WordPress function get_template_part().
+   * - content_group: for a post, the top-level WordPress category of the post
+   *   that comes first in alphabetical order; for a WooCommerce product, the
+   *   fixed value 'Prodotti'.
+   * - product_category: for a WooCommerce product, its top-level product
+   *   category ('Undefined Product' if it has none).
+   * - content_type: for a post, the value of the custom field
+   *   'analytics_content_type', if any.
    *
-   * As an alternative, you could place this script wherever you want and
-   * transmit the data to GA using a non-interaction event. If you do so,
-   * you'll see the content grouping data in the Event -> Pages report
-   * rather than in the Content -> All Pages one.
-   * 
-   * This script was improved thanks to the following resources; thanks
-   * to the authors!
-   * - https://www.highposition.com/blog/how-to-send-author-content-groups-
-   *   wordpress-google-analytics/
-   * - http://stackoverflow.com/a/34714363/2972183
+   * To see product_category and content_type in the GA4 reports, register
+   * them as event-scoped custom dimensions in the GA4 admin.
    *
    * Created by Guido W. Pettinari on 08.01.2015.
    * Part of WordPress Analytics:
    * https://github.com/coccoinomane/wordpress_analytics
+   *
+   * @return array Parameters for the 'config' command; empty if the page
+   * has no category.
    */
 
   function wpan_content_grouping() {
 
-    /* Extract the content grouping options from the database. If these are
-    not properly formatted, nothing will be sent to GA. */
-    $options = wpan_get_options ();
-    $ga_tracker = isset ( $options ['tracker_name'] ) ? $options ['tracker_name'] : '';
-    $wordpress_group = isset ( $options['group_index_wordpress'] ) ? $options['group_index_wordpress'] : '';
-    $woocommerce_group = isset ( $options['group_index_woocommerce'] ) ? $options['group_index_woocommerce'] : '';
-    $blog_group = isset ( $options['group_index_blog'] ) ? $options['group_index_blog'] : '';
-
-    /* Extract the categories of this post, and select from them the
-    top-level category that is first in alphabetical order. Note that
-    in WordPress it is possible for posts not to have top-level
-    categories; in that case, the category name will be empty and
-    the post will be catalogued as (not set) in GA. */
-    $categories = get_the_category();
-    foreach ($categories as $cat) {
-      if ($cat->category_parent == 0) {
-          $category_name = $cat->cat_name;
-          break;
-      }
-    }
+    $params = [];
 
 
     // ====================================================================================
     // =                                    Product page                                  =
     // ====================================================================================
 
-    if (function_exists('is_product') && is_product()) {
+    if ( function_exists( 'is_product' ) && is_product() ) {
 
-      echo "<script> $ga_tracker('set', 'contentGroup" . $wordpress_group . "', '" . "Prodotti" . "'); </script>\n";
+      $params['content_group'] = 'Prodotti';
+      $params['product_category'] = 'Undefined Product';
 
       /* Extract the terms in the product category attached this post, and select from
-      them the top-level term that is first in alphabetical order. Note that in WordPress
-      it is possible for posts not to have top-level terms; in that case, the category
-      name will be empty and the post will be catalogued as (not set) in GA. */
-      $terms = get_the_terms (get_the_ID(), 'product_cat');
-      foreach ($terms as $term) {
-        if ($term->parent == 0) {
-            $term_name = $term->name;
+      them the top-level term that is first in alphabetical order */
+      $terms = get_the_terms( get_the_ID(), 'product_cat' );
+      if ( $terms && ! is_wp_error( $terms ) ) {
+        foreach ( $terms as $term ) {
+          if ( $term->parent == 0 && ! empty( $term->name ) ) {
+            $params['product_category'] = $term->name;
             break;
+          }
         }
       }
 
+      return $params;
 
-      if ( $terms && !is_wp_error($terms) && !empty($term_name))
-        echo "<script> $ga_tracker('set', 'contentGroup" . $woocommerce_group . "', '" . $term_name . "'); </script>\n";
-      else
-        echo "<script> $ga_tracker('set', 'contentGroup" . $woocommerce_group . "', '" . "Undefined Product" . "'); </script>\n";
-  
     }
 
 
@@ -89,22 +61,34 @@
     // =                                    Content page                                  =
     // ====================================================================================
 
-    /* Default behaviour: send to Analytics the post category from WordPress, and
-    the information stored in the custom field 'analytics_content_type' */
-    else if ( $categories && ! is_wp_error($categories) && ! empty($category_name) ) {
+    /* Extract the categories of this post, and select from them the top-level
+    category that is first in alphabetical order. Note that in WordPress it is
+    possible for posts not to have top-level categories; in that case nothing
+    is sent and the page will be catalogued as (not set) in GA. */
+    $categories = get_the_category();
+    if ( $categories && ! is_wp_error( $categories ) ) {
+      foreach ( $categories as $cat ) {
+        if ( $cat->category_parent == 0 && ! empty( $cat->cat_name ) ) {
+          $params['content_group'] = $cat->cat_name;
+          break;
+        }
+      }
+    }
 
-      echo "<script> $ga_tracker('set', 'contentGroup" . $wordpress_group . "', '" . $category_name . "'); </script>\n";
+    if ( $params ) {
 
       /* Extract content type from custom field */
-      $content_type = get_post_meta(get_the_ID(), 'analytics_content_type', true);
+      $content_type = get_post_meta( get_the_ID(), 'analytics_content_type', true );
 
-      if ($content_type)
-        echo "<script> $ga_tracker('set', 'contentGroup" . $blog_group . "', '" . $content_type . "'); </script>\n";
+      if ( $content_type )
+        $params['content_type'] = $content_type;
 
     }
-    
+
+    return $params;
+
   } // wpan_content_grouping
-  
+
 
   /* If Advanced Custom Fields is installed, load all JSON files
   in the acf subdirectory */

@@ -42,6 +42,8 @@ if ( is_admin() ) {
 	// Warn the administrators if the website's settings.yaml cannot be read
 	add_action( 'admin_notices', 'wpan_config_fallback_notice' );
 	add_action( 'network_admin_notices', 'wpan_config_fallback_notice' );
+	// Warn the administrators if Google Analytics 4 is not configured properly
+	add_action( 'admin_notices', 'wpan_ga4_admin_notices' );
 }
 
 // Extract plugin options from the database */
@@ -51,46 +53,40 @@ $options = wpan_get_options();
 // wpan_debug( "Fetched the following plugin's options:", true );
 // wpan_debug( $options, true );
 
-// Stop unless we have a valid tracking ID
-if ( isset( $options ['tracking_uid'] ) && $options ['tracking_uid'] ) {
+// ========================
+// = Client-side tracking =
+// ========================
 
-	// ========================
-	// = Client-side tracking =
-	// ========================
+// Load content grouping function
+if ( isset( $options ['content_grouping'] ) && $options ['content_grouping'] ) {
+	require_once WPAN_PLUGIN_DIR . 'content_grouping.php';
+}
 
-	// Load content grouping function
-	if ( isset( $options ['content_grouping'] ) && $options ['content_grouping'] ) {
-		require_once WPAN_PLUGIN_DIR . 'content_grouping.php';
-	}
+// Load call tracking function
+if ( isset( $options ['call_tracking'] ) && $options ['call_tracking'] ) {
+	require_once WPAN_PLUGIN_DIR . 'call_tracking.php';
+}
 
-	// Load scroll tracking function
-	if ( isset( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] ) {
-		require_once WPAN_PLUGIN_DIR . 'scroll_tracking.php';
-	}
+// Load email tracking function
+if ( isset( $options ['email_tracking'] ) && $options ['email_tracking'] ) {
+	require_once WPAN_PLUGIN_DIR . 'email_tracking.php';
+}
 
-	// Load call tracking function
-	if ( isset( $options ['call_tracking'] ) && $options ['call_tracking'] ) {
-		require_once WPAN_PLUGIN_DIR . 'call_tracking.php';
-	}
+// Load the function to write the Google tag, the tracking scripts and the
+// custom code
+require_once WPAN_PLUGIN_DIR . 'tracking_code.php';
 
-	// Load email tracking function
-	if ( isset( $options ['email_tracking'] ) && $options ['email_tracking'] ) {
-		require_once WPAN_PLUGIN_DIR . 'email_tracking.php';
-	}
-
-	// Load the function to write the actual complete GA tracking code
-	require_once WPAN_PLUGIN_DIR . 'tracking_code.php';
-
-	// Insert the tracking code in the header
-	add_action( 'wp_head', 'wpan_tracking_code', PHP_INT_MAX );
+// Insert the code in the header. This does not depend on Google Analytics
+// being configured: custom code and phone number links must always work.
+add_action( 'wp_head', 'wpan_tracking_code', PHP_INT_MAX );
 
 
-	// ========================
-	// = Server-side tracking =
-	// ========================
+// ========================
+// = Server-side tracking =
+// ========================
 
-	// Load Gravity Forms tracking
-	if ( isset( $options ['form_tracking'] ) && $options ['form_tracking'] ) {
-		require_once WPAN_PLUGIN_DIR . 'form_tracking.php';
-	}
+// Load Gravity Forms tracking. For now it still relies on the Universal
+// Analytics measurement protocol, hence on a legacy tracking ID.
+if ( isset( $options ['form_tracking'] ) && $options ['form_tracking'] && ! empty( $options ['tracking_uid'] ) ) {
+	require_once WPAN_PLUGIN_DIR . 'form_tracking.php';
 }

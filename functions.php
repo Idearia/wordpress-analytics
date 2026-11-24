@@ -225,3 +225,106 @@ function wpan_is_network_mode() {
 	return is_multisite() && isset( $advanced_options['network_mode'] ) && $advanced_options['network_mode'];
 
 }
+
+
+/**
+ * Return true if the given string looks like a Google Analytics 4
+ * measurement ID (G-XXXXXXXXXX).
+ *
+ * @param mixed $value
+ * @return bool
+ */
+function wpan_is_measurement_id( $value ) {
+
+	return is_string( $value ) && 1 === preg_match( '/^G-[A-Z0-9]+$/', $value );
+
+}
+
+
+/**
+ * Return the Google Analytics 4 measurement ID set in the plugin options,
+ * or an empty string if it is missing or not valid.
+ *
+ * @param array|null $options Plugin options; leave empty to read them from the database.
+ * @return string
+ */
+function wpan_get_measurement_id( $options = null ) {
+
+	if ( null === $options ) {
+		$options = wpan_get_options();
+	}
+
+	$measurement_id = isset( $options['measurement_id'] ) ? strtoupper( trim( (string) $options['measurement_id'] ) ) : '';
+
+	return wpan_is_measurement_id( $measurement_id ) ? $measurement_id : '';
+
+}
+
+
+/**
+ * Tell who is in charge of loading Google Analytics 4 on the website:
+ *
+ * - 'gtag': WordPress Analytics prints the Google tag (gtag.js);
+ * - 'gtm':  Google Tag Manager or another plugin loads GA4, so WordPress
+ *           Analytics must not print the Google tag (pageviews would be
+ *           counted twice);
+ * - 'none': nobody; only the features not related to GA are active.
+ *
+ * @param array|null $options Plugin options; leave empty to read them from the database.
+ * @return string
+ */
+function wpan_get_load_mode( $options = null ) {
+
+	if ( null === $options ) {
+		$options = wpan_get_options();
+	}
+
+	$load_mode = isset( $options['load_mode'] ) ? $options['load_mode'] : '';
+
+	return in_array( $load_mode, [ 'gtag', 'gtm', 'none' ], true ) ? $load_mode : 'gtag';
+
+}
+
+
+/**
+ * Warn the administrators when Google Analytics 4 is not configured yet, or
+ * when it risks being loaded twice.
+ *
+ * Should be called as a callback for the admin_notices action.
+ */
+function wpan_ga4_admin_notices() {
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	// In network mode the settings can be changed only from the main blog
+	if ( is_multisite() && wpan_is_network_mode() && ! wpan_is_main_blog() ) {
+		return;
+	}
+
+	$options        = wpan_get_options();
+	$load_mode      = wpan_get_load_mode( $options );
+	$measurement_id = wpan_get_measurement_id( $options );
+	$settings_url   = admin_url( 'admin.php?page=wordpress_analytics' );
+
+	if ( 'none' !== $load_mode && ! $measurement_id ) {
+		printf(
+			'<div class="notice notice-warning"><p><strong>WordPress Analytics:</strong> the Google Analytics 4 measurement ID is missing, so no data is sent to Google Analytics. '
+			. 'Custom code and phone number links keep working. <a href="%s">Enter the measurement ID (G-XXXXXXXXXX)</a>, '
+			. 'or choose "Nobody" as who loads Google Analytics 4 to dismiss this notice.</p></div>',
+			esc_url( $settings_url )
+		);
+	}
+
+	// Google Tag Manager for WordPress (GTM4WP) usually loads GA4 by itself
+	if ( 'gtag' === $load_mode && $measurement_id && defined( 'GTM4WP_VERSION' ) ) {
+		printf(
+			'<div class="notice notice-warning"><p><strong>WordPress Analytics:</strong> Google Tag Manager for WordPress is active on this website. '
+			. 'If your GTM container already loads Google Analytics 4, pageviews are being counted twice: '
+			. '<a href="%s">set "Who loads Google Analytics 4?" to "Google Tag Manager or another plugin"</a>.</p></div>',
+			esc_url( $settings_url )
+		);
+	}
+
+}

@@ -13,22 +13,27 @@
                     "id": "general_settings",
                     "display": "General settings",
                     "fields": {
-                        "tracking_uid": {
-                            "id": "tracking_uid",
-                            "title": "Google Analytics tracking ID",
-                            "desc": "To what Google Analytics property should the hits be sent to? The ID is usually in the form UA-XXXXXX-Y. You can find the ID in the GA's admin, in the Tracking Info section of the Property column.\n",
+                        "measurement_id": {
+                            "id": "measurement_id",
+                            "title": "Google Analytics 4 measurement ID",
+                            "desc": "To what Google Analytics 4 property should the data be sent to? The ID is in the form G-XXXXXXXXXX. You can find it in the GA admin, under Data streams, in the details of the web stream.\n",
                             "default": "",
                             "type": "text",
                             "attributes": {
                                 "maxlength": 20
                             }
                         },
-                        "scroll_tracking": {
-                            "id": "scroll_tracking",
-                            "title": "Enable scroll tracking?",
-                            "desc": "Send events to Google Analytics based on the user scrolling activity on each page.\n",
-                            "default": "0",
-                            "type": "checkbox"
+                        "load_mode": {
+                            "id": "load_mode",
+                            "title": "Who loads Google Analytics 4?",
+                            "desc": "Choose 'WordPress Analytics' if nothing else loads GA4 on this website: the plugin will print the Google tag and pageviews will be sent. Choose 'Google Tag Manager' if GA4 is already loaded by GTM or by another plugin: WordPress Analytics will not print the Google tag, so that pageviews are not counted twice. Choose 'Nobody' to use only the custom code and the phone number features.\n",
+                            "default": "gtag",
+                            "type": "select",
+                            "options": {
+                                "gtag": "WordPress Analytics (gtag.js)",
+                                "gtm": "Google Tag Manager or another plugin",
+                                "none": "Nobody (no Google tag)"
+                            }
                         },
                         "call_tracking": {
                             "id": "call_tracking",
@@ -54,7 +59,7 @@
                         "content_grouping": {
                             "id": "content_grouping",
                             "title": "Enable content grouping?",
-                            "desc": "Group pageviews in Google Analytics using the <a href=\"https://support.google.com/analytics/answer/2853423\">Content Grouping</a> feature.\n",
+                            "desc": "Send the WordPress category of each post (or 'Prodotti' for WooCommerce products) to Google Analytics 4 as the <a href=\"https://support.google.com/analytics/answer/11523339\">content group</a> of the page. Works only when the Google tag is loaded by WordPress Analytics.\n",
                             "default": "0",
                             "type": "checkbox"
                         }

@@ -125,59 +125,19 @@
 
           switch ($key) {
 
-            case 'tracking_uid':
-              $tracking_uid_regex = '/(UA|YT|MO)-\d+-\d+/i';
-              if ( ! preg_match( $tracking_uid_regex, $value ) ) {
-                $error_code = 'wrong-tracking-uid';
-                $error_message = 'The tracking ID should be of the form UA-XXXXXXXX-Y';
+            case 'measurement_id':
+              $value = strtoupper( trim( $value ) );
+              if ( ! wpan_is_measurement_id( $value ) ) {
+                $error_code = 'wrong-measurement-id';
+                $error_message = 'The measurement ID should be of the form G-XXXXXXXXXX';
                 $error_type = 'error';
               }
               break;
 
-            case 'group_index_wordpress':
-              if ( $value < 0 ) {
-                $error_code = 'negative-group-index-wordpress';
-                $error_message = 'WordPress group index must be positive';
-                $error_type = 'error';
-              }
-              break;
-
-            case 'group_index_woocommerce':
-              if ( $value < 0 ) {
-                $error_code = 'negative-group-index-woocommerce';
-                $error_message = 'Woocommerce group index must be positive';
-                $error_type = 'error';
-              }
-              break;
-
-            case 'group_index_blog':
-              if ( $value < 0 ) {
-                $error_code = 'negative-group-index-blog';
-                $error_message = 'Blog group index must be positive';
-                $error_type = 'error';
-              }
-              break;
-
-            case 'pixel_threshold':
-              if ( $value < 0 ) {
-                $error_code = 'negative-pixel-threshold';
-                $error_message = 'The pixel threshold must be positive';
-                $error_type = 'error';
-              }
-              break;
-
-            case 'time_threshold':
-              if ( $value < 0 ) {
-                $error_code = 'negative-time-threshold';
-                $error_message = 'The time threshold must be positive';
-                $error_type = 'error';
-              }
-              break;
-
-            case 'custom_dimension_scroll_tracking':
-              if ( ! ( is_numeric( $value ) && $value >= 0 ) ) {
-                $error_code = 'custom-dimension-not-an-integer';
-                $error_message = 'The custom dimension must be a positive integer';
+            case 'load_mode':
+              if ( ! in_array( $value, [ 'gtag', 'gtm', 'none' ], true ) ) {
+                $error_code = 'wrong-load-mode';
+                $error_message = 'Unknown choice for who loads Google Analytics 4';
                 $error_type = 'error';
               }
               break;
@@ -208,17 +168,8 @@
               }
               break;
 
-            case 'cross_domain_support':
-              break;
-
             case 'custom_code':
               /* TODO: add syntax check */
-              break;
-
-            case 'create_tracker':
-              break;
-
-            case 'tracker_name':
               break;
 
           } // switch

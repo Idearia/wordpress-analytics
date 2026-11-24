@@ -13,7 +13,6 @@
 
     /* Extract the email tracking options from the database */
     $options = wpan_get_options ();
-    $ga_tracker = isset ( $options ['tracker_name'] ) ? $options ['tracker_name'] : '';
     $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
 
     /* Script path & url */
@@ -23,7 +22,6 @@
 
     /* Load the script */
     echo "<script src='$script_versioned' "
-          . "gaTracker='$ga_tracker' "
           . "debug='$debug' "
           . "defer='defer'"
           . "> "

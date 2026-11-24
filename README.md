@@ -1,65 +1,62 @@
 ## DESCRIPTION
-Install *WordPress Analytics* on your website to track user activity beyond simple pageviews, and to allow efficient communication between WordPress and Google Analytics.
+Install *WordPress Analytics* on your website to track user activity beyond simple pageviews, and to allow efficient communication between WordPress and Google Analytics 4 (GA4).
 
-So far *WordPress Analytics* supports the following features:
+*WordPress Analytics* supports the following features:
 
-* **Scroll tracking**: track the scrolling actions performed by users; this is an improved version of Justin Cutroni's [content tracking script].
+* **Google tag**: load Google Analytics 4 (gtag.js) and send pageviews, or leave that to Google Tag Manager.
 * **Content grouping**: send category information from WordPress to Google Analytics, with WooCommerce support.
-* **Call tracking**: track clicks on phone numbers throughout the website, with the possibility to include/exclude certain numbers based on regex.
+* **Call tracking**: track clicks on phone numbers throughout the website, with the possibility to include/exclude certain numbers based on regex, and turn phone numbers into links.
 * **Email tracking**: track clicks on email addresses throughout the website.
-* **Form tracking**: track form submissions made via [Gravity Forms](http://www.gravityforms.com/).
+* **Custom code**: print your own code (ex. a Facebook Pixel) in the head of all pages.
+* **Form tracking**: track form submissions made via [Gravity Forms](http://www.gravityforms.com/) (being ported to GA4, see below).
+
+Universal Analytics (analytics.js) is not supported anymore: Google stopped processing its data in July 2023.
 
 
-The next feature to be implemented will be:
+## INSTALL OR UPDATE
 
-* **Custom-fields support**: send any kind of information from WordPress to Google Analytics using custom fields & taxonomies, with support to the industry standard plugin [Advanced Custom Fields](http://www.advancedcustomfields.com/).
+**You do not need SSH**, Composer or a console. The plugin has no `vendor/` folder and runs on PHP **7.2 to 8.5**.
 
+1. Replace the plugin folder `wp-content/plugins/wordpress-analytics` with the new one, in any of these ways:
+   * upload the zip from *Plugins > Add New > Upload Plugin* and choose *Replace current with uploaded*;
+   * or overwrite the folder via FTP/SFTP or the file manager of your hosting.
+2. **There is no file to move or copy.** The settings you entered (custom code, phone settings...) are stored in the database, under the `wpan:*` options, and are kept as they are.
+3. Go to *WordPress Analytics* in the admin menu, then:
+   * enter the **Google Analytics 4 measurement ID** (`G-XXXXXXXXXX`); you find it in Google Analytics under *Admin > Data streams*, in the details of the web stream. The old `UA-XXXXXX-Y` ID cannot be converted and is ignored;
+   * choose **who loads Google Analytics 4** (see below).
 
-## INSTALL
-Download the latest release and install it directly in WordPress using the "Add new plugin" menu item in the backend.
+Until the measurement ID is entered, a notice in the admin reminds you of it. In the meanwhile nothing is sent to Google Analytics, while custom code and phone number links keep working.
 
-Check the [development branch](https://github.com/coccoinomane/wordpress_analytics/tree/develop) for the latest features!
+### Who loads Google Analytics 4?
 
+| Choice | When to use it | What the plugin prints |
+| --- | --- | --- |
+| WordPress Analytics (gtag.js) | Nothing else loads GA4 on the website | The Google tag; pageviews are sent |
+| Google Tag Manager or another plugin | GA4 is already loaded by a GTM container (ex. via the *GTM4WP* plugin) or by another plugin | No Google tag, so that pageviews are **not counted twice** |
+| Nobody | You only want custom code and phone number links | No Google tag |
 
-## PHP COMPATIBILITY AND DEPLOYMENT
+If *Google Tag Manager for WordPress* is active and the plugin is set to load GA4 by itself, a notice in the admin warns you of the risk of double pageviews.
 
-The `php` branch runs on PHP **7.2 to 8.5** and needs no `vendor/` folder: to deploy
-it, replace the plugin folder on the website. No Composer, no console.
+Call and email tracking send the `phone_click` and `email_click` events (with the `link_url` and `page_path` parameters) when the Google tag is loaded by WordPress Analytics.
 
-The plugin settings structure is read from `settings/settings.json` with PHP's
-built-in `json_decode()`. The former `settings.yaml` needed Symfony YAML, and each
-release of that library only supports a limited range of PHP versions (the old
-3.2.6 parser throws a `TypeError` on PHP 8.0+). The JSON file was generated from
-the YAML one and produces the very same array; option values stay in the database
-under the same `wpan:*` keys, so no migration is needed.
+### What about settings.yaml?
 
-A website with a customised `settings.yaml` can keep it: if `settings/settings.yaml`
-exists it takes precedence over `settings.json`, and it is read by a minimal YAML
-reader bundled with the plugin (`settings/settings_yaml.php`, no library needed).
-The reader supports what the settings file uses: nested mappings, comments, plain
-and quoted values, folded (`>`) and literal (`|`) text blocks. If the file uses
-anything else (lists, anchors, inline collections) the plugin uses `settings.json`
-instead, logs the reason and shows it in a red notice on every admin page, until
-the file is fixed or deleted. Without a `settings.yaml`, `settings.json` is used.
+Normally you can forget about it. `settings/settings.json` (bundled) and the former `settings/settings.yaml` only describe which fields the settings page has; they do not contain your settings.
 
-Form tracking (Gravity Forms) is the only feature that still needs a Composer
-package, `ins0/google-measurement-php-client`. Without it the plugin works and
-form tracking is simply skipped. To enable it, run from the plugin directory:
+The only case in which a website needs its own `settings.yaml` is if somebody edited that file by hand on that website. To find out, compare the `settings/settings.yaml` of the website with the [original one](tests/fixtures/settings.legacy.yaml): if they are the same, or if the website has no such file, there is nothing to do. Even if they differ, you most likely do not need to copy the file over: it describes the Universal Analytics fields.
 
-```sh
-composer install --no-dev --no-plugins --no-scripts --prefer-dist --no-interaction
-```
+If a `settings/settings.yaml` is left in (or copied to) the plugin folder, it still takes precedence over `settings.json`: it is read by a minimal YAML reader bundled with the plugin (`settings/settings_yaml.php`, no library needed), the Universal Analytics fields are removed from it and the Google Analytics 4 ones are added automatically. The reader supports nested mappings, comments, plain and quoted values, folded (`>`) and literal (`|`) text blocks. If the file uses anything else (lists, anchors, inline collections) the plugin uses `settings.json` instead, logs the reason and shows it in a red notice on every admin page, until the file is fixed or deleted.
 
-`tests/php-compatibility.php` checks the settings files, the YAML reader against the
-original YAML files (`tests/fixtures/`), the options loading, the
-full `<head>` output (tracker, call/email tracking, custom code), the PHP 8.1-safe
-regex validation and the settings editor without CodeMirror. Warnings and
-deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests
-on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are
-stubbed: this is not a full WordPress or Gravity Forms integration test.
+### Form tracking
+
+Form tracking (Gravity Forms) is being ported to the Google Analytics 4 measurement protocol, with no external library. Until then it is inactive: it still targets Universal Analytics and needs the Composer package `ins0/google-measurement-php-client`.
+
+### Tests
+
+`tests/php-compatibility.php` checks the settings files, the YAML reader and the upgrade of a legacy `settings.yaml` (`tests/fixtures/`), the options loading, the full `<head>` output in every load mode (Google tag, call/email tracking, custom code, content grouping), the admin notices, the settings validation and the settings editor without CodeMirror. Warnings and deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are stubbed: this is not a full WordPress or Gravity Forms integration test.
 
 ## CREDITS
-A huge thanks to Justin Cutroni for sharing with the community his great [content tracking script]!
+A huge thanks to Justin Cutroni for sharing with the community his great [content tracking script], on which the former scroll tracking feature was based!
 
 
 ## CONTRIBUTE
