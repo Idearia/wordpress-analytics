@@ -9,7 +9,7 @@ Install *WordPress Analytics* on your website to track user activity beyond simp
 * **Call tracking**: track clicks on phone numbers throughout the website, with the possibility to include/exclude certain numbers based on regex, and turn phone numbers into links.
 * **Email tracking**: track clicks on email addresses throughout the website.
 * **Custom code**: print your own code (ex. a Facebook Pixel) in the head of all pages.
-* **Form tracking**: track form submissions made via [Gravity Forms](http://www.gravityforms.com/) (being ported to GA4, see below).
+* **Form tracking**: track form submissions made via [Gravity Forms](http://www.gravityforms.com/) from the server, so that ad blockers cannot stop it.
 
 Universal Analytics (analytics.js) is not supported anymore: Google stopped processing its data in July 2023.
 
@@ -52,13 +52,36 @@ The only case in which a website needs its own `settings.yaml` is if somebody ed
 
 If a `settings/settings.yaml` is left in (or copied to) the plugin folder, it still takes precedence over `settings.json`: it is read by a minimal YAML reader bundled with the plugin (`settings/settings_yaml.php`, no library needed), the Universal Analytics fields are removed from it and the Google Analytics 4 ones are added automatically. The reader supports nested mappings, comments, plain and quoted values, folded (`>`) and literal (`|`) text blocks. If the file uses anything else (lists, anchors, inline collections) the plugin uses `settings.json` instead, logs the reason and shows it in a red notice on every admin page, until the file is fixed or deleted.
 
-### Form tracking
+### Form tracking (Gravity Forms)
 
-Form tracking (Gravity Forms) is being ported to the Google Analytics 4 measurement protocol, with no external library. Until then it is inactive: it still targets Universal Analytics and needs the Composer package `ins0/google-measurement-php-client`.
+When a visitor submits a Gravity Forms form, the web server sends the event `generate_lead` to Google Analytics 4 with the [measurement protocol](https://developers.google.com/analytics/devguides/collection/protocol/ga4). The event is sent by the server, not by the browser, so ad blockers cannot stop it. No library is needed.
+
+To turn it on:
+
+1. In Google Analytics go to *Admin > Data streams*, open the web stream, then *Measurement Protocol API secrets*, and create a secret.
+2. In the plugin settings paste it in **Measurement Protocol API secret**, right below the measurement ID, and check **Enable form tracking?**. The API secret is optional: it is needed only for form tracking. You can also define it in `wp-config.php` with `define( 'WPAN_GA4_API_SECRET', '...' );`, which takes precedence over the field.
+3. Save, then click **Send test event** next to the API secret and look for the event `wpan_test_event` in Google Analytics, under *Reports > Realtime* (or *Admin > DebugView*). **Google does not report a wrong measurement ID or API secret**: the request is accepted and the event silently discarded, so seeing the event in Google Analytics is the only real check.
+4. Submit a form and look for `generate_lead` in the same place; then mark `generate_lead` as a key event in *Admin > Events* if you want to count it as a conversion.
+
+The event carries the parameters `form_id`, `form_title`, `page_location`, `page_path` and `page_title`. It is attributed to the visitor and to the session read from the Google Analytics cookies (`_ga` and `_ga_<ID>`), hence to the same traffic source as the pageviews; without cookies the form is counted anyway, with no traffic source. This works both when GA4 is loaded by WordPress Analytics and when it is loaded by Google Tag Manager.
+
+For payment forms, if *Wait for payment confirmation* is checked the event is sent when the payment goes through, with the parameters `transaction_id`, `value` and `currency`.
+
+If form tracking is enabled but the measurement ID or the API secret are missing, a notice in the admin warns you that form submissions are not being sent.
+
+The event name `generate_lead` is used, rather than `form_submit`, because GA4 already sends `form_submit` from the browser by itself (enhanced measurement) for any form in the page: the two would be mixed up.
+
+#### Hooks for developers
+
+* `wpan_filter_ga4_form_event` (filter; arguments: `$event`, `$entry`, `$form`): change the event before it is sent. `$event` is an array with the `name` and `params` elements; return `false` not to send it.
+* `wpan_action_after_ga4_form_event` (action; arguments: `$event`, `$visitor`, `$entry`, `$form`): run after the event is sent; you can send more events for the same visitor with `wpan_ga4_send_event( $event, $visitor )`.
+* `wpan_filter_ga4_endpoint` (filter): change the host the events are sent to, ex. `https://region1.google-analytics.com` to collect data in the EU.
+
+The hooks of the Universal Analytics version (`wpan_filter_form_tracking_options`, `wpan_filter_form_tracking_event`, `wpan_action_post_send_form_tracking_event`) are **not called anymore**: they received objects of a library that is no longer there. If a website still uses them, a notice in the admin names them.
 
 ### Tests
 
-`tests/php-compatibility.php` checks the settings files, the YAML reader and the upgrade of a legacy `settings.yaml` (`tests/fixtures/`), the options loading, the full `<head>` output in every load mode (Google tag, call/email tracking, scroll tracking, custom code, content grouping), the admin notices, the settings validation and the settings editor without CodeMirror. Warnings and deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are stubbed: this is not a full WordPress or Gravity Forms integration test.
+`tests/php-compatibility.php` checks the settings files, the YAML reader and the upgrade of a legacy `settings.yaml` (`tests/fixtures/`), the options loading, the full `<head>` output in every load mode (Google tag, call/email tracking, scroll tracking, custom code, content grouping), form tracking (cookies, payload sent to Google, payments, hooks; the HTTP request is stubbed), the admin notices, the settings validation and the settings editor without CodeMirror. Warnings and deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are stubbed: this is not a full WordPress or Gravity Forms integration test.
 
 ## CREDITS
 A huge thanks to Justin Cutroni for sharing with the community his great [content tracking script]!
