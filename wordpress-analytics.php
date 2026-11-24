@@ -58,23 +58,8 @@ $options = wpan_get_options();
 // ========================
 
 // Load content grouping function
-if ( isset( $options ['content_grouping'] ) && $options ['content_grouping'] ) {
+if ( wpan_option( $options, 'content_grouping' ) ) {
 	require_once WPAN_PLUGIN_DIR . 'content_grouping.php';
-}
-
-// Load scroll tracking function
-if ( isset( $options ['scroll_tracking'] ) && $options ['scroll_tracking'] ) {
-	require_once WPAN_PLUGIN_DIR . 'scroll_tracking.php';
-}
-
-// Load call tracking function
-if ( isset( $options ['call_tracking'] ) && $options ['call_tracking'] ) {
-	require_once WPAN_PLUGIN_DIR . 'call_tracking.php';
-}
-
-// Load email tracking function
-if ( isset( $options ['email_tracking'] ) && $options ['email_tracking'] ) {
-	require_once WPAN_PLUGIN_DIR . 'email_tracking.php';
 }
 
 // Load the function to write the Google tag, the tracking scripts and the

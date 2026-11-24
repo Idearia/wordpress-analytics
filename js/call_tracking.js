@@ -50,10 +50,6 @@ jQuery(document).ready(function($) {
   if (regexExcludePattern === undefined)
     regexExcludePattern = '';
 
-  /* Get some information about the current page */
-  var pageTitle = document.title;
-  var pagePath = window.location.pathname;
-
   /* Delimiters that can appear in phone numbers */
   var delimiters = [' ', '.', '-', ','];
 
@@ -149,10 +145,7 @@ jQuery(document).ready(function($) {
     /* Send the event, attaching phone number & page information. Do so only
     if the user hasn't already clicked on the phone number before. */
     if (numberOfClicks == 1) {
-      /* The event is sent only if the Google tag was loaded with gtag.js; if
-      it is missing (ex. no measurement ID) the click is simply not tracked */
-      if (typeof window.gtag === 'function')
-        window.gtag('event', 'phone_click', {'link_url': strippedPhoneNumber, 'page_path': pagePath});
+      window.wpanSendEvent('phone_click', {'link_url': strippedPhoneNumber});
       if (debugMode)
         console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
     }

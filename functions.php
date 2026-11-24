@@ -77,7 +77,7 @@ function wpan_debug( $log, $force = false ) {
 	} else {
 		/* Use the plugin's debug flag to determine whether to write or not */
 		$options = wpan_get_options();
-		$write   = isset( $options['debug'] ) ? $options['debug'] : false;
+		$write   = wpan_option( $options, 'debug', false );
 	}
 
 	if ( $write && defined( 'WPAN_PLUGIN_DIR' ) ) {
@@ -127,7 +127,7 @@ function wpan_notify_email( $message ) {
 
 	// Get destination email address
 	$options     = wpan_get_options();
-	$debug_email = isset( $options['debug_email'] ) ? $options['debug_email'] : false;
+	$debug_email = wpan_option( $options, 'debug_email', false );
 
 	// Validate email address
 	if ( ! $debug_email || ! filter_var( $debug_email, FILTER_VALIDATE_EMAIL ) ) {
@@ -210,7 +210,7 @@ function wpan_get_measurement_id( $options = null ) {
 		$options = wpan_get_options();
 	}
 
-	$measurement_id = isset( $options['measurement_id'] ) ? strtoupper( trim( (string) $options['measurement_id'] ) ) : '';
+	$measurement_id = strtoupper( trim( (string) wpan_option( $options, 'measurement_id' ) ) );
 
 	return wpan_is_measurement_id( $measurement_id ) ? $measurement_id : '';
 
@@ -235,12 +235,36 @@ function wpan_get_load_mode( $options = null ) {
 		$options = wpan_get_options();
 	}
 
-	$load_mode = isset( $options['load_mode'] ) ? $options['load_mode'] : '';
+	$load_mode = wpan_option( $options, 'load_mode' );
 
 	return in_array( $load_mode, [ 'gtag', 'gtm', 'none' ], true ) ? $load_mode : 'gtag';
 
 }
 
+
+/**
+ * Return the value of an option, or the default if the option is not set.
+ *
+ * @param array  $options Options, as returned by wpan_get_options().
+ * @param string $key     Name of the option.
+ * @param mixed  $default Value returned if the option is not set.
+ * @return mixed
+ */
+function wpan_option( $options, $key, $default = '' ) {
+	return isset( $options[ $key ] ) ? $options[ $key ] : $default;
+}
+
+/**
+ * Whether the current user should see the notices of the plugin: only
+ * administrators and, in network mode, only on the main blog, because the
+ * settings cannot be changed from the other blogs.
+ *
+ * @return bool
+ */
+function wpan_can_show_admin_notices() {
+	return current_user_can( 'manage_options' )
+		&& ! ( is_multisite() && wpan_is_network_mode() && ! wpan_is_main_blog() );
+}
 
 /**
  * Warn the administrators when Google Analytics 4 is not configured yet, or
@@ -250,12 +274,7 @@ function wpan_get_load_mode( $options = null ) {
  */
 function wpan_ga4_admin_notices() {
 
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
-	}
-
-	// In network mode the settings can be changed only from the main blog
-	if ( is_multisite() && wpan_is_network_mode() && ! wpan_is_main_blog() ) {
+	if ( ! wpan_can_show_admin_notices() ) {
 		return;
 	}
 

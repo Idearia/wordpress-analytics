@@ -40,6 +40,8 @@ If you want the plugin to load the Google tag without sending the pageview, unch
 
 If *Google Tag Manager for WordPress* is active and the plugin is set to load GA4 by itself, a notice in the admin warns you of the risk of double pageviews.
 
+In the *Google Tag Manager* mode the scroll, phone and email events (`start_reading`, `phone_click`, `email_click`, ...) are pushed to the `dataLayer` as custom events with the same names and parameters: to see them in GA4, add to your GTM container a GA4 event tag fired by those custom events.
+
 Call and email tracking send the `phone_click` and `email_click` events (with the `link_url` and `page_path` parameters) when the Google tag is loaded by WordPress Analytics.
 
 Scroll tracking sends, on single posts, the events `article_loaded`, `start_reading` (parameter `time_to_scroll`), `content_bottom` (parameters `time_to_content_end` and `reading_behaviour`, either `Scanner` or `Reader`), `content_read` (only for readers) and `page_bottom` (parameter `total_time`); times are in seconds. To use the parameters in the GA4 reports, register them in the GA4 admin as custom metrics and, for `reading_behaviour`, as a custom dimension. Like call and email tracking, the events are sent when the Google tag is loaded by WordPress Analytics.
@@ -81,7 +83,7 @@ The hooks of the Universal Analytics version (`wpan_filter_form_tracking_options
 
 ### Tests
 
-`tests/php-compatibility.php` checks the settings files, the YAML reader and the upgrade of a legacy `settings.yaml` (`tests/fixtures/`), the options loading, the full `<head>` output in every load mode (Google tag, call/email tracking, scroll tracking, custom code, content grouping), form tracking (cookies, payload sent to Google, payments, hooks; the HTTP request is stubbed), the admin notices, the settings validation and the settings editor without CodeMirror. Warnings and deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are stubbed: this is not a full WordPress or Gravity Forms integration test.
+`tests/php-compatibility.php` checks the settings files, the YAML reader and the upgrade of a legacy `settings.yaml` (`tests/fixtures/`), the options loading, the full `<head>` output in every load mode (Google tag, call/email tracking, scroll tracking, custom code, content grouping), form tracking (cookies, payload sent to Google, payments, hooks; the HTTP request is stubbed), the admin notices, the settings validation and the custom code editor. Warnings and deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests on PHP **7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3, 8.4 and 8.5**. WordPress APIs are stubbed: this is not a full WordPress or Gravity Forms integration test.
 
 ## CREDITS
 A huge thanks to Justin Cutroni for sharing with the community his great [content tracking script]!

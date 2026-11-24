@@ -27,10 +27,6 @@ jQuery(document).ready(function($) {
   if (debugMode === undefined)
     debugMode = false;
 
-  /* Get some information about the current page */
-  var pageTitle = document.title;
-  var pagePath = window.location.pathname;
-
 
   // ===========================================================================
   // =                             Track email clicks                          =
@@ -55,10 +51,7 @@ jQuery(document).ready(function($) {
     /* Send the event, attaching the email address. Do so only
     if the user hasn't already clicked on the address before. */
     if (numberOfClicks == 1) {
-      /* The event is sent only if the Google tag was loaded with gtag.js; if
-      it is missing (ex. no measurement ID) the click is simply not tracked */
-      if (typeof window.gtag === 'function')
-        window.gtag('event', 'email_click', {'link_url': emailAddress, 'page_path': pagePath});
+      window.wpanSendEvent('email_click', {'link_url': emailAddress});
       if (debugMode)
         console.log(' -> Sent click event for ' + emailAddress);
     }
@@ -68,16 +61,6 @@ jQuery(document).ready(function($) {
     }
 
   });
-
-
-  /**
-   * Function to automatically escape special characters in regex patterns;
-   * thanks to bobince on http://stackoverflow.com/a/3561711/2972183
-   */
-
-  RegExp.escape = function(s) {
-    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-  };
 
 
 }); // $(document).ready

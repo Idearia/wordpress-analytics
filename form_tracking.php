@@ -43,7 +43,7 @@ function wpan_get_api_secret( $options = null ) {
 		$options = wpan_get_options();
 	}
 
-	return isset( $options['api_secret'] ) ? trim( (string) $options['api_secret'] ) : '';
+	return trim( (string) wpan_option( $options, 'api_secret' ) );
 
 }
 
@@ -215,7 +215,7 @@ function wpan_send_form_submitted( $entry, $form ) {
 	}
 
 	$is_payment_form  = isset( $entry['payment_status'] ) && $entry['payment_status']; // payment forms start with 'processing' as payment status
-	$wait_for_payment = isset( $options['wait_for_form_payment'] ) && $options['wait_for_form_payment'];
+	$wait_for_payment = wpan_option( $options, 'wait_for_form_payment' );
 
 	// If the form is a payment form, and the user chose to wait for
 	// payment confirmation, do not send the event yet
@@ -228,9 +228,7 @@ function wpan_send_form_submitted( $entry, $form ) {
 	try {
 		wpan_send_tracking_event( $entry, $form, $visitor );
 	} catch ( \Throwable $e ) {
-		$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
-		wpan_notify_email( $msg );
-		error_log( $msg ); // phpcs:ignore
+		wpan_report_form_tracking_error( $e );
 	}
 }
 
@@ -248,7 +246,7 @@ function wpan_send_form_submitted( $entry, $form ) {
 function wpan_send_payment_done( $entry, $feed, $transaction_id, $amount ) {
 
 	$options          = wpan_get_options();
-	$wait_for_payment = isset( $options['wait_for_form_payment'] ) && $options['wait_for_form_payment'];
+	$wait_for_payment = wpan_option( $options, 'wait_for_form_payment' );
 
 	// If the user chose not to wait for payment confirmation, the
 	// event was already sent => do nothing
@@ -271,10 +269,21 @@ function wpan_send_payment_done( $entry, $feed, $transaction_id, $amount ) {
 		}
 		wpan_send_tracking_event( $entry, is_array( $form ) ? $form : [], $visitor, $payment );
 	} catch ( \Throwable $e ) {
-		$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
-		wpan_notify_email( $msg );
-		error_log( $msg ); // phpcs:ignore
+		wpan_report_form_tracking_error( $e );
 	}
+}
+
+
+/**
+ * Report an error occurred while sending a form tracking event, without
+ * interrupting the submission of the form.
+ *
+ * @param Throwable $e
+ */
+function wpan_report_form_tracking_error( $e ) {
+	$msg = 'Errore in WordPress Analytics Form Tracking: ' . $e->getMessage();
+	wpan_notify_email( $msg );
+	error_log( $msg ); // phpcs:ignore
 }
 
 
@@ -379,12 +388,7 @@ function wpan_send_tracking_event( $entry, $form, $visitor, $extra_params = [] )
  */
 function wpan_form_tracking_admin_notices() {
 
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
-	}
-
-	// In network mode the settings can be changed only from the main blog
-	if ( is_multisite() && wpan_is_network_mode() && ! wpan_is_main_blog() ) {
+	if ( ! wpan_can_show_admin_notices() ) {
 		return;
 	}
 

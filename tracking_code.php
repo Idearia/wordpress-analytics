@@ -20,12 +20,8 @@ function wpan_tracking_code() {
 	$options          = wpan_get_options();
 	$measurement_id   = wpan_get_measurement_id( $options );
 	$load_mode        = wpan_get_load_mode( $options );
-	$content_grouping = is_single() && isset( $options ['content_grouping'] ) && $options ['content_grouping'];
-	$scroll_tracking  = is_single() && isset( $options ['scroll_tracking'] ) && $options ['scroll_tracking'];
-	$call_tracking    = isset( $options ['call_tracking'] ) && $options ['call_tracking'];
-	$email_tracking   = isset( $options ['email_tracking'] ) && $options ['email_tracking'];
-	$custom_code      = isset( $options ['custom_code'] ) && $options ['custom_code'];
-	$send_page_view   = isset( $options ['send_page_view'] ) && $options ['send_page_view'];
+	$content_grouping = is_single() && wpan_option( $options, 'content_grouping' );
+	$debug            = wpan_option( $options, 'debug' );
 	$load_gtag        = 'gtag' === $load_mode && $measurement_id;
 
 	echo PHP_EOL . PHP_EOL . '<!-- BEGIN: Tracking code inserted by WordPress Analytics ' . WPAN_VERSION . ' - ' . WPAN_URL . '-->' . PHP_EOL; // phpcs:ignore
@@ -47,29 +43,71 @@ function wpan_tracking_code() {
 		echo '<!-- Google tag not loaded: Google Analytics 4 is loaded by Google Tag Manager or by another plugin -->' . PHP_EOL;
 	}
 
+	// Function used by the tracking scripts below to send their events: with
+	// gtag() if it is there, otherwise, if Google Analytics 4 is loaded by
+	// Google Tag Manager, as a dataLayer event that the container can pick up
+	if ( wpan_option( $options, 'scroll_tracking' ) || wpan_option( $options, 'call_tracking' ) || wpan_option( $options, 'email_tracking' ) ) {
+		?>
+<script>
+	window.wpanSendEvent = function (name, params) {
+		params = params || {};
+		params.page_path = window.location.pathname;
+		if (typeof window.gtag === 'function')
+			window.gtag('event', name, params);
+<?php if ( 'gtm' === $load_mode ) : ?>
+		else {
+			params.event = name;
+			window.dataLayer = window.dataLayer || [];
+			window.dataLayer.push(params);
+		}
+<?php endif; ?>
+	};
+</script>
+		<?php
+	}
+
 	// Scroll tracking script to track reading behaviour
-	if ( $scroll_tracking ) {
-		wpan_scroll_tracking();
+	if ( is_single() && wpan_option( $options, 'scroll_tracking' ) ) {
+		wpan_tracking_script(
+			'scroll_tracking',
+			[
+				'timeThreshold'  => wpan_option( $options, 'time_threshold' ),
+				'pixelThreshold' => wpan_option( $options, 'pixel_threshold' ),
+				'debug'          => $debug,
+			]
+		);
 	}
 
 	// Call tracking script to track clicks on phone numbers, and to turn
 	// phone numbers into links
-	if ( $call_tracking ) {
-		wpan_call_tracking();
+	if ( wpan_option( $options, 'call_tracking' ) ) {
+		// Prevent mobile browsers from detecting phone numbers
+		if ( wpan_option( $options, 'detect_phone_numbers' ) ) {
+			echo "<meta name='format-detection' content='telephone=no'>\n";
+		}
+		wpan_tracking_script(
+			'call_tracking',
+			[
+				'regexIncludePattern' => wpan_option( $options, 'phone_regex_include_pattern' ),
+				'regexExcludePattern' => wpan_option( $options, 'phone_regex_exclude_pattern' ),
+				'detectPhoneNumbers'  => wpan_option( $options, 'detect_phone_numbers' ),
+				'debug'               => $debug,
+			]
+		);
 	}
 
 	// Email tracking script to track clicks on email links
-	if ( $email_tracking ) {
-		wpan_email_tracking();
+	if ( wpan_option( $options, 'email_tracking' ) ) {
+		wpan_tracking_script( 'email_tracking', [ 'debug' => $debug ] );
 	}
 
 	// Execute code specified by the user
-	if ( $custom_code ) {
+	if ( wpan_option( $options, 'custom_code' ) ) {
 		// Custom code written for Universal Analytics might still call the old
 		// tracker (ex. ga('set', ...)), which does not exist anymore: define it
 		// as an empty function, lest a Javascript error stops the rest of the
 		// user's script (ex. a Facebook Pixel in the same script tag)
-		$legacy_tracker = isset( $options ['tracker_name'] ) && $options ['tracker_name'] ? $options ['tracker_name'] : 'ga';
+		$legacy_tracker = wpan_option( $options, 'tracker_name' ) ? $options['tracker_name'] : 'ga';
 		if ( preg_match( '/^[A-Za-z_$][A-Za-z0-9_$]*$/', $legacy_tracker ) && preg_match( '/' . preg_quote( $legacy_tracker, '/' ) . '\s*\(/', $options ['custom_code'] ) ) {
 			echo "<script> window['$legacy_tracker'] = window['$legacy_tracker'] || function(){}; </script>\n"; // phpcs:ignore
 		}
@@ -81,12 +119,35 @@ function wpan_tracking_code() {
 	// page (if any). This should be at the end of the script.
 	if ( $load_gtag ) {
 		$config = $content_grouping ? wpan_content_grouping() : [];
-		if ( ! $send_page_view ) {
+		if ( ! wpan_option( $options, 'send_page_view' ) ) {
 			$config['send_page_view'] = false;
 		}
 		echo '<script> gtag(\'config\', ' . wp_json_encode( $measurement_id ) . ( $config ? ', ' . wp_json_encode( $config ) : '' ) . "); </script>\n"; // phpcs:ignore
 	}
 
 	echo '<!-- END: Tracking code inserted by WordPress Analytics ' . WPAN_VERSION . ' - ' . WPAN_URL . '-->' . PHP_EOL . PHP_EOL; // phpcs:ignore
+
+}
+
+
+/**
+ * Print the tag of one of the tracking scripts in the js folder.
+ *
+ * The modification time of the file is added to the URL, so that browsers
+ * reload the script when it changes rather than using the cached version.
+ *
+ * @param string $name       Name of the script, without extension.
+ * @param array  $attributes Settings for the script, passed as attributes
+ *                           of its tag.
+ */
+function wpan_tracking_script( $name, $attributes ) {
+
+	$src = WPAN_PLUGIN_URL . "js/$name.js?ver=" . filemtime( WPAN_PLUGIN_DIR . "js/$name.js" );
+
+	echo "<script src='$src' "; // phpcs:ignore
+	foreach ( $attributes as $attribute => $value ) {
+		echo "$attribute='$value' "; // phpcs:ignore
+	}
+	echo "defer='defer'> </script>\n";
 
 }

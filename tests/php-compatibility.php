@@ -202,9 +202,6 @@ function render_head($options) {
 }
 function has($haystack, $needle) { return strpos($haystack, $needle) !== false; }
 
-require_once $root . '/scroll_tracking.php';
-require_once $root . '/call_tracking.php';
-require_once $root . '/email_tracking.php';
 require_once $root . '/content_grouping.php';
 require_once $root . '/tracking_code.php';
 
@@ -263,6 +260,7 @@ $head = render_head($ga4_options);
 check_same(true, has($head, 'gtag(\'config\', "G-TEST123", {"content_group":"News & \"Co\"","content_type":"guide"});'), 'Content group in config');
 check_same(true, has($head, "js/scroll_tracking.js?ver=") && has($head, "timeThreshold='60' pixelThreshold='300'"), 'Scroll tracking script on single posts');
 check_same(false, has($head, 'npmcdn') || has($head, 'gaTracker'), 'No external library, no UA tracker in scripts');
+check_same(true, has($head, 'window.wpanSendEvent = function') && !has($head, 'dataLayer.push(params)'), 'Events sent with gtag only in gtag mode');
 $wpan_test_is_single = false;
 check_same(false, has(render_head($ga4_options), 'scroll_tracking.js'), 'No scroll tracking outside single posts');
 
@@ -270,7 +268,8 @@ check_same(false, has(render_head($ga4_options), 'scroll_tracking.js'), 'No scro
 // everything else still there.
 $ga4_options['wpan:general_settings']['load_mode'] = 'gtm';
 $head = render_head($ga4_options);
-check_same(false, has($head, 'googletagmanager.com') || has($head, "gtag("), 'No Google tag in GTM mode');
+check_same(false, has($head, 'googletagmanager.com') || has($head, "gtag('js'") || has($head, "gtag('config'"), 'No Google tag in GTM mode');
+check_same(true, has($head, 'window.wpanSendEvent = function') && has($head, 'window.dataLayer.push(params);'), 'Events pushed to the dataLayer in GTM mode');
 check_same(true, has($head, 'js/call_tracking.js?ver=') && has($head, 'wpan-test'), 'Call tracking and custom code in GTM mode');
 
 // No tag at all, no measurement ID: no notice.
@@ -454,7 +453,7 @@ $_COOKIE = [];
 $patterns = ['phone_include_regex_pattern' => '^39', 'phone_exclude_regex_pattern' => '^800'];
 check_same($patterns, wpan_sanitize_options($patterns), 'Regex settings');
 
-// An optional missing CodeMirror library must not cause an undefined-constant Error.
+// The custom code editor is a plain textarea, with the code escaped.
 ob_start();
 wpan_display_code_field([
     'db_key' => 'wpan:custom_code', 'name' => 'custom_code', 'value' => '<p>test</p>',
@@ -462,6 +461,5 @@ wpan_display_code_field([
 ]);
 $html = ob_get_clean();
 check_same(true, strpos($html, '&lt;p&gt;test&lt;/p&gt;') !== false, 'Plain code textarea');
-check_same(false, strpos($html, 'CodeMirror.fromTextArea') !== false, 'No CodeMirror when absent');
 
 printf("OK: %d checks on PHP %s (E_ALL, warnings/deprecations fail the test)\n", $checks, PHP_VERSION);
