@@ -39,6 +39,9 @@ require_once WPAN_PLUGIN_DIR . 'settings/settings_library.php';
 // Build settings page
 if ( is_admin() ) {
 	require_once WPAN_PLUGIN_DIR . 'settings/settings.php';
+	// Warn the administrators if the website's settings.yaml cannot be read
+	add_action( 'admin_notices', 'wpan_config_fallback_notice' );
+	add_action( 'network_admin_notices', 'wpan_config_fallback_notice' );
 }
 
 // Extract plugin options from the database */

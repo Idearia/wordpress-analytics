@@ -35,6 +35,8 @@ function get_option($name) {
 function add_action(...$args) {}
 function add_filter(...$args) {}
 function esc_attr($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
+function esc_html($value) { return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8'); }
+function current_user_can($capability) { return 'manage_options' === $capability; }
 function add_settings_error(...$args) {
     throw new RuntimeException('Unexpected validation error: ' . implode(' ', $args));
 }
@@ -134,6 +136,16 @@ ini_restore('error_log');
 unlink($legacy);
 check_same(true, isset($GLOBALS['wpan_menu_structure']['menus']['wordpress_analytics']['sections']['general_settings']), 'Unreadable YAML falls back to JSON');
 check_same(false, isset($GLOBALS['wpan_menu_structure']['menus']['advanced_settings']['sections']['extra_section']), 'Fallback uses the bundled structure');
+
+// The fallback is shown to the administrators, and only when it happens.
+ob_start();
+wpan_config_fallback_notice();
+$notice = ob_get_clean();
+check_same(true, strpos($notice, 'notice-error') !== false && strpos($notice, 'Unsupported syntax at line 2') !== false, 'Fallback admin notice');
+unset($GLOBALS['wpan_config_fallback']);
+ob_start();
+wpan_config_fallback_notice();
+check_same('', ob_get_clean(), 'No admin notice without fallback');
 
 unset($GLOBALS['wpan_menu_structure']);
 check_same([], wpan_get_options(), 'Empty WordPress options');

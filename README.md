@@ -38,8 +38,9 @@ exists it takes precedence over `settings.json`, and it is read by a minimal YAM
 reader bundled with the plugin (`settings/settings_yaml.php`, no library needed).
 The reader supports what the settings file uses: nested mappings, comments, plain
 and quoted values, folded (`>`) and literal (`|`) text blocks. If the file uses
-anything else (lists, anchors, inline collections) the plugin logs the reason and
-uses `settings.json` instead. Without a `settings.yaml`, `settings.json` is used.
+anything else (lists, anchors, inline collections) the plugin uses `settings.json`
+instead, logs the reason and shows it in a red notice on every admin page, until
+the file is fixed or deleted. Without a `settings.yaml`, `settings.json` is used.
 
 Form tracking (Gravity Forms) is the only feature that still needs a Composer
 package, `ins0/google-measurement-php-client`. Without it the plugin works and
