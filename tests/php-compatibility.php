@@ -76,13 +76,66 @@ foreach (['settings.json', 'settings.example.json'] as $filename) {
     }
 }
 
-// The legacy YAML format is refused cleanly, without fatal errors.
-unset($GLOBALS['wpan_menu_structure']);
+// A legacy settings.yaml is read by the plugin's own minimal reader, and gives
+// the very same structure as the bundled JSON files generated from it.
+require_once $root . '/settings/settings_yaml.php';
+foreach (['settings', 'settings.example'] as $name) {
+    check_same(
+        json_decode(file_get_contents($root . '/settings/' . $name . '.json'), true),
+        wpan_parse_settings_yaml(file_get_contents(__DIR__ . '/fixtures/' . $name . '.yaml')),
+        $name . '.yaml matches ' . $name . '.json'
+    );
+}
+
+$blocks = [
+    "value: >\n  first line\n  second line\n" => "first line second line\n",
+    "value: |\n  first line\n  second line\n" => "first line\nsecond line\n",
+    "value: >-\n  first line\n  second line\n" => 'first line second line',
+    "value: |-\n  first line\n  second line\n" => "first line\nsecond line",
+    "value: |+\n  first line\n\n" => "first line\n\n",
+    "value: >\n" => '',
+    "value: >\n  Città, qualità, più, perché.\n" => "Città, qualità, più, perché.\n",
+    "value: >\n  one\n\n  two\n    indented\n  three\n" => "one\ntwo\n  indented\nthree\n",
+];
+foreach ($blocks as $yaml => $expected) {
+    check_same(['value' => $expected], wpan_parse_settings_yaml($yaml), 'Block scalar');
+}
+check_same(
+    ['text' => 'hello', 'number' => 42, 'bool' => true, 'empty' => null, 'quoted' => "it's", 'string' => '1', 'url' => 'http://a.b/c#d'],
+    wpan_parse_settings_yaml("text: hello # comment\nnumber: 42\nbool: true\nempty: null\nquoted: 'it''s'\nstring: '1'\nurl: http://a.b/c#d\n"),
+    'Scalar types'
+);
+foreach (["a: [1, 2]\n", "a:\n  - x\n", "a: &x 1\n", "a: {b: 1}\n", "a: 1\n   b: 2\n", "a: 1\na: 2\n"] as $yaml) {
+    $rejected = false;
+    try {
+        wpan_parse_settings_yaml($yaml);
+    } catch (Exception $exception) {
+        $rejected = true;
+    }
+    check_same(true, $rejected, 'Unsupported YAML is rejected');
+}
+
+// A customised settings.yaml is loaded as is; one that cannot be read falls
+// back to the bundled JSON file instead of breaking the website.
 $legacy = sys_get_temp_dir() . '/wpan-legacy-' . getmypid() . '.yaml';
-file_put_contents($legacy, "menus: {}\n");
+$custom = file_get_contents(__DIR__ . '/fixtures/settings.yaml')
+    . "            extra_section:\n                id: extra_section\n                display: Extra\n                fields:\n"
+    . "                    extra_field:\n                        id: extra_field\n                        title: Extra\n                        default: ''\n                        type: text\n";
+file_put_contents($legacy, $custom);
+unset($GLOBALS['wpan_menu_structure']);
 wpan_load_menu_structure($legacy);
+check_same('wpan:extra_section', $GLOBALS['wpan_menu_structure']['menus']['advanced_settings']['sections']['extra_section']['db_key'], 'Custom YAML section');
+
+file_put_contents($legacy, "menus:\n  - unsupported\n");
+unset($GLOBALS['wpan_menu_structure']);
+ini_set('error_log', '/dev/null');
+wpan_load_menu_structure($legacy);
+ini_restore('error_log');
 unlink($legacy);
-check_same(false, isset($GLOBALS['wpan_menu_structure']), 'YAML config is not loaded');
+check_same(true, isset($GLOBALS['wpan_menu_structure']['menus']['wordpress_analytics']['sections']['general_settings']), 'Unreadable YAML falls back to JSON');
+check_same(false, isset($GLOBALS['wpan_menu_structure']['menus']['advanced_settings']['sections']['extra_section']), 'Fallback uses the bundled structure');
+
+unset($GLOBALS['wpan_menu_structure']);
 check_same([], wpan_get_options(), 'Empty WordPress options');
 
 // Options stored in the database are read through the JSON structure.

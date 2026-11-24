@@ -31,8 +31,15 @@ built-in `json_decode()`. The former `settings.yaml` needed Symfony YAML, and ea
 release of that library only supports a limited range of PHP versions (the old
 3.2.6 parser throws a `TypeError` on PHP 8.0+). The JSON file was generated from
 the YAML one and produces the very same array; option values stay in the database
-under the same `wpan:*` keys, so no migration is needed. A website with a
-customised `settings.yaml` must convert it to JSON before updating.
+under the same `wpan:*` keys, so no migration is needed.
+
+A website with a customised `settings.yaml` can keep it: if `settings/settings.yaml`
+exists it takes precedence over `settings.json`, and it is read by a minimal YAML
+reader bundled with the plugin (`settings/settings_yaml.php`, no library needed).
+The reader supports what the settings file uses: nested mappings, comments, plain
+and quoted values, folded (`>`) and literal (`|`) text blocks. If the file uses
+anything else (lists, anchors, inline collections) the plugin logs the reason and
+uses `settings.json` instead. Without a `settings.yaml`, `settings.json` is used.
 
 Form tracking (Gravity Forms) is the only feature that still needs a Composer
 package, `ins0/google-measurement-php-client`. Without it the plugin works and
@@ -42,7 +49,8 @@ form tracking is simply skipped. To enable it, run from the plugin directory:
 composer install --no-dev --no-plugins --no-scripts --prefer-dist --no-interaction
 ```
 
-`tests/php-compatibility.php` checks the settings files, the options loading, the
+`tests/php-compatibility.php` checks the settings files, the YAML reader against the
+original YAML files (`tests/fixtures/`), the options loading, the
 full `<head>` output (tracker, call/email tracking, custom code), the PHP 8.1-safe
 regex validation and the settings editor without CodeMirror. Warnings and
 deprecations fail the tests. GitHub Actions lints every PHP file and runs the tests

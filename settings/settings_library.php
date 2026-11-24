@@ -128,8 +128,23 @@
       if ( 'json' == $extension ) {
         $GLOBALS['wpan_menu_structure'] = json_decode( $settings_file_content, true );
       }
-      /* Any other format (including the legacy YAML one) is not supported:
-      convert the file to JSON */
+      /* If config file is YAML (legacy format), parse it with the plugin's own
+      minimal reader; if the file cannot be read that way, use the bundled JSON
+      config file instead */
+      else if ( 'yaml' == $extension || 'yml' == $extension ) {
+        require_once WPAN_PLUGIN_DIR . 'settings/settings_yaml.php';
+        try {
+          $GLOBALS['wpan_menu_structure'] = wpan_parse_settings_yaml( $settings_file_content );
+          if ( ! isset( $GLOBALS['wpan_menu_structure']['menus'] ) || ! is_array( $GLOBALS['wpan_menu_structure']['menus'] ) ) {
+            throw new Exception( 'no menus found' );
+          }
+        }
+        catch ( Exception $e ) {
+          wpan_debug_wp( "Cannot read config file $filepath (" . $e->getMessage() . '), using ' . WPAN_DEFAULT_CONFIG_FILE . ' instead' );
+          $GLOBALS['wpan_menu_structure'] = json_decode( file_get_contents( WPAN_DEFAULT_CONFIG_FILE ), true );
+        }
+      }
+      /* If config file is not recognized... */
       else {
         wpan_debug_wp( "Extension $extension not recognized, cannot open config file " . $filepath);
         return;

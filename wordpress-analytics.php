@@ -23,8 +23,12 @@ define( 'WPAN_URL', 'https://github.com/coccoinomane/wordpress_analytics' );
 define( 'WPAN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAN_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
-// Define plugin's config file
-define( 'WPAN_CONFIG_FILE', WPAN_PLUGIN_DIR . 'settings/settings.json' );
+// Define plugin's config file: a settings.yaml left in the settings folder
+// (legacy format, possibly customised for this website) takes precedence
+// over the bundled settings.json
+define( 'WPAN_DEFAULT_CONFIG_FILE', WPAN_PLUGIN_DIR . 'settings/settings.json' );
+define( 'WPAN_LEGACY_CONFIG_FILE', WPAN_PLUGIN_DIR . 'settings/settings.yaml' );
+define( 'WPAN_CONFIG_FILE', is_readable( WPAN_LEGACY_CONFIG_FILE ) ? WPAN_LEGACY_CONFIG_FILE : WPAN_DEFAULT_CONFIG_FILE );
 
 // Include utility functions
 require_once WPAN_PLUGIN_DIR . 'functions.php';
