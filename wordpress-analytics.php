@@ -24,10 +24,7 @@ define( 'WPAN_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WPAN_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 
 // Define plugin's config file
-define( 'WPAN_CONFIG_FILE', WPAN_PLUGIN_DIR . '/settings/settings.yaml' );
-
-// Autoload Composer packages
-require __DIR__ . '/vendor/autoload.php';
+define( 'WPAN_CONFIG_FILE', WPAN_PLUGIN_DIR . 'settings/settings.json' );
 
 // Include utility functions
 require_once WPAN_PLUGIN_DIR . 'functions.php';

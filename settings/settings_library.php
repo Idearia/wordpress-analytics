@@ -128,19 +128,8 @@
       if ( 'json' == $extension ) {
         $GLOBALS['wpan_menu_structure'] = json_decode( $settings_file_content, true );
       }
-      /* If config file is YAML load the external Yaml library and use it to parse
-      the config file */
-      else if ( 'yaml' == $extension || 'yml' == $extension ) {
-        wpan_load_yaml_library();
-        if ( defined( "WPAN_YAML_LOADED" ) ) {
-          $GLOBALS['wpan_menu_structure'] = Symfony\Component\Yaml\Yaml::parse( $settings_file_content );
-        }
-        else {
-          wpan_debug_wp( "Yaml library not loaded, cannot open config file " . $filepath );
-          return;
-        }
-      }
-      /* If config file is not recognized... */
+      /* Any other format (including the legacy YAML one) is not supported:
+      convert the file to JSON */
       else {
         wpan_debug_wp( "Extension $extension not recognized, cannot open config file " . $filepath);
         return;
