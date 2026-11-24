@@ -1,5 +1,5 @@
 /**
- * Javascript for use with Universal Google Analytics (GA) that tracks the
+ * Javascript for use with Google Analytics 4 (GA4) that tracks the
  * scrolling actions performed by the user of a website.
  *
  * This script is a version of the fantastic Advanced Content Tracking
@@ -8,32 +8,35 @@
  * http://cutroni.com/blog/2014/02/12/advanced-content-tracking-with-unive
  * rsal-analytics/.
  *
- * This script defines the following GA events:
+ * This script sends the following GA4 events, all with the page_path
+ * parameter:
  *
- * - ArticleLoaded: the page has loaded completely in the user browser,
+ * - article_loaded: the page has loaded completely in the user browser,
  *     images included.
- * - StartReading: the user was shown at least 200 pixels of content;
+ * - start_reading: the user was shown at least 300 pixels of content;
  *     the exact number of pixels can be changed via the pixelThreshold
- *     variable.
- * - ContentBottom: the user reached the end of the content section
- *     of the page.
- * - PageBottom: the user reached the end of the page.
- * - ContentRead: the user spent more than 60 seconds scrolling the
- *     content part of the page.
+ *     variable. Parameter time_to_scroll: time in seconds between the
+ *     loading of the page and the first scroll by the user.
+ * - content_bottom: the user reached the end of the content section
+ *     of the page. Parameters: time_to_content_end, time in seconds
+ *     between the first scroll and reaching the end of the content
+ *     section; reading_behaviour, either 'Scanner' if that took less
+ *     than 60s or 'Reader' if it took more. The exact amount of time
+ *     can be changed via the timeThreshold variable.
+ * - content_read: the user is a 'Reader', i.e. spent more than 60
+ *     seconds scrolling the content part of the page. Parameter:
+ *     time_to_content_end.
+ * - page_bottom: the user reached the end of the page. Parameter
+ *     total_time: time in seconds between the first scroll and
+ *     reaching the bottom of the page.
+ * - content_guessed, content_too_short: the content of the page could
+ *     not be identified properly.
  *
- * .. and the following GA dimensions and metrics:
+ * To see the parameters in the GA4 reports, register them in the GA4
+ * admin as custom metrics (the times) and as a custom dimension
+ * (reading_behaviour).
  *
- * - Reading behaviour (dimension1): can be either 'Scroller' if the
- *     user spent less than 60s on the page before reaching the end of
- *     the content section, or 'Reader' if s/he spent more than 60s.
- *     The exact amount of time can be changed via the timeThreshold 
- *     variable.
- * - timeToScroll (metric1): time in seconds between the loading of the
- *     page and the first scroll by the user.
- * - timeToContentEnd (metric2): time in seconds between the first scroll
- *     and reaching the end of the content section.
- * - totalTime (metric3): time between the first scroll and reaching
- *     the bottom of the page.
+ * The events are sent only if the Google tag was loaded with gtag.js.
  *
  * The pixel and time thresholds can be customized by specifying the
  * pixelThreshold and timeThreshold attributes in the script tag,
@@ -75,9 +78,18 @@
 
 jQuery(document).ready(function($) {
 
-  $(document).imagesLoaded(function() {
+  /* Wait for the page to be completely loaded, images included, lest the
+  size of the content is not estimated correctly */
+  var whenLoaded = function (callback) {
+    if (document.readyState === 'complete')
+      callback();
+    else
+      $(window).on('load', callback);
+  };
 
-    $(window).load(function() {
+  whenLoaded(function() {
+
+    (function() {
   
       // -----------------------------------------------------------------
       // -                       Initialisation                          -
@@ -87,18 +99,14 @@ jQuery(document).ready(function($) {
       that end with the filename of this file */
       var this_js_script = $('script[src*=scroll_tracking\\.js]');
 
-      /* Parse the Google Analytics tracker name */
-      var gaTrackerName = this_js_script.attr('gaTracker');
-      if (gaTrackerName === undefined) {
-        console.warn(" -> The 'gaTracker' argument was not found, using 'ga'");
-        gaTrackerName = 'ga'
-      }
-  
-      /* Check whether the tracker exists */
-      var gaTracker = window[gaTrackerName];
-      if (typeof gaTracker !== 'function') {
-        console.warn(" -> The function '" + gaTrackerName + "' does not exist in the global scope");
-      }
+      /* Send an event to Google Analytics 4. The event is sent only if the
+      Google tag was loaded with gtag.js; otherwise it is simply not tracked. */
+      var sendEvent = function (name, params) {
+        params = params || {};
+        params.page_path = window.location.pathname;
+        if (typeof window.gtag === 'function')
+          window.gtag('event', name, params);
+      };
 
       /* Debug flag, set to true to log useful messages */
       var debugMode = parseInt (this_js_script.attr('debug'));
@@ -114,11 +122,6 @@ jQuery(document).ready(function($) {
       var timeThreshold = this_js_script.attr('timeThreshold');
       if (timeThreshold === undefined)
         timeThreshold = 60;
-
-      /* Seconds required to read the content */
-      var customDimension = this_js_script.attr('customDimension');
-      if (customDimension === undefined)
-        customDimension = false;
 
       /* How often to track user location in ms */
       var callBackTime = 100;
@@ -136,6 +139,7 @@ jQuery(document).ready(function($) {
       var startTime = new Date();
       var beginning = startTime.getTime();
       var totalTime = 0;
+      var currentTime, scrollStart, timeToScroll, contentScrollEnd, timeToContentEnd, end;
 
       /* Get some information about the current page */
       var pageTitle = document.title;
@@ -143,7 +147,7 @@ jQuery(document).ready(function($) {
       var documentLength = $(document).height();
 
       /* First analytics action: send an event telling GA that the article has loaded */
-      gaTracker('send', 'event', 'Reading', 'ArticleLoaded', pagePath, {'nonInteraction': 1});
+      sendEvent('article_loaded');
       if (debugMode)
         console.log(' -> ArticleLoaded event sent');
 
@@ -344,7 +348,7 @@ jQuery(document).ready(function($) {
         }
 
         console.warn(" -> Content type could not be identified properly, will use " + content.name);
-        gaTracker('send', 'event', 'Reading', 'ContentGuessed', pagePath, {'nonInteraction': 1});
+        sendEvent('content_guessed');
         
       } // content identification
 
@@ -372,7 +376,7 @@ jQuery(document).ready(function($) {
       /* Check that the content is longer than the pixel threshold */
       if (contentLength < pixelThreshold) {
         console.warn(" -> Content too short or threshold too large for '" + content.name + "'");
-        gaTracker('send', 'event', 'Reading', 'ContentTooShort', pagePath, {'nonInteraction': 1});
+        sendEvent('content_too_short');
       }
 
       /* Print some useful info */
@@ -422,7 +426,7 @@ jQuery(document).ready(function($) {
           scrollStart = currentTime.getTime();
           timeToScroll = Math.round((scrollStart - beginning) / 1000);
 
-          gaTracker('send', 'event', 'Reading', 'StartReading', pagePath, timeToScroll, {'metric1' : timeToScroll});
+          sendEvent('start_reading', {'time_to_scroll': timeToScroll});
           if (debugMode)
             console.log(' -> Started reading (' + timeToScroll + 's)');
         }
@@ -443,36 +447,17 @@ jQuery(document).ready(function($) {
 
           /* If the user reached the bottom of the content in less than a minute,
           flag him/her as a scanner. Otherwise, flag him/her as a Reader, and
-          fire a ContentRead event. */
-          if (timeToContentEnd < timeThreshold) {
+          fire a content_read event. */
+          var readingBehaviour = timeToContentEnd < timeThreshold ? 'Scanner' : 'Reader';
 
-            if (debugMode)
-              console.log(' -> End of content section ('+timeToContentEnd+'s), you are a scanner :-(');
+          if (readingBehaviour === 'Reader')
+            sendEvent('content_read', {'time_to_content_end': timeToContentEnd});
 
-            /* Set custom dimension to 'Scanner' */
-            if (customDimension && customDimension>0) {
-              gaTracker('set', 'dimension' + customDimension, 'Scanner');
-              if (debugMode)
-                console.log(' -> Set custom dimension ' + customDimension + ' to \'Scanner\'');
-            }
-          }
-          else {
-
-            /* Fire a ContentRead event */
-            gaTracker('send', 'event', 'Reading', 'ContentRead', pagePath, timeToContentEnd);
-            if (debugMode)
-              console.log(' -> End of content section ('+timeToContentEnd+'s), you are a reader :-)');
-
-            /* Set custom dimension to 'Reader' */
-            if (customDimension && customDimension>0) {
-              gaTracker('set', 'dimension' + customDimension, 'Reader');
-              if (debugMode)
-                console.log(' -> Set custom dimension ' + customDimension + ' to \'Reader\'');
-            }
-          }
+          if (debugMode)
+            console.log(' -> End of content section (' + timeToContentEnd + 's), you are a ' + readingBehaviour);
 
           /* In both cases, tell GA that the user reached the bottom of the content */
-          gaTracker('send', 'event', 'Reading', 'ContentBottom', pagePath, timeToContentEnd, {'metric2' : timeToContentEnd});
+          sendEvent('content_bottom', {'time_to_content_end': timeToContentEnd, 'reading_behaviour': readingBehaviour});
 
         }
 
@@ -490,7 +475,7 @@ jQuery(document).ready(function($) {
           end = currentTime.getTime();
           totalTime = Math.round((end - scrollStart) / 1000);
 
-          gaTracker('send', 'event', 'Reading', 'PageBottom', pagePath, totalTime, {'metric3' : totalTime});
+          sendEvent('page_bottom', {'total_time': totalTime});
           if (debugMode)
             console.log(' -> Bottom of page (' + totalTime + 's)');
         }
@@ -507,7 +492,7 @@ jQuery(document).ready(function($) {
         timer = setTimeout(trackLocation, callBackTime);
       });
 
-    }); // $(window).load
-  }); // $(document).imagesLoaded
+    })();
+  }); // whenLoaded
 }); // jQuery(document).ready
 

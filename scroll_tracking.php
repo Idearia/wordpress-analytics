@@ -16,10 +16,8 @@
 
     /* Extract the scroll tracking options from the database */
     $options = wpan_get_options ();
-    $ga_tracker = isset ( $options ['tracker_name'] ) ? $options ['tracker_name'] : '';
     $pixel_threshold = isset ( $options['pixel_threshold'] ) ? $options['pixel_threshold'] : '';
     $time_threshold = isset ( $options['time_threshold'] ) ? $options['time_threshold'] : '';
-    $custom_dimension_scroll_tracking = isset ( $options['custom_dimension_scroll_tracking'] ) ? $options['custom_dimension_scroll_tracking'] : '';
     $debug = isset ( $options['debug'] ) ? $options['debug'] : '';
 
     /* Script path & url */
@@ -31,18 +29,11 @@
     version (see http://stackoverflow.com/a/14536240/2972183) */
     $script_versioned = $script_url . '?ver=' . filemtime($script_path);
 
-    /* Load the imagesLoaded javascript library to ensure that scroll
-    tracking works properly with image-rich pages.
-    TODO: we should use wp_enqueue() here. */
-    echo "<script src='https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.js' defer='defer'></script>\n";
-
     /* Load the script.
     TODO: we should use wp_enqueue() here. */
     echo "<script src='$script_versioned' "
-          . "gaTracker='$ga_tracker' "
           . "timeThreshold='$time_threshold' "
           . "pixelThreshold='$pixel_threshold' "
-          . "customDimension='$custom_dimension_scroll_tracking' "
           . "debug='$debug' "
           . "defer='defer'"
           . "> "

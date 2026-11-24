@@ -1,5 +1,5 @@
 /**
- * Javascript for use with Universal Google Analytics (GA) that tracks
+ * Javascript for use with Google Analytics 4 (GA4) that tracks
  * clicks on phone numbers within a webpage.
  *
  * To be tracked, the phone numbers must be in the following markup:
@@ -30,19 +30,6 @@ jQuery(document).ready(function($) {
   that end with the filename of this file */
   var this_js_script = $('script[src*=call_tracking\\.js]');
 
-  /* Parse the Google Analytics tracker name */
-  var gaTrackerName = this_js_script.attr('gaTracker');
-  if (gaTrackerName === undefined) {
-    console.warn(" -> The 'gaTracker' argument was not found, using 'ga'");
-    gaTrackerName = 'ga'
-  }
-  
-  /* Check whether the tracker exists */
-  var gaTracker = window[gaTrackerName];
-  if (typeof gaTracker !== 'function') {
-    console.warn(" -> The function '" + gaTrackerName + "' does not exist in the global scope");
-  }
-  
   /* Debug flag, set to true to log useful messages */
   var debugMode = parseInt (this_js_script.attr('debug'));
   if (debugMode === undefined)
@@ -162,7 +149,10 @@ jQuery(document).ready(function($) {
     /* Send the event, attaching phone number & page information. Do so only
     if the user hasn't already clicked on the phone number before. */
     if (numberOfClicks == 1) {
-      gaTracker('send', 'event', 'Contact', strippedPhoneNumber, pagePath);
+      /* The event is sent only if the Google tag was loaded with gtag.js; if
+      it is missing (ex. no measurement ID) the click is simply not tracked */
+      if (typeof window.gtag === 'function')
+        window.gtag('event', 'phone_click', {'link_url': strippedPhoneNumber, 'page_path': pagePath});
       if (debugMode)
         console.log(' -> Sent click event for ' + phoneNumber + ' (-> ' + strippedPhoneNumber + ')');
     }
