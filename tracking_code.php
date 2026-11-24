@@ -63,7 +63,7 @@ function wpan_tracking_code() {
 		// as an empty function, lest a Javascript error stops the rest of the
 		// user's script (ex. a Facebook Pixel in the same script tag)
 		$legacy_tracker = isset( $options ['tracker_name'] ) && $options ['tracker_name'] ? $options ['tracker_name'] : 'ga';
-		if ( preg_match( '/^[A-Za-z_$][A-Za-z0-9_$]*$/', $legacy_tracker ) && false !== strpos( $options ['custom_code'], $legacy_tracker . '(' ) ) {
+		if ( preg_match( '/^[A-Za-z_$][A-Za-z0-9_$]*$/', $legacy_tracker ) && preg_match( '/' . preg_quote( $legacy_tracker, '/' ) . '\s*\(/', $options ['custom_code'] ) ) {
 			echo "<script> window['$legacy_tracker'] = window['$legacy_tracker'] || function(){}; </script>\n"; // phpcs:ignore
 		}
 		echo wpan_php_eval( $options ['custom_code'] ); // phpcs:ignore

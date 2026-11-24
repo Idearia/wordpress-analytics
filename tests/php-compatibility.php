@@ -232,6 +232,9 @@ check_same(false, has($head, "window['ga']"), 'No legacy stub when custom code d
 ob_start();
 wpan_ga4_admin_notices();
 check_same('', ob_get_clean(), 'No notice when GA4 is configured');
+$spaced = $legacy_options;
+$spaced['wpan:custom_code']['custom_code'] = "<script>ga ('set', 'x', 1);</script>";
+check_same(true, has(render_head($spaced), "window['ga'] = window['ga'] || function(){};"), 'Legacy tracker stub with a space before the parenthesis');
 
 // Content grouping: category and content type are sent with the pageview.
 $wpan_test_is_single = true;
