@@ -477,7 +477,7 @@
     - name: id of the field
     - desc: long description of the option controlled by the field
     - value: value of the input field
-    - type: type of input field, ex. text, textarea, checkbox...
+    - type: type of input field, ex. text, number, select, checkbox, code...
     - attributes: HTML attributes for the input field; no need to escape them
     - section: the section array containing the field
     - option_vals: the current values of all fields, including those in other sections */
@@ -711,117 +711,6 @@
   }
 
 
-  /**
-   * Display a menu page as a list of sections.
-   *
-   * Takes as only argument a $menu element of a $wpan_menu_structure.
-   */
-
-  function wpan_display_listed_menu_page( $menu='' ) {
-
-    /* Get the current active menu */
-    if ( '' == $menu ) {
-      global $wpan_current_menu;
-      $menu = $wpan_current_menu;
-    }
-
-    /* Each section shall have its own tab */
-    $sections = $menu['sections'];
-
-    /* Intercept the calls to add_settings_error() in wpan_sanitize_options(),
-    and complain if the options are wrong. Otherwise show a nice "Settings
-    saved" notice */
-    settings_errors ();
-
-    ?>
-
-    <div class="wrap">
-
-        <?php /* Show menu page title */ ?>
-        <h2 class='wpan_menu_title'> <?php echo $GLOBALS['title']; ?></h2>
-
-        <?php /* Show menu page description */ ?>
-        <?php if ( isset( $menu['desc'] ) ): ?>
-        <p class='wpan_menu_description'><?php   echo $menu['desc']; ?></p>
-        <?php endif; ?>
-
-      <form action="options.php" method="POST">
-
-        <?php
-
-          /* Prints out all the settings sections that belong to the active tab */
-          foreach ($sections as $section) {
-            if ( $section['visible'] ) {
-              settings_fields( $section['group'] );
-              do_settings_sections( $section['page'] );
-            }
-          }
-
-          submit_button();
-
-        ?>
-
-      </form>
-    </div>
-
-    <?php
-
-  }
-
-
-  // ==================================================================================
-  // =                               Section templates                                =
-  // ==================================================================================
-
-  /**
-   * Load the syntax highlighting library for the "Custom code" section.
-   **/
-
-  add_action( 'wpan_action_display_custom_code_section', 'wpan_load_syntax_highlighting', 10, 3 );
-
-  function wpan_load_syntax_highlighting ( $section, $menu, $args ) {
-
-    if ( ! defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) ) {
-
-      define( "WPAN_CODEMIRROR_DIR", WPAN_PLUGIN_DIR . 'vendor/codemirror/' );
-      define( "WPAN_CODEMIRROR_URL", WPAN_PLUGIN_URL . 'vendor/codemirror/' );
-
-      if ( ! file_exists( WPAN_CODEMIRROR_DIR ) ) {
-
-        wpan_debug( "Could not find syntax highlighting library; folder " . WPAN_CODEMIRROR_DIR . " could not be found." );
-
-        return false;
-      
-      }
-      
-      /* Load from the CodeMirror library all the scripts needed to
-      have PHP syntax highlighting */
-      ?>
-
-<link rel="stylesheet" href=<?php echo WPAN_CODEMIRROR_URL.'lib/codemirror.css'; ?>>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'lib/codemirror.js'; ?>></script>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'addon/edit/matchbrackets.js'; ?>></script>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/htmlmixed/htmlmixed.js'; ?>></script>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/xml/xml.js'; ?>></script>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/javascript/javascript.js'; ?>></script>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/css/css.js'; ?>></script>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/clike/clike.js'; ?>></script>
-<script src=<?php echo WPAN_CODEMIRROR_URL.'mode/php/php.js'; ?>></script>
-
-      <?php
-     
-      define( "WPAN_SYNTAX_HIGHLIGHTING_LOADED", true );
-      
-      wpan_debug( "Syntax highlighting library loaded." );
- 
-    }
-
-    return true;
-
-  }
-
-
-
   // ==================================================================================
   // =                             Input field templates                              =
   // ==================================================================================
@@ -900,36 +789,10 @@
 
 
   /**
-   * Display a multi-line input field (<textarea>).
-   */
-  function wpan_display_textarea_field ( $args ) {
-
-    /* Create a textarea input */
-    printf(
-        '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
-        esc_attr( $args['db_key'] ),
-        esc_attr( $args['name'] ),
-        esc_textarea( $args['value'] ),
-        esc_attr( $args['rows'] ),
-        esc_attr( $args['cols'] ),
-        esc_attr( $args['placeholder'] )
-    );
-  }
-
-
-
-  /**
    * Display a multi-line input field meant to insert PHP & HTML code.
-   *
-   * If available, we use the great CodeMirror library to enable syntax
-   * highlighting. Otherwise, we use the standard <textarea> input
-   * element.
-   *
-   * CodeMirror can be found at https://codemirror.net.
    */
   function wpan_display_code_field ( $args ) {
 
-    /* Show a simple textarea input */
     printf(
         '<textarea name="%1$s[%2$s]" id="%2$s" rows="%4$s" cols="%5$s" placeholder="%6$s">%3$s</textarea>',
         esc_attr( $args['db_key'] ),
@@ -940,22 +803,4 @@
         esc_attr( $args['attributes']['placeholder'] )
     );
 
-    if ( defined( 'WPAN_SYNTAX_HIGHLIGHTING_LOADED' ) && WPAN_SYNTAX_HIGHLIGHTING_LOADED ) {
-
-    ?>
-
-<script>
-var myCodeMirror = CodeMirror.fromTextArea(document.getElementById('custom_code'), {
-    mode:  "php",
-    smartIndent: true,
-    lineNumbers: true,
-});
-// myCodeMirror.setSize(500, 300);
-</script>
-
-    <?php
-
-    }
-
   }
-

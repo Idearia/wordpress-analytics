@@ -36,7 +36,8 @@
  * admin as custom metrics (the times) and as a custom dimension
  * (reading_behaviour).
  *
- * The events are sent only if the Google tag was loaded with gtag.js.
+ * The events are sent with gtag.js or, if Google Analytics 4 is loaded by
+ * Google Tag Manager, pushed to the dataLayer.
  *
  * The pixel and time thresholds can be customized by specifying the
  * pixelThreshold and timeThreshold attributes in the script tag,
@@ -99,14 +100,9 @@ jQuery(document).ready(function($) {
       that end with the filename of this file */
       var this_js_script = $('script[src*=scroll_tracking\\.js]');
 
-      /* Send an event to Google Analytics 4. The event is sent only if the
-      Google tag was loaded with gtag.js; otherwise it is simply not tracked. */
-      var sendEvent = function (name, params) {
-        params = params || {};
-        params.page_path = window.location.pathname;
-        if (typeof window.gtag === 'function')
-          window.gtag('event', name, params);
-      };
+      /* Function that sends an event to Google Analytics 4, defined in the
+      head of the page by WordPress Analytics */
+      var sendEvent = window.wpanSendEvent;
 
       /* Debug flag, set to true to log useful messages */
       var debugMode = parseInt (this_js_script.attr('debug'));
@@ -142,8 +138,6 @@ jQuery(document).ready(function($) {
       var currentTime, scrollStart, timeToScroll, contentScrollEnd, timeToContentEnd, end;
 
       /* Get some information about the current page */
-      var pageTitle = document.title;
-      var pagePath = window.location.pathname;
       var documentLength = $(document).height();
 
       /* First analytics action: send an event telling GA that the article has loaded */
