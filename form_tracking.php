@@ -292,7 +292,9 @@ function wpan_send_payment_done( $entry, $feed, $transaction_id, $amount ) {
 function wpan_ga4_build_form_event( $entry, $form, $extra_params = [] ) {
 
 	$source_url = isset( $entry['source_url'] ) ? (string) $entry['source_url'] : '';
-	$post_id    = isset( $entry['post_id'] ) && $entry['post_id'] ? (int) $entry['post_id'] : ( $source_url ? url_to_postid( $source_url ) : 0 );
+	// Page containing the form. Do not use $entry['post_id']: it is the post
+	// created by the form, if any, not the page of the form.
+	$post_id = ! empty( $entry['source_id'] ) ? (int) $entry['source_id'] : ( $source_url ? url_to_postid( $source_url ) : 0 );
 
 	$params = [
 		'form_id'    => isset( $form['id'] ) ? (string) $form['id'] : ( isset( $entry['form_id'] ) ? (string) $entry['form_id'] : '' ),

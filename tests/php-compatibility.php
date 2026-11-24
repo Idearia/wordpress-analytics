@@ -334,7 +334,7 @@ $form_options = [
     'wpan:general_settings' => ['measurement_id' => 'G-TEST123', 'api_secret' => 'sEcr3t_-', 'form_tracking' => '1'],
     'wpan:form_tracking' => ['wait_for_form_payment' => '1'],
 ];
-$entry = ['id' => 5, 'form_id' => 3, 'source_url' => 'https://example.test/sub/contatti/?utm=1', 'currency' => 'EUR'];
+$entry = ['id' => 5, 'form_id' => 3, 'post_id' => 99, 'source_url' => 'https://example.test/sub/contatti/?utm=1', 'currency' => 'EUR'];
 $form = ['id' => 3, 'title' => 'Richiesta "info" & preventivo'];
 $_COOKIE = ['_ga' => 'GA1.1.11.22', '_ga_TEST123' => 'GS2.1.s33$o1'];
 
