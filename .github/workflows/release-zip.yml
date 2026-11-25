@@ -1,0 +1,38 @@
+name: Installable zip
+
+# Builds wordpress-analytics.zip (top folder "wordpress-analytics", ready for
+# Plugins > Add New > Upload Plugin) and publishes it in the "php-latest" release.
+
+on:
+  push:
+    branches: [php]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Build the zip
+        run: |
+          git archive --format=zip --prefix=wordpress-analytics/ -o wordpress-analytics.zip HEAD
+          unzip -l wordpress-analytics.zip
+          unzip -p wordpress-analytics.zip wordpress-analytics/wordpress-analytics.php | grep -m1 'Version:'
+      - name: Publish the zip in the php-latest release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete php-latest --cleanup-tag --yes || true
+          gh release create php-latest wordpress-analytics.zip \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "WordPress Analytics (php branch)" \
+            --notes "Installable zip built from commit $GITHUB_SHA of the php branch. Upload it from Plugins > Add New > Upload Plugin."

@@ -1,0 +1,9 @@
+# File esclusi dalla zip installabile (git archive)
+/.github export-ignore
+/.vscode export-ignore
+/tests export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/phpcs.xml export-ignore
+/composer.json export-ignore
+/composer.lock export-ignore
