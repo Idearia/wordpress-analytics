@@ -18,6 +18,8 @@ Universal Analytics (analytics.js) is not supported anymore: Google stopped proc
 
 **You do not need SSH**, Composer or a console. The plugin has no `vendor/` folder and runs on PHP **7.2 to 8.5**.
 
+**Download the installable zip: [wordpress-analytics.zip](https://github.com/Idearia/wordpress-analytics/releases/download/php-latest/wordpress-analytics.zip)** (always built from the latest commit of this branch). Do not use the *Download ZIP* button of GitHub: its folder has a different name and WordPress would install it as a separate plugin.
+
 1. Replace the plugin folder `wp-content/plugins/wordpress-analytics` with the new one, in any of these ways:
    * upload the zip from *Plugins > Add New > Upload Plugin* and choose *Replace current with uploaded*;
    * or overwrite the folder via FTP/SFTP or the file manager of your hosting.
